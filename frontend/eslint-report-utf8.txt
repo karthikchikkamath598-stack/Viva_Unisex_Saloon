@@ -1,0 +1,97 @@
+﻿
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\components\SplitBeforeAfter.jsx
+  68:6  warning  React Hook useEffect has missing dependencies: 'handleMouseMove' and 'handleTouchMove'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\context\AuthContext.jsx
+    4:14  error  Fast refresh only works when a file only exports components. Move your React context(s) to a separate file                                                                                                                                                                                                                                                                                                                                                     react-refresh/only-export-components
+   13:5   error  Error: This value cannot be modified
+
+Modifying a variable defined outside a component or hook is not allowed. Consider using an effect.
+
+  11 |   // Configure axios default header
+  12 |   if (token) {
+> 13 |     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ value cannot be modified
+  14 |   } else {
+  15 |     delete axios.defaults.headers.common['Authorization'];
+  16 |   }     react-hooks/immutability
+   15:12  error  Error: This value cannot be modified
+
+Modifying a variable defined outside a component or hook is not allowed. Consider using an effect.
+
+  13 |     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  14 |   } else {
+> 15 |     delete axios.defaults.headers.common['Authorization'];
+     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ value cannot be modified
+  16 |   }
+  17 |
+  18 |   const API_URL = 'http://localhost:5000/api';  react-hooks/immutability
+  116:14  error  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                no-unused-vars
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\pages\AdminDashboard.jsx
+  27:10  error    'stylists' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+  70:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  68 |
+  69 |   useEffect(() => {
+> 70 |     fetchAdminData();
+     |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  71 |   }, []);
+  72 |
+  73 |   // Update Booking Status  react-hooks/set-state-in-effect
+  71:6   warning  React Hook useEffect has a missing dependency: 'fetchAdminData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\pages\Booking.jsx
+   26:10  error    'createdBooking' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  no-unused-vars
+   58:6   warning  React Hook useEffect has a missing dependency: 'navigate'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+   75:16  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 no-unused-vars
+   83:6   warning  React Hook useEffect has missing dependencies: 'API_URL', 'fallbackServices', and 'fallbackStylists'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+  100:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+   98 |       if (preselectedIds.length > 0) {
+   99 |         const found = services.filter(s => preselectedIds.includes(s._id));
+> 100 |         setSelectedServices(found);
+      |         ^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  101 |       }
+  102 |     }
+  103 |   }, [services, searchParams]);  react-hooks/set-state-in-effect
+  120:16  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 no-unused-vars
+  128:6   warning  React Hook useEffect has missing dependencies: 'API_URL' and 'defaultSlots'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 react-hooks/exhaustive-deps
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\pages\Catalog.jsx
+  41:16  error    'err' is defined but never used                                                                                                      no-unused-vars
+  49:6   warning  React Hook useEffect has missing dependencies: 'API_URL' and 'fallbackServices'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\pages\Contact.jsx
+  15:10  error  'error' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\pages\Dashboard.jsx
+  10:9  error    'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                    no-unused-vars
+  39:6  warning  React Hook useEffect has a missing dependency: 'API_URL'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\pages\Gallery.jsx
+  33:16  error    'err' is defined but never used                                                                                                     no-unused-vars
+  40:6   warning  React Hook useEffect has missing dependencies: 'API_URL' and 'fallbackGallery'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\pages\Login.jsx
+   37:6   warning  React Hook useEffect has missing dependencies: 'navigate' and 'redirect'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  101:14  error    'err' is defined but never used                                                                                               no-unused-vars
+  132:14  error    'err' is defined but never used                                                                                               no-unused-vars
+
+C:\PROJECTS\VIVA_SALOON_AG\frontend\src\pages\Services.jsx
+  45:6  warning  React Hook useEffect has missing dependencies: 'API_URL' and 'fallbackServices'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Γ£û 26 problems (16 errors, 10 warnings)
+
