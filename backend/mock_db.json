@@ -28,6 +28,17 @@
         "service_3"
       ],
       "createdAt": "2026-05-27T18:57:33.793Z"
+    },
+    {
+      "_id": "user_g_1779972384989",
+      "name": "Google Developer Client",
+      "email": "millmaker@gmail.com",
+      "googleId": "g_1779972384935",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-05-28T12:46:24.989Z"
     }
   ],
   "services": [
