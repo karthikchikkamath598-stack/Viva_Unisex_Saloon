@@ -30,7 +30,7 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get('redirect') || '';
   const navigate = useNavigate();
-  const { user, login, register, loginWithGoogle } = useContext(AuthContext);
+  const { user, login, register, loginWithGoogle, API_URL } = useContext(AuthContext);
 
   // Mode States
   const [isLoginMode, setIsLoginMode] = useState(true);
@@ -193,7 +193,7 @@ const Login = () => {
     setSubmitting(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const res = await fetch(`${API_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -220,7 +220,7 @@ const Login = () => {
     setSubmitting(true);
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
+      const res = await fetch(`${API_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword })

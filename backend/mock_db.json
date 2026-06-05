@@ -75,6 +75,78 @@
       "membershipPoints": 0,
       "savedServices": [],
       "createdAt": "2026-06-05T05:44:49.506Z"
+    },
+    {
+      "_id": "user_1780643112196",
+      "name": "Tester",
+      "email": "tester123@example.com",
+      "password": "$2a$10$wDcKzJUqRGXOWni8UBiwOenLsJoIF/mIde2SG8pLjNrYo/GInb0V.",
+      "phone": "",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-06-05T07:05:12.197Z"
+    },
+    {
+      "_id": "user_1780643193064",
+      "name": "Test User",
+      "email": "signup_test_unique_new@vivasalon.com",
+      "password": "$2a$10$/6SAEW55qpU6yYlgDgKNk.hDE3TE0AUbbzkCtVZjoxMt/K1sZf9qW",
+      "phone": "9876543210",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 160,
+      "savedServices": [],
+      "createdAt": "2026-06-05T07:06:33.064Z"
+    },
+    {
+      "_id": "user_1780643294617",
+      "name": "Test User No Phone",
+      "email": "signup_nophone@vivasalon.com",
+      "password": "$2a$10$d4zi1Yl0AXAuS1weou0rp.sKdXEIdzAxyWtNj/qJeP5s483pJaCn.",
+      "phone": "",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-06-05T07:08:14.617Z"
+    },
+    {
+      "_id": "user_1780643422933",
+      "name": "Short Password User",
+      "email": "shortpwd@vivasalon.com",
+      "password": "$2a$10$j46SZyL9Gq6EIMxppkh3perOkMnECYGQFgFF1NcRRHmuvRcYVZYK2",
+      "phone": "9876543210",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-06-05T07:10:22.933Z"
+    },
+    {
+      "_id": "user_1780643852558",
+      "name": "Tester Mixed",
+      "email": "testermixedcase@example.com",
+      "password": "$2a$10$PDKc3zxNE.nG8yZ/sZxO1uM0zFCditLa6FMtQ2uYSCLXSYHMnBQzW",
+      "phone": "",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-06-05T07:17:32.558Z"
+    },
+    {
+      "_id": "user_1780644063726",
+      "name": "surya ",
+      "email": "boddusurya14@gmail.com",
+      "password": "$2a$10$BxkVMbHi6gaHs8tBHcooLeH2py/QZM471QdLjMImwc/noxw2JgQfG",
+      "phone": "+91 7702324001",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-06-05T07:21:03.726Z"
     }
   ],
   "services": [
@@ -2310,6 +2382,20 @@
       "status": "confirmed",
       "notes": "Need extra steam service.",
       "createdAt": "2026-05-27T18:57:33.794Z"
+    },
+    {
+      "_id": "appointment_1780643646838",
+      "user": "user_1780643193064",
+      "services": [
+        "service_1"
+      ],
+      "stylist": "stylist_1",
+      "date": "2026-06-06",
+      "timeSlot": "10:00 AM",
+      "status": "pending",
+      "notes": "",
+      "totalAmount": 1600,
+      "createdAt": "2026-06-05T07:14:06.838Z"
     }
   ],
   "stylists": [

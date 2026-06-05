@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data.user);
         return { success: true };
       }
+      return { success: false, message: res.data.message || 'Invalid email or password.' };
     } catch (err) {
       return {
         success: false,
@@ -72,6 +73,7 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data.user);
         return { success: true };
       }
+      return { success: false, message: res.data.message || 'Registration failed.' };
     } catch (err) {
       return {
         success: false,
@@ -89,6 +91,7 @@ export const AuthProvider = ({ children }) => {
         setUser(res.data.user);
         return { success: true };
       }
+      return { success: false, message: res.data.message || 'Google authentication failed.' };
     } catch (err) {
       return {
         success: false,

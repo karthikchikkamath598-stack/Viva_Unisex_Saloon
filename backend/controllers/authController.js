@@ -18,9 +18,14 @@ exports.registerUser = async (req, res, next) => {
   const { name, email, password, phone } = req.body;
 
   try {
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+
     if (getIsMock()) {
       const db = readMockDB();
-      const userExists = db.users.find(u => u.email === email.toLowerCase());
+      const userExists = db.users.find(u => u.email === normalizedEmail);
 
       if (userExists) {
         return res.status(400).json({ success: false, message: 'User already exists' });
@@ -30,7 +35,7 @@ exports.registerUser = async (req, res, next) => {
       const newUser = {
         _id: 'user_' + Date.now(),
         name,
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         password: hashedPassword,
         phone: phone || '',
         role: 'customer',
@@ -58,12 +63,12 @@ exports.registerUser = async (req, res, next) => {
         }
       });
     } else {
-      const userExists = await User.findOne({ email });
+      const userExists = await User.findOne({ email: normalizedEmail });
       if (userExists) {
         return res.status(400).json({ success: false, message: 'User already exists' });
       }
 
-      const user = await User.create({ name, email, password, phone });
+      const user = await User.create({ name, email: normalizedEmail, password, phone });
       res.status(201).json({
         success: true,
         token: generateToken(user._id),
@@ -89,9 +94,14 @@ exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+
     if (getIsMock()) {
       const db = readMockDB();
-      const user = db.users.find(u => u.email === email.toLowerCase());
+      const user = db.users.find(u => u.email === normalizedEmail);
 
       if (user && (await bcrypt.compare(password, user.password))) {
         res.json({
@@ -112,7 +122,7 @@ exports.loginUser = async (req, res, next) => {
         res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
     } else {
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ email: normalizedEmail });
       if (user && (await user.comparePassword(password))) {
         res.json({
           success: true,
@@ -142,15 +152,20 @@ exports.googleLogin = async (req, res, next) => {
   const { email, name, googleId, imageUrl } = req.body;
 
   try {
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+
     if (getIsMock()) {
       const db = readMockDB();
-      let user = db.users.find(u => u.email === email.toLowerCase() || u.googleId === googleId);
+      let user = db.users.find(u => u.email === normalizedEmail || u.googleId === googleId);
 
       if (!user) {
         user = {
           _id: 'user_g_' + Date.now(),
           name,
-          email: email.toLowerCase(),
+          email: normalizedEmail,
           googleId,
           role: 'customer',
           membershipType: 'Regular',
@@ -176,12 +191,12 @@ exports.googleLogin = async (req, res, next) => {
         }
       });
     } else {
-      let user = await User.findOne({ $or: [{ email }, { googleId }] });
+      let user = await User.findOne({ $or: [{ email: normalizedEmail }, { googleId }] });
 
       if (!user) {
         user = await User.create({
           name,
-          email,
+          email: normalizedEmail,
           googleId,
           role: 'customer',
           membershipType: 'Regular'
@@ -212,12 +227,17 @@ exports.forgotPassword = async (req, res, next) => {
   const { email } = req.body;
 
   try {
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+
     let userExists = false;
     if (getIsMock()) {
       const db = readMockDB();
-      userExists = db.users.some(u => u.email === email.toLowerCase());
+      userExists = db.users.some(u => u.email === normalizedEmail);
     } else {
-      userExists = await User.findOne({ email });
+      userExists = await User.findOne({ email: normalizedEmail });
     }
 
     if (!userExists) {
@@ -226,9 +246,9 @@ exports.forgotPassword = async (req, res, next) => {
 
     // Generate a 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    otpStore.set(email.toLowerCase(), { otp, expires: Date.now() + 600000 }); // 10 minutes expiry
+    otpStore.set(normalizedEmail, { otp, expires: Date.now() + 600000 }); // 10 minutes expiry
 
-    console.log(`[VIVA OTP SYSTEM] Generated OTP ${otp} for email ${email}`);
+    console.log(`[VIVA OTP SYSTEM] Generated OTP ${otp} for email ${normalizedEmail}`);
 
     res.json({
       success: true,
@@ -245,7 +265,12 @@ exports.verifyOtp = async (req, res, next) => {
   const { email, otp, newPassword } = req.body;
 
   try {
-    const record = otpStore.get(email.toLowerCase());
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const record = otpStore.get(normalizedEmail);
 
     // Allow a development back-door OTP of "123456" for simpler testing
     const isValidDevOtp = otp === '123456';
@@ -256,11 +281,11 @@ exports.verifyOtp = async (req, res, next) => {
     }
 
     // Clear OTP
-    otpStore.delete(email.toLowerCase());
+    otpStore.delete(normalizedEmail);
 
     if (getIsMock()) {
       const db = readMockDB();
-      const userIndex = db.users.findIndex(u => u.email === email.toLowerCase());
+      const userIndex = db.users.findIndex(u => u.email === normalizedEmail);
       if (userIndex === -1) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
@@ -268,7 +293,7 @@ exports.verifyOtp = async (req, res, next) => {
       db.users[userIndex].password = await bcrypt.hash(newPassword, 10);
       writeMockDB(db);
     } else {
-      const user = await User.findOne({ email });
+      const user = await User.findOne({ email: normalizedEmail });
       if (!user) {
         return res.status(404).json({ success: false, message: 'User not found' });
       }
