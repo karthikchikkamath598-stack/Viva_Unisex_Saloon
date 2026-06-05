@@ -10,7 +10,7 @@ const defaultStylists = [
     name: "Alex Gold",
     specialty: "Hair Styling & Color Design",
     rating: 5.0,
-    imageUrl: "https://images.unsplash.com/photo-1605497746445-97d1b0a9ead2?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
     skills: ["Balayage", "Keratin Therapy", "Creative Haircuts", "Barbering"],
     availability: {
       days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
@@ -22,7 +22,7 @@ const defaultStylists = [
     name: "Sophia Rose",
     specialty: "Bridal Makeup & Premium Facials",
     rating: 4.9,
-    imageUrl: "https://images.unsplash.com/photo-1595959183075-c1d09e519826?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=600",
     skills: ["Airbrush Makeup", "Hydra Facial", "Nail Extensions", "Skin Hydration"],
     availability: {
       days: ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
@@ -34,7 +34,7 @@ const defaultStylists = [
     name: "Marcus Beard",
     specialty: "Men's Luxury Grooming & Styling",
     rating: 4.8,
-    imageUrl: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
     skills: ["Beard Sculpting", "Classic Shaves", "Taper Fades", "Head Massages"],
     availability: {
       days: ["Monday", "Tuesday", "Thursday", "Friday", "Saturday"],
@@ -100,7 +100,7 @@ const defaultServices = [
     description: "Premium smooth restoration therapy to remove frizz, lock moisture, and add golden metallic shine.",
     price: 3499,
     duration: 120,
-    imageUrl: "https://images.unsplash.com/photo-1620331702289-448a044618a4?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
     rating: 4.9,
     reviewsCount: 76,
     isPopular: true
@@ -112,7 +112,7 @@ const defaultServices = [
     description: "Complete full hair coloring shade transformation with organic pigments and setting glazes.",
     price: 2999,
     duration: 90,
-    imageUrl: "https://images.unsplash.com/photo-1595959183075-c1d09e519826?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=600",
     rating: 4.8,
     reviewsCount: 65,
     isPopular: false
@@ -150,7 +150,7 @@ const defaultServices = [
     description: "Precision razor beard sculpt, hot towels, massage, and essential grooming oil styling.",
     price: 299,
     duration: 25,
-    imageUrl: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
     rating: 4.8,
     reviewsCount: 92,
     isPopular: false
@@ -186,12 +186,12 @@ const defaultServices = [
 const defaultGallery = [
   {
     _id: "gallery_1",
-    imageUrl: "https://images.unsplash.com/photo-1620331702289-448a044618a4?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
     category: "Hair Color",
     title: "Signature Gold Highlights",
     isBeforeAfter: true,
     beforeImageUrl: "https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?auto=format&fit=crop&q=80&w=600",
-    afterImageUrl: "https://images.unsplash.com/photo-1620331702289-448a044618a4?auto=format&fit=crop&q=80&w=600"
+    afterImageUrl: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600"
   },
   {
     _id: "gallery_2",
@@ -204,14 +204,14 @@ const defaultGallery = [
   },
   {
     _id: "gallery_3",
-    imageUrl: "https://images.unsplash.com/photo-1605497746445-97d1b0a9ead2?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
     category: "Hairstyling",
     title: "Sleek Fade & Beard Trim",
     isBeforeAfter: false
   },
   {
     _id: "gallery_4",
-    imageUrl: "https://images.unsplash.com/photo-1632345031435-8797b2d58045?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
     category: "Nails",
     title: "Chrome French Extensions",
     isBeforeAfter: false

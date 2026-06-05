@@ -5,8 +5,10 @@
   --color-gold: #D4A437;
   --color-gold-light: #F5C65D;
   --color-gold-dark: #AA7C11;
-  --color-black: #080809;       /* Rich luxury matte black */
-  --color-charcoal: #121417;    /* Sleek luxury charcoal */
+  --color-black: #080809;
+  /* Rich luxury matte black */
+  --color-charcoal: #121417;
+  /* Sleek luxury charcoal */
   --color-gray: #8F9194;
   --color-white: #F5F6F8;
 }
@@ -19,8 +21,8 @@ body {
   font-family: 'Poppins', 'Inter', sans-serif;
   background-color: var(--color-black);
   /* Luxury subtle background image overlay */
-  background-image: linear-gradient(180deg, rgba(8, 8, 9, 0.94) 0%, rgba(8, 8, 9, 0.97) 50%, rgba(8, 8, 9, 0.99) 100%), 
-                    url('https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1600');
+  background-image: linear-gradient(180deg, rgba(8, 8, 9, 0.95) 0%, rgba(8, 8, 9, 0.98) 50%, rgba(8, 8, 9, 1.0) 100%),
+    url('https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1600');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -33,7 +35,13 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6, .font-heading {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-heading {
   font-family: 'Playfair Display', 'Cinzel', serif;
   letter-spacing: 0.08em;
 }
@@ -43,14 +51,17 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--color-black);
 }
+
 ::-webkit-scrollbar-thumb {
   background: #1f2329;
   border-radius: 3px;
   transition: background 0.3s ease;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-gold);
 }
@@ -60,6 +71,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -184,6 +196,7 @@ h1, h2, h3, h4, h5, h6, .font-heading {
     filter: blur(5px);
     transform: scale(0.98);
   }
+
   100% {
     letter-spacing: 0.12em;
     opacity: 1;
@@ -194,4 +207,156 @@ h1, h2, h3, h4, h5, h6, .font-heading {
 
 .animate-tracking-in {
   animation: tracking-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Lenis Smooth Scroll Configuration */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Luxury Gold Shine Text */
+@keyframes gold-shine {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.gold-shine-text {
+  background: linear-gradient(90deg,
+      #AA7C11 0%,
+      #D4A437 25%,
+      #FFFFFF 50%,
+      #D4A437 75%,
+      #AA7C11 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-shine 6s linear infinite;
+}
+
+/* Premium Glass Reflection Sweep */
+.glass-reflection {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-reflection::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -100%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(to right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0) 100%);
+  transform: rotate(30deg);
+  transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.glass-reflection:hover::after {
+  left: 150%;
+}
+
+/* Premium Floating Input Label System */
+.floating-label-group {
+  position: relative;
+  width: 100%;
+}
+
+.floating-label-group label {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  color: var(--color-gray);
+  font-size: 0.875rem;
+  background-color: transparent;
+  padding: 0 0.25rem;
+}
+
+/* Float label to top when focused or having content */
+.floating-label-group input:focus~label,
+.floating-label-group input:not(:placeholder-shown)~label,
+.floating-label-group textarea:focus~label,
+.floating-label-group textarea:not(:placeholder-shown)~label,
+.floating-label-group select:focus~label,
+.floating-label-group select:not([value=""])~label,
+.floating-label-group select:valid~label {
+  top: 0;
+  left: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-gold);
+  background-color: #0f1114;
+  /* Match input background */
+  transform: translateY(-50%);
+  letter-spacing: 0.05em;
+}
+
+/* Morphing Input Focus Glow */
+.viva-input-morphed {
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(212, 164, 55, 0.15);
+  background-color: #0f1114;
+  color: var(--color-white);
+  border-radius: 4px;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.viva-input-morphed:focus {
+  border-color: var(--color-gold);
+  background-color: #121417;
+  box-shadow: 0 0 15px rgba(212, 164, 55, 0.15);
+  outline: none;
+}
+
+/* Dynamic Input Shake Validation Error */
+@keyframes validation-shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+.animate-shake {
+  animation: validation-shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }

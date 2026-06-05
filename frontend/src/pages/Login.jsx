@@ -1,8 +1,30 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight } from 'react-icons/fi';
+import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiX } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
+
+const hasGoogleClientId = !!import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+const decodeJwt = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      window.atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+};
+
+const generateGoogleId = (name) => {
+  return 'g_' + name.toLowerCase().replace(/[^a-z]/g, '') + '_' + Date.now();
+};
 
 const Login = () => {
   const [searchParams] = useSearchParams();
@@ -10,12 +32,12 @@ const Login = () => {
   const navigate = useNavigate();
   const { user, login, register, loginWithGoogle } = useContext(AuthContext);
 
-  // States
+  // Mode States
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [isForgotMode, setIsForgotMode] = useState(false);
   const [isOtpStep, setIsOtpStep] = useState(false);
 
-  // Fields
+  // Form Fields
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +50,18 @@ const Login = () => {
   const [info, setInfo] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Google Login UI States
+  const [showMockGoogleModal, setShowMockGoogleModal] = useState(false);
+  const [showCustomGoogleInput, setShowCustomGoogleInput] = useState(false);
+  const [customGoogleEmail, setCustomGoogleEmail] = useState('');
+  const [customGoogleName, setCustomGoogleName] = useState('');
+
+  const mockGoogleAccounts = [
+    { name: 'Diana Prince', email: 'user@vivasalon.com' },
+    { name: 'Elena Rostova', email: 'elena.rostova@gmail.com' },
+    { name: 'Alexander Sterling', email: 'alex.sterling@gmail.com' },
+  ];
+
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
@@ -36,6 +70,62 @@ const Login = () => {
     }
   }, [user, navigate, redirect]);
 
+  // Load Google SDK if client ID is configured
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) return;
+
+    const handleCredentialResponse = async (response) => {
+      setError('');
+      setSubmitting(true);
+      try {
+        const decoded = decodeJwt(response.credential);
+        if (decoded) {
+          const payload = {
+            email: decoded.email,
+            name: decoded.name,
+            googleId: decoded.sub,
+            imageUrl: decoded.picture
+          };
+          const res = await loginWithGoogle(payload);
+          if (!res.success) {
+            setError(res.message);
+          }
+        } else {
+          setError('Google token decoding failed.');
+        }
+      } catch {
+        setError('Google authentication failed.');
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      window.google?.accounts.id.initialize({
+        client_id: clientId,
+        callback: handleCredentialResponse,
+      });
+      window.google?.accounts.id.renderButton(
+        document.getElementById('google-signin-btn-container'),
+        { theme: 'outline', size: 'large', width: '100%' }
+      );
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      try {
+        document.body.removeChild(script);
+      } catch {
+        // ignore if already removed
+      }
+    };
+  }, [loginWithGoogle]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -43,14 +133,12 @@ const Login = () => {
     setSubmitting(true);
 
     if (isLoginMode) {
-      // Login
       const res = await login(email, password);
       setSubmitting(false);
       if (!res.success) {
         setError(res.message);
       }
     } else {
-      // Register
       const res = await register(name, email, password, phone);
       setSubmitting(false);
       if (!res.success) {
@@ -59,24 +147,45 @@ const Login = () => {
     }
   };
 
-  // Simulated Google Sign in
-  const handleGoogleSignIn = async () => {
+  const handleMockGoogleSelect = async (account) => {
+    setShowMockGoogleModal(false);
     setError('');
     setSubmitting(true);
-    const mockGooglePayload = {
-      email: email || `google.user.${Date.now()}@gmail.com`,
-      name: name || 'Google Developer Client',
-      googleId: 'g_' + Date.now()
+
+    const payload = {
+      email: account.email,
+      name: account.name,
+      googleId: generateGoogleId(account.name),
+      imageUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${account.name}`
     };
 
-    const res = await loginWithGoogle(mockGooglePayload);
+    const res = await loginWithGoogle(payload);
     setSubmitting(false);
     if (!res.success) {
       setError(res.message);
     }
   };
 
-  // Forgot password OTP trigger
+  const handleCustomGoogleSubmit = async (e) => {
+    e.preventDefault();
+    setShowMockGoogleModal(false);
+    setError('');
+    setSubmitting(true);
+
+    const payload = {
+      email: customGoogleEmail,
+      name: customGoogleName,
+      googleId: generateGoogleId(customGoogleName),
+      imageUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${customGoogleName}`
+    };
+
+    const res = await loginWithGoogle(payload);
+    setSubmitting(false);
+    if (!res.success) {
+      setError(res.message);
+    }
+  };
+
   const triggerForgotEmail = async (e) => {
     e.preventDefault();
     setError('');
@@ -84,8 +193,7 @@ const Login = () => {
     setSubmitting(true);
 
     try {
-      // For simplicity/mock bypass, call endpoint
-      const res = await fetch(`http://localhost:5000/api/auth/forgot-password`, {
+      const res = await fetch('http://localhost:5000/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -98,15 +206,13 @@ const Login = () => {
       } else {
         setError(data.message || 'Error checking email.');
       }
-    } catch (err) {
-      console.error('Forgot password OTP check failed:', err);
+    } catch {
       setSubmitting(false);
       setInfo('Server connectivity error. Proceeding with mockup bypass (Use OTP code: 123456).');
       setIsOtpStep(true);
     }
   };
 
-  // OTP Verification trigger
   const triggerResetPassword = async (e) => {
     e.preventDefault();
     setError('');
@@ -114,7 +220,7 @@ const Login = () => {
     setSubmitting(true);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/verify-otp`, {
+      const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword })
@@ -130,128 +236,135 @@ const Login = () => {
       } else {
         setError(data.message || 'OTP verification failed.');
       }
-    } catch (err) {
-      console.error('Reset password verification failed:', err);
+    } catch {
       setSubmitting(false);
       setError('Connection failed. Please double check that the server is started.');
     }
   };
 
   return (
-    <div className="pt-24 min-h-screen bg-viva-black flex items-center justify-center px-6 pb-16">
-      <div className="max-w-md w-full bg-viva-charcoal border border-viva-gold/10 p-8 sm:p-10 rounded-lg shadow-gold-glow relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-[3px] bg-gold-gradient" />
-
-        {/* Brand headers */}
+    <div className="pt-28 min-h-screen bg-zinc-950 flex items-center justify-center px-4 pb-16">
+      <div className="max-w-md w-full bg-zinc-900 border border-zinc-800/80 p-8 sm:p-10 rounded-2xl shadow-xl transition-all duration-300">
+        
+        {/* Brand Header */}
         <div className="text-center mb-8">
-          <span className="font-heading text-xl font-bold tracking-[0.25em] text-viva-gold uppercase">VIVA Lounge</span>
-          <h2 className="text-sm font-body text-viva-gray tracking-widest mt-1 uppercase">
+          <span className="font-heading text-xl font-bold tracking-widest text-viva-gold uppercase">VIVA Lounge</span>
+          <h2 className="text-xs font-body text-zinc-400 mt-2 tracking-wide uppercase">
             {isForgotMode 
-              ? 'Restore Ritual Portal' 
+              ? 'Reset Password' 
               : isLoginMode 
-                ? 'Sign In to Your Ritual' 
-                : 'Register Membership'}
+                ? 'Sign In to Your Account' 
+                : 'Create an Account'}
           </h2>
         </div>
 
         {error && (
-          <div className="bg-red-950/40 border border-red-800 text-red-200 p-4 rounded text-xs mb-6 text-center animate-pulse">
+          <div className="bg-red-950/30 border border-red-900/40 text-red-200 p-3 rounded-lg text-xs mb-5 text-center">
             {error}
           </div>
         )}
 
         {info && (
-          <div className="bg-viva-black/80 border border-viva-gold/30 text-viva-gold p-4 rounded text-xs mb-6 text-center">
+          <div className="bg-zinc-950 border border-viva-gold/30 text-viva-gold p-3 rounded-lg text-xs mb-5 text-center">
             {info}
           </div>
         )}
 
-        {/* FORGOT PASSWORD FORM FLOW */}
+        {/* FORGOT PASSWORD FORM */}
         {isForgotMode ? (
           !isOtpStep ? (
-            <form onSubmit={triggerForgotEmail} className="space-y-6">
-              <p className="text-xs text-viva-gray leading-relaxed font-light text-center">
-                Provide your registered email address below. We will send a 6-digit OTP to reset your access code.
+            <form onSubmit={triggerForgotEmail} className="space-y-5">
+              <p className="text-xs text-zinc-400 leading-relaxed text-center">
+                Enter your email address and we will send a 6-digit OTP code to reset your password.
               </p>
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-2">Email Address</label>
+              
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">Email Address</label>
                 <div className="relative">
-                  <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-viva-gray" />
+                  <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="viva-input w-full pl-10"
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold focus:ring-1 focus:ring-viva-gold/20 text-white text-sm rounded-lg py-2.5 pl-10 pr-4 outline-none transition-all duration-200"
                     placeholder="name@email.com"
                     required
                   />
                 </div>
               </div>
+
               <button
                 type="submit"
                 disabled={submitting}
-                className="gold-shimmer text-viva-black font-body font-bold text-xs uppercase tracking-widest py-3 px-8 rounded shadow-gold-glow w-full hover:scale-[1.02] transition-transform"
+                className="w-full bg-viva-gold hover:bg-viva-gold/90 text-zinc-950 font-semibold text-xs uppercase tracking-widest py-3 px-6 rounded-lg transition-all duration-250 disabled:opacity-50"
               >
-                Transmit OTP
+                Send OTP Code
               </button>
+
               <button
                 type="button"
-                onClick={() => setIsForgotMode(false)}
-                className="text-xs text-viva-gold hover:underline block mx-auto text-center"
+                onClick={() => {
+                  setIsForgotMode(false);
+                  setError('');
+                  setInfo('');
+                }}
+                className="text-xs text-zinc-400 hover:text-viva-gold block mx-auto text-center font-medium transition-colors"
               >
-                Return to Login
+                Back to Sign In
               </button>
             </form>
           ) : (
-            <form onSubmit={triggerResetPassword} className="space-y-6">
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-2">Enter OTP Code</label>
+            <form onSubmit={triggerResetPassword} className="space-y-5">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">Enter OTP Code</label>
                 <input
                   type="text"
                   maxLength={6}
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  className="viva-input text-center font-mono text-lg tracking-widest"
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold focus:ring-1 focus:ring-viva-gold/20 text-white text-center font-mono text-lg tracking-widest rounded-lg py-2.5 outline-none transition-all duration-200"
                   placeholder="123456"
                   required
                 />
               </div>
-              <div className="flex flex-col">
-                <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-2">Choose New Password</label>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">New Password</label>
                 <div className="relative">
-                  <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-viva-gray" />
+                  <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm" />
                   <input
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="viva-input w-full pl-10"
-                    placeholder="Min 6 characters..."
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold focus:ring-1 focus:ring-viva-gold/20 text-white text-sm rounded-lg py-2.5 pl-10 pr-4 outline-none transition-all duration-200"
+                    placeholder="Min. 6 characters"
                     required
                   />
                 </div>
               </div>
+
               <button
                 type="submit"
                 disabled={submitting}
-                className="gold-shimmer text-viva-black font-body font-bold text-xs uppercase tracking-widest py-3 px-8 rounded shadow-gold-glow w-full"
+                className="w-full bg-viva-gold hover:bg-viva-gold/90 text-zinc-950 font-semibold text-xs uppercase tracking-widest py-3 px-6 rounded-lg transition-all duration-250 disabled:opacity-50"
               >
                 Reset Password
               </button>
             </form>
           )
         ) : (
-          /* REGULAR LOGIN / REGISTER FORMS */
+          /* LOGIN / SIGNUP FORMS */
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLoginMode && (
-              <div className="flex flex-col animate-fade-in">
-                <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-2">Full Name</label>
+              <div className="space-y-1 animate-fade-in">
+                <label className="text-xs font-semibold text-zinc-400">Full Name</label>
                 <div className="relative">
-                  <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-viva-gray" />
+                  <FiUser className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="viva-input w-full pl-10"
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold focus:ring-1 focus:ring-viva-gold/20 text-white text-sm rounded-lg py-2.5 pl-10 pr-4 outline-none transition-all duration-200"
                     placeholder="Alexander Sterling"
                     required
                   />
@@ -259,24 +372,24 @@ const Login = () => {
               </div>
             )}
 
-            <div className="flex flex-col">
-              <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-2">Email Address</label>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-zinc-400">Email Address</label>
               <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-viva-gray" />
+                <FiMail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="viva-input w-full pl-10"
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold focus:ring-1 focus:ring-viva-gold/20 text-white text-sm rounded-lg py-2.5 pl-10 pr-4 outline-none transition-all duration-200"
                   placeholder="name@email.com"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex flex-col">
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-[9px] uppercase tracking-widest text-viva-gray">Access Password</label>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-semibold text-zinc-400">Password</label>
                 {isLoginMode && (
                   <button
                     type="button"
@@ -285,36 +398,36 @@ const Login = () => {
                       setError('');
                       setInfo('');
                     }}
-                    className="text-[9px] text-viva-gold hover:underline uppercase tracking-wider"
+                    className="text-[11px] text-zinc-400 hover:text-viva-gold transition-colors font-medium"
                   >
-                    Forgot?
+                    Forgot Password?
                   </button>
                 )}
               </div>
               <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-viva-gray" />
+                <FiLock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="viva-input w-full pl-10"
-                  placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold focus:ring-1 focus:ring-viva-gold/20 text-white text-sm rounded-lg py-2.5 pl-10 pr-4 outline-none transition-all duration-200"
+                  placeholder="••••••••"
                   required
                 />
               </div>
             </div>
 
             {!isLoginMode && (
-              <div className="flex flex-col animate-fade-in">
-                <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-2">Contact Phone</label>
+              <div className="space-y-1 animate-fade-in">
+                <label className="text-xs font-semibold text-zinc-400">Phone (Optional)</label>
                 <div className="relative">
-                  <FiPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-viva-gray" />
+                  <FiPhone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm" />
                   <input
                     type="text"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="viva-input w-full pl-10"
-                    placeholder="+1 (555) 0100"
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold focus:ring-1 focus:ring-viva-gold/20 text-white text-sm rounded-lg py-2.5 pl-10 pr-4 outline-none transition-all duration-200"
+                    placeholder="+91 XXXXX XXXXX"
                   />
                 </div>
               </div>
@@ -323,31 +436,35 @@ const Login = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="gold-shimmer text-viva-black font-body font-bold text-xs uppercase tracking-widest py-3 px-8 rounded shadow-gold-glow w-full flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform duration-300 mt-2"
+              className="w-full bg-viva-gold hover:bg-viva-gold/90 text-zinc-950 font-bold text-xs uppercase tracking-widest py-3 px-6 rounded-lg transition-all duration-250 flex items-center justify-center gap-2 hover:scale-[1.01] disabled:opacity-50 disabled:hover:scale-100"
             >
-              <span>{isLoginMode ? 'Access Lounge' : 'Create Account'}</span>
+              <span>{isLoginMode ? 'Sign In' : 'Create Account'}</span>
               <FiArrowRight />
             </button>
 
-            <div className="relative flex py-2 items-center">
-              <div className="flex-grow border-t border-white/5"></div>
-              <span className="flex-shrink mx-4 text-[9px] uppercase text-viva-gray tracking-widest">or bypass with</span>
-              <div className="flex-grow border-t border-white/5"></div>
+            <div className="relative flex py-3 items-center">
+              <div className="flex-grow border-t border-zinc-800"></div>
+              <span className="flex-shrink mx-4 text-[10px] uppercase text-zinc-500 tracking-wider">or</span>
+              <div className="flex-grow border-t border-zinc-800"></div>
             </div>
 
-            {/* Google Sign-in bypass button */}
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="w-full py-3 bg-viva-black hover:bg-white/5 border border-white/10 rounded flex items-center justify-center gap-3 text-xs tracking-wider font-semibold transition-colors"
-            >
-              <FcGoogle className="text-lg" />
-              <span>Simulated Google Login</span>
-            </button>
+            {/* Google Sign-in action button */}
+            {hasGoogleClientId ? (
+              <div id="google-signin-btn-container" className="w-full min-h-[40px] flex justify-center"></div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowMockGoogleModal(true)}
+                className="w-full py-2.5 bg-zinc-950 hover:bg-zinc-800/40 border border-zinc-800 hover:border-zinc-700 rounded-lg flex items-center justify-center gap-3 text-xs font-semibold transition-all duration-200"
+              >
+                <FcGoogle className="text-lg" />
+                <span className="text-zinc-300">Continue with Google</span>
+              </button>
+            )}
 
-            {/* Mode switch */}
-            <p className="text-center text-xs text-viva-gray mt-6">
-              {isLoginMode ? "Don't possess a VIP access profile?" : "Already possess an access profile?"}{' '}
+            {/* Mode toggler link */}
+            <p className="text-center text-xs text-zinc-400 mt-6">
+              {isLoginMode ? "Don't have an account?" : "Already have an account?"}{' '}
               <button
                 type="button"
                 onClick={() => {
@@ -355,14 +472,108 @@ const Login = () => {
                   setError('');
                   setInfo('');
                 }}
-                className="text-viva-gold hover:underline font-semibold"
+                className="text-viva-gold hover:text-viva-gold/80 hover:underline font-semibold transition-colors ml-1"
               >
-                {isLoginMode ? 'Register Member' : 'Sign In'}
+                {isLoginMode ? 'Sign Up' : 'Sign In'}
               </button>
             </p>
           </form>
         )}
       </div>
+
+      {/* MOCK GOOGLE ACCOUNT CHOOSER DIALOG */}
+      {showMockGoogleModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative transition-all duration-300">
+            <button 
+              onClick={() => {
+                setShowMockGoogleModal(false);
+                setShowCustomGoogleInput(false);
+              }}
+              className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+            >
+              <FiX className="text-lg" />
+            </button>
+            
+            <div className="text-center mb-6">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
+                <FcGoogle className="text-2xl" />
+              </div>
+              <h3 className="font-heading text-lg font-bold text-white tracking-wide">Choose an account</h3>
+              <p className="text-xs text-zinc-400 mt-1">to continue to <span className="text-viva-gold font-semibold">VIVA Unisex Salon</span></p>
+            </div>
+
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+              {mockGoogleAccounts.map((acc) => (
+                <button
+                  key={acc.email}
+                  onClick={() => handleMockGoogleSelect(acc)}
+                  className="w-full flex items-center gap-3 p-3 bg-zinc-950 hover:bg-zinc-800/40 border border-zinc-800/60 hover:border-zinc-700 rounded-xl text-left transition-all duration-200"
+                >
+                  <div className="w-8 h-8 rounded-full bg-viva-gold/10 border border-viva-gold/25 flex items-center justify-center text-viva-gold text-xs font-bold uppercase">
+                    {acc.name.charAt(0)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-white truncate">{acc.name}</p>
+                    <p className="text-[10px] text-zinc-400 truncate">{acc.email}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-4 border-t border-zinc-855 pt-4">
+              {!showCustomGoogleInput ? (
+                <button
+                  onClick={() => setShowCustomGoogleInput(true)}
+                  className="w-full py-2 bg-transparent hover:bg-white/5 border border-zinc-855 hover:border-zinc-700 rounded-xl text-[11px] font-semibold text-zinc-400 hover:text-zinc-300 tracking-wider transition-colors text-center"
+                >
+                  Use another account
+                </button>
+              ) : (
+                <form onSubmit={handleCustomGoogleSubmit} className="space-y-3">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-wider text-zinc-400">Google Email</label>
+                    <input
+                      type="email"
+                      value={customGoogleEmail}
+                      onChange={(e) => setCustomGoogleEmail(e.target.value)}
+                      placeholder="name@gmail.com"
+                      required
+                      className="w-full mt-1 bg-zinc-950 border border-zinc-855 focus:border-viva-gold text-white text-xs rounded-lg py-2 px-3 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-wider text-zinc-400">Google Name</label>
+                    <input
+                      type="text"
+                      value={customGoogleName}
+                      onChange={(e) => setCustomGoogleName(e.target.value)}
+                      placeholder="Alexander Sterling"
+                      required
+                      className="w-full mt-1 bg-zinc-950 border border-zinc-855 focus:border-viva-gold text-white text-xs rounded-lg py-2 px-3 outline-none"
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomGoogleInput(false)}
+                      className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-800 rounded-lg text-[10px] font-bold text-zinc-400"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 py-2 bg-viva-gold hover:bg-viva-gold/90 text-zinc-950 font-bold text-[10px] uppercase tracking-wider rounded-lg"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

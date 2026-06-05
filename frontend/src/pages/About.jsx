@@ -8,21 +8,21 @@ const About = () => {
     {
       name: "Alex Gold",
       role: "Lead Master Stylist",
-      image: "https://images.unsplash.com/photo-1605497746445-97d1b0a9ead2?auto=format&fit=crop&q=80&w=400",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
       description: "12+ years sculpting runway hair designs and high-fashion coloring systems.",
       specialty: "Balayage & Couture Cut"
     },
     {
       name: "Sophia Rose",
       role: "Bridal Artistry Director",
-      image: "https://images.unsplash.com/photo-1595959183075-c1d09e519826?auto=format&fit=crop&q=80&w=400",
+      image: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=400",
       description: "Elite visual makeup artist specializing in HD airbrush draping and organic skin therapies.",
       specialty: "Bridal Makeup & Facials"
     },
     {
       name: "Marcus Beard",
       role: "Signature Grooming Expert",
-      image: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&q=80&w=400",
+      image: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=400",
       description: "Classic barbershop technique combined with modern beard detailing and hot steam relaxation.",
       specialty: "Razor Detailing & Shaves"
     },
@@ -61,15 +61,13 @@ const About = () => {
   // Motion variants
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: 0.15 },
+    animate: { opacity: 1, y: 0 },
     transition: { duration: 0.8, ease: "easeOut" }
   };
 
   const staggerContainer = {
     initial: {},
-    whileInView: { transition: { staggerChildren: 0.15 } },
-    viewport: { once: true, amount: 0.1 }
+    animate: { transition: { staggerChildren: 0.15 } }
   };
 
   return (
@@ -164,8 +162,7 @@ const About = () => {
         <motion.div 
           variants={staggerContainer}
           initial="initial"
-          whileInView="whileInView"
-          viewport={{ once: true, amount: 0.1 }}
+          animate="animate"
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {team.map((member, index) => (

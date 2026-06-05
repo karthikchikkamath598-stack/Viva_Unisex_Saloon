@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AuthContext } from '../context/AuthContext';
-import { FiCheckCircle, FiUser, FiCalendar, FiClock, FiChevronRight, FiChevronLeft } from 'react-icons/fi';
+import { FiUser, FiCalendar, FiClock, FiChevronRight, FiChevronLeft } from 'react-icons/fi';
+import SplitText from '../components/SplitText';
 
 // Fallback data
 const fallbackStylists = [
-  { _id: "stylist_1", name: "Alex Gold", specialty: "Hair Styling & Color Design", rating: 5.0, imageUrl: "https://images.unsplash.com/photo-1605497746445-97d1b0a9ead2?auto=format&fit=crop&q=80&w=400" },
-  { _id: "stylist_2", name: "Sophia Rose", specialty: "Bridal Makeup & Premium Facials", rating: 4.9, imageUrl: "https://images.unsplash.com/photo-1595959183075-c1d09e519826?auto=format&fit=crop&q=80&w=400" },
-  { _id: "stylist_3", name: "Marcus Beard", specialty: "Men's Luxury Grooming & Styling", rating: 4.8, imageUrl: "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&q=80&w=400" },
+  { _id: "stylist_1", name: "Alex Gold", specialty: "Hair Styling & Color Design", rating: 5.0, imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400" },
+  { _id: "stylist_2", name: "Sophia Rose", specialty: "Bridal Makeup & Premium Facials", rating: 4.9, imageUrl: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=400" },
+  { _id: "stylist_3", name: "Marcus Beard", specialty: "Men's Luxury Grooming & Styling", rating: 4.8, imageUrl: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=400" },
   { _id: "stylist_4", name: "Chloe Nails", specialty: "Nail Art & Luxury Spa Services", rating: 4.7, imageUrl: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=400" }
 ];
 
@@ -27,6 +29,66 @@ const defaultSlots = [
   "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", 
   "05:00 PM", "06:00 PM", "07:00 PM"
 ];
+
+// Success Gold Confetti Animation
+const SuccessParticles = () => {
+  const [particles, setParticles] = useState([]);
+  
+  useEffect(() => {
+    const tempParticles = Array.from({ length: 70 }).map((_, i) => ({
+      id: i,
+      x: 50,
+      y: 40,
+      angle: Math.random() * Math.PI * 2,
+      speed: Math.random() * 6 + 2.5,
+      size: Math.random() * 5 + 1.5,
+      opacity: 1,
+      color: Math.random() > 0.45 
+        ? '#D4A437' 
+        : Math.random() > 0.4 
+          ? '#F5C65D' 
+          : '#FFFFFF'
+    }));
+    setParticles(tempParticles);
+    
+    const interval = setInterval(() => {
+      setParticles(prev => 
+        prev.map(p => {
+          const nextOpacity = p.opacity - 0.015;
+          return {
+            ...p,
+            x: p.x + Math.cos(p.angle) * p.speed * 0.45,
+            y: p.y + Math.sin(p.angle) * p.speed * 0.45 + 1.2, // gravity pulling down
+            opacity: nextOpacity > 0 ? nextOpacity : 0
+          };
+        }).filter(p => p.opacity > 0)
+      );
+    }, 16);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden z-[2]">
+      {particles.map(p => (
+        <div 
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+            opacity: p.opacity,
+            backgroundColor: p.color,
+            transform: 'translate(-50%, -50%)',
+            boxShadow: '0 0 10px rgba(212, 164, 55, 0.4)'
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 const Booking = () => {
   const [searchParams] = useSearchParams();
@@ -121,7 +183,6 @@ const Booking = () => {
         }
       } catch (err) {
         console.error('Error fetching slot records:', err);
-        // Fallback slots: set all as available
         setSlots(defaultSlots.map(s => ({ slot: s, isAvailable: true })));
       } finally {
         setSlotsLoading(false);
@@ -214,11 +275,45 @@ const Booking = () => {
 
   if (bookingSuccess) {
     return (
-      <div className="min-h-screen bg-viva-black flex items-center justify-center px-6">
-        <div className="max-w-md w-full bg-viva-charcoal border border-viva-gold/30 p-8 rounded-lg text-center shadow-gold-glow-lg animate-fade-in relative overflow-hidden">
+      <div className="min-h-screen bg-viva-black flex items-center justify-center px-6 relative">
+        {/* Confetti Sparkles explosion */}
+        <SuccessParticles />
+
+        <motion.div 
+          className="max-w-md w-full bg-viva-charcoal border border-viva-gold/30 p-8 rounded-lg text-center shadow-gold-glow-lg relative overflow-hidden z-10"
+          initial={{ scale: 0.9, opacity: 0, y: 30 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 180 }}
+        >
           <div className="absolute top-0 left-0 w-full h-1 bg-gold-gradient" />
           
-          <FiCheckCircle className="text-5xl text-viva-gold mx-auto mb-6 animate-bounce" />
+          {/* Animated Gold Checkmark Path */}
+          <div className="w-24 h-24 mx-auto mb-6">
+            <svg className="w-full h-full transform -rotate-9" viewBox="0 0 50 50">
+              <motion.circle 
+                cx="25" 
+                cy="25" 
+                r="21" 
+                stroke="#D4A437" 
+                strokeWidth="2.5" 
+                fill="none"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              />
+              <motion.path
+                d="M15 26 l7 7 l14 -14"
+                stroke="#D4A437"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
+              />
+            </svg>
+          </div>
           
           <h2 className="font-heading text-3xl font-bold uppercase tracking-widest text-viva-white mb-4">Ritual Scheduled</h2>
           <p className="text-sm text-viva-gray mb-8 leading-relaxed font-light">
@@ -238,7 +333,7 @@ const Booking = () => {
           >
             Open Dashboard
           </button>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -248,7 +343,9 @@ const Booking = () => {
       <div className="max-w-5xl mx-auto px-6">
         {/* Progress header */}
         <div className="mb-12 text-center">
-          <span className="text-viva-gold font-body text-xs uppercase tracking-[0.3em] font-semibold mb-3">Booking Engine</span>
+          <span className="text-viva-gold font-body text-xs uppercase tracking-[0.3em] font-semibold mb-3 block overflow-hidden">
+            <SplitText text="BOOKING ENGINE" type="char" />
+          </span>
           <h1 className="font-heading text-3xl sm:text-4xl font-bold tracking-widest uppercase mb-6">Schedule Your Makeover</h1>
           
           {/* Steps Navigator */}
@@ -278,14 +375,24 @@ const Booking = () => {
           </div>
         </div>
 
-        {error && (
-          <div className="bg-red-950/40 border border-red-800 text-red-200 p-4 rounded text-xs mb-8 text-center animate-pulse">
-            {error}
-          </div>
-        )}
+        {/* Morphing / Shaking Validation Alerts */}
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div 
+              key={error}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: [0, -8, 8, -6, 6, 0] }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.5 }}
+              className="bg-red-950/40 border border-red-800 text-red-200 p-4 rounded text-xs mb-8 text-center"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Wizard Steps Containers */}
-        <div className="bg-viva-charcoal border border-viva-gold/10 p-6 sm:p-10 rounded-lg shadow-gold-glow">
+        <div className="bg-viva-charcoal border border-viva-gold/10 p-6 sm:p-10 rounded-lg shadow-gold-glow relative">
           
           {/* STEP 1: Select Services */}
           {step === 1 && (
@@ -353,37 +460,43 @@ const Booking = () => {
               <h3 className="font-heading text-xl font-bold text-viva-gold uppercase tracking-wider mb-6">Select Date & Time</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
-                {/* Date Input */}
-                 <div className="flex flex-col">
-                  <label className="text-xs uppercase tracking-widest text-viva-gray mb-3 flex items-center gap-2"><FiCalendar /> Select Appointment Date</label>
-                  <input
-                    type="date"
-                    min={getMinDate()}
-                    value={selectedDate}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val) {
-                        const day = new Date(val).getUTCDay();
-                        if (day === 2) {
-                          setError('The salon is closed on Tuesdays. Please select another date.');
-                          setSelectedDate('');
-                          setSelectedSlot('');
-                          setSlots([]);
+                {/* Date Input with Floating Label */}
+                 <div className="flex flex-col justify-end pb-1.5">
+                  <div className="floating-label-group">
+                    <input
+                      type="date"
+                      min={getMinDate()}
+                      value={selectedDate}
+                      placeholder=" "
+                      id="appointment-date"
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          const day = new Date(val).getUTCDay();
+                          if (day === 2) {
+                            setError('The salon is closed on Tuesdays. Please select another date.');
+                            setSelectedDate('');
+                            setSelectedSlot('');
+                            setSlots([]);
+                          } else {
+                            setError('');
+                            setSelectedDate(val);
+                          }
                         } else {
-                          setError('');
-                          setSelectedDate(val);
+                          setSelectedDate('');
                         }
-                      } else {
-                        setSelectedDate('');
-                      }
-                    }}
-                    className="viva-input w-full cursor-pointer py-3"
-                  />
+                      }}
+                      className="viva-input-morphed w-full cursor-pointer pt-4.5 pb-3"
+                    />
+                    <label htmlFor="appointment-date" className="flex items-center gap-2">
+                      Select Appointment Date
+                    </label>
+                  </div>
                 </div>
 
                 {/* Slots Grid */}
                 <div className="flex flex-col">
-                  <label className="text-xs uppercase tracking-widest text-viva-gray mb-3 flex items-center gap-2"><FiClock /> Select Timeslot</label>
+                  <label className="text-xs uppercase tracking-widest text-viva-gray mb-3 flex items-center gap-2">Select Timeslot</label>
                   
                   {!selectedDate ? (
                     <div className="p-4 bg-viva-black/35 text-center text-xs text-viva-gray border border-white/5 rounded">
@@ -429,12 +542,10 @@ const Booking = () => {
                 {/* Details list */}
                 <div className="space-y-4 bg-viva-black/60 p-6 rounded border border-white/5">
                   <div className="flex items-center gap-3 text-xs pb-3 border-b border-white/5">
-                    <FiCalendar className="text-viva-gold" />
                     <span className="text-viva-gray">Schedule Date:</span>
                     <span className="text-viva-white font-bold ml-auto">{selectedDate}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs pb-3 border-b border-white/5">
-                    <FiClock className="text-viva-gold" />
                     <span className="text-viva-gray">Timeslot:</span>
                     <span className="text-viva-white font-bold ml-auto">{selectedSlot}</span>
                   </div>
@@ -444,7 +555,6 @@ const Booking = () => {
                     <span className="text-viva-gold font-bold ml-auto">{selectedStylist.name}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs pb-3 border-b border-white/5">
-                    <FiClock className="text-viva-gold" />
                     <span className="text-viva-gray">Duration Estimate:</span>
                     <span className="text-viva-white font-bold ml-auto">{totalDuration} Minutes</span>
                   </div>
@@ -454,17 +564,20 @@ const Booking = () => {
                   </div>
                 </div>
 
-                {/* Notes and Form */}
+                {/* Notes Floating Textarea */}
                 <div className="flex flex-col space-y-3">
-                  <label className="text-xs uppercase tracking-widest text-viva-gray">Bespoke Notes / Requirements</label>
-                  <textarea
-                    placeholder="E.g., Allergies to certain chemicals, specific styling preferences, hair history..."
-                    rows={4}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="viva-input w-full resize-none p-3"
-                  />
-                  <p className="text-[10px] text-viva-gray font-light">
+                  <div className="floating-label-group">
+                    <textarea
+                      placeholder=" "
+                      id="bespoke-notes"
+                      rows={5}
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="viva-input-morphed w-full resize-none pt-4 pb-3"
+                    />
+                    <label htmlFor="bespoke-notes">Bespoke Notes / Requirements</label>
+                  </div>
+                  <p className="text-[10px] text-viva-gray font-light mt-2">
                     * By scheduling this appointment, you unlock loyalty cashpoints on completion.
                   </p>
                 </div>
@@ -482,7 +595,7 @@ const Booking = () => {
                 <FiChevronLeft /> Back
               </button>
             ) : (
-              <div /> // dummy spot
+              <div />
             )}
 
             {step < 4 ? (

@@ -39,6 +39,42 @@
       "membershipPoints": 0,
       "savedServices": [],
       "createdAt": "2026-05-28T12:46:24.989Z"
+    },
+    {
+      "_id": "user_1780048749473",
+      "name": "Durga Prasad",
+      "email": "solodurga000@gmail.com",
+      "password": "$2a$10$MvJ6nkSfZ8qtZVVzwSpCBO2Dc5gSscBPIembD4P3NGi9O8SgPGj1O",
+      "phone": "9347581733",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-05-29T09:59:09.473Z"
+    },
+    {
+      "_id": "user_1780584450832",
+      "name": "Test User",
+      "email": "testuser_new@example.com",
+      "password": "$2a$10$cGS6RHTHBZlLAcDwopU6pe4zB9C8p/2jvmzbm0J4mT1VSiYTPToTm",
+      "phone": "1234567890",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-06-04T14:47:30.833Z"
+    },
+    {
+      "_id": "user_1780638289506",
+      "name": "Karthik",
+      "email": "karthikchikkamath598@gmail.com",
+      "password": "$2a$10$SKdjNl2wEAxXj7icpJ6VyeUtFzZD5jJ.QzcopnrX7qrgtIiHXM0cm",
+      "phone": "+91 9347581733",
+      "role": "customer",
+      "membershipType": "Regular",
+      "membershipPoints": 0,
+      "savedServices": [],
+      "createdAt": "2026-06-05T05:44:49.506Z"
     }
   ],
   "services": [
@@ -85,7 +121,7 @@
       "description": "Premium smooth restoration therapy to remove frizz, lock moisture, and add golden metallic shine.",
       "price": 3499,
       "duration": 120,
-      "imageUrl": "https://images.unsplash.com/photo-1620331702289-448a044618a4?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
       "rating": 4.9,
       "reviewsCount": 76,
       "isPopular": true
@@ -97,7 +133,7 @@
       "description": "Complete full hair coloring shade transformation with organic pigments and setting glazes.",
       "price": 2999,
       "duration": 90,
-      "imageUrl": "https://images.unsplash.com/photo-1595959183075-c1d09e519826?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=600",
       "rating": 4.8,
       "reviewsCount": 65,
       "isPopular": false
@@ -133,7 +169,7 @@
       "description": "Precision razor beard sculpt, hot towels, massage, and essential grooming oil styling.",
       "price": 299,
       "duration": 25,
-      "imageUrl": "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
       "rating": 4.8,
       "reviewsCount": 92,
       "isPopular": false
@@ -182,7 +218,7 @@
       "name": "Alex Gold",
       "specialty": "Hair Styling & Color Design",
       "rating": 5,
-      "imageUrl": "https://images.unsplash.com/photo-1605497746445-97d1b0a9ead2?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
       "skills": [
         "Balayage",
         "Keratin Therapy",
@@ -219,7 +255,7 @@
       "name": "Sophia Rose",
       "specialty": "Bridal Makeup & Premium Facials",
       "rating": 4.9,
-      "imageUrl": "https://images.unsplash.com/photo-1595959183075-c1d09e519826?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=600",
       "skills": [
         "Airbrush Makeup",
         "Hydra Facial",
@@ -253,7 +289,7 @@
       "name": "Marcus Beard",
       "specialty": "Men's Luxury Grooming & Styling",
       "rating": 4.8,
-      "imageUrl": "https://images.unsplash.com/photo-1621574539437-4b7cb63120b8?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
       "skills": [
         "Beard Sculpting",
         "Classic Shaves",
@@ -321,12 +357,12 @@
   "gallery": [
     {
       "_id": "gallery_1",
-      "imageUrl": "https://images.unsplash.com/photo-1620331702289-448a044618a4?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
       "category": "Hair Color",
       "title": "Signature Gold Highlights",
       "isBeforeAfter": true,
       "beforeImageUrl": "https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?auto=format&fit=crop&q=80&w=600",
-      "afterImageUrl": "https://images.unsplash.com/photo-1620331702289-448a044618a4?auto=format&fit=crop&q=80&w=600"
+      "afterImageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600"
     },
     {
       "_id": "gallery_2",
@@ -339,14 +375,14 @@
     },
     {
       "_id": "gallery_3",
-      "imageUrl": "https://images.unsplash.com/photo-1605497746445-97d1b0a9ead2?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
       "category": "Hairstyling",
       "title": "Sleek Fade & Beard Trim",
       "isBeforeAfter": false
     },
     {
       "_id": "gallery_4",
-      "imageUrl": "https://images.unsplash.com/photo-1632345031435-8797b2d58045?auto=format&fit=crop&q=80&w=600",
+      "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
       "category": "Nails",
       "title": "Chrome French Extensions",
       "isBeforeAfter": false
