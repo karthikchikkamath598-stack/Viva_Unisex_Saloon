@@ -22,7 +22,6 @@ const AdminDashboard = () => {
   // Data lists
   const [bookings, setBookings] = useState([]);
   const [services, setServices] = useState([]);
-  const [gallery, setGallery] = useState([]);
   const [offers, setOffers] = useState([]);
   
   // Loading states
@@ -32,9 +31,6 @@ const AdminDashboard = () => {
   const [showServiceForm, setShowServiceForm] = useState(false);
   const [newService, setNewService] = useState({ name: '', category: 'Hair Services', description: '', price: '', duration: '', imageUrl: '', isPopular: false });
   
-  const [showGalleryForm, setShowGalleryForm] = useState(false);
-  const [newGalleryItem, setNewGalleryItem] = useState({ title: '', category: 'Haircut', imageUrl: '', isBeforeAfter: false, beforeImageUrl: '', afterImageUrl: '' });
-
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [newOffer, setNewOffer] = useState({ title: '', description: '', discountCode: '', discountPercentage: '', expiryDate: '', bannerImageUrl: '' });
 
@@ -42,18 +38,16 @@ const AdminDashboard = () => {
   const fetchAdminData = useCallback(async () => {
     setLoading(true);
     try {
-      const [statsRes, appRes, srvRes, galRes, offRes] = await Promise.all([
+      const [statsRes, appRes, srvRes, offRes] = await Promise.all([
         axios.get(`${API_URL}/analytics`),
         axios.get(`${API_URL}/appointments/admin-bookings`),
         axios.get(`${API_URL}/services`),
-        axios.get(`${API_URL}/gallery`),
         axios.get(`${API_URL}/offers`)
       ]);
 
       if (statsRes.data.success) setStats(statsRes.data.stats);
       if (appRes.data.success) setBookings(appRes.data.appointments);
       if (srvRes.data.success) setServices(srvRes.data.services);
-      if (galRes.data.success) setGallery(galRes.data.gallery);
       if (offRes.data.success) setOffers(offRes.data.offers);
 
     } catch (err) {
@@ -119,33 +113,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // GALLERY CRUD
-  const handleAddGalleryItem = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(`${API_URL}/gallery`, newGalleryItem);
-      if (res.data.success) {
-        setGallery(prev => [res.data.galleryItem, ...prev]);
-        setShowGalleryForm(false);
-        setNewGalleryItem({ title: '', category: 'Haircut', imageUrl: '', isBeforeAfter: false, beforeImageUrl: '', afterImageUrl: '' });
-      }
-    } catch (err) {
-      alert('Error creating gallery item: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
-  const handleDeleteGalleryItem = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this gallery image?')) return;
-    try {
-      const res = await axios.delete(`${API_URL}/gallery/${id}`);
-      if (res.data.success) {
-        setGallery(prev => prev.filter(g => g._id !== id));
-      }
-    } catch (err) {
-      alert('Error deleting gallery item: ' + (err.response?.data?.message || err.message));
-    }
-  };
-
   // OFFERS CRUD
   const handleAddOffer = async (e) => {
     e.preventDefault();
@@ -197,7 +164,6 @@ const AdminDashboard = () => {
             { id: 'analytics', label: 'Analytics Report', icon: <FiTrendingUp /> },
             { id: 'bookings', label: 'Bookings Calendar', icon: <FiCalendar /> },
             { id: 'services', label: 'Services Manager', icon: <FiLayers /> },
-            { id: 'gallery', label: 'Gallery Lookbook', icon: <FiImage /> },
             { id: 'offers', label: 'Promos Planner', icon: <FiSettings /> }
           ].map(tab => (
             <button
@@ -542,146 +508,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
-
-            {/* TAB 4: GALLERY LOOKBOOK */}
-            {activeTab === 'gallery' && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="flex justify-between items-center bg-viva-charcoal border border-white/5 p-4 rounded-lg">
-                  <h3 className="font-heading text-lg font-bold uppercase tracking-wider text-viva-gold">Lookbook Assets</h3>
-                  <button 
-                    onClick={() => setShowGalleryForm(!showGalleryForm)}
-                    className="flex items-center gap-1.5 bg-viva-gold text-viva-black font-body font-bold text-xs uppercase tracking-widest px-4 py-2 rounded shadow-gold-glow"
-                  >
-                    <FiPlus /> Upload Photo
-                  </button>
-                </div>
-
-                {/* Add Photo Dialog */}
-                {showGalleryForm && (
-                  <form onSubmit={handleAddGalleryItem} className="bg-viva-charcoal border border-viva-gold/30 p-6 rounded-lg space-y-4 max-w-2xl">
-                    <h4 className="font-heading text-base font-bold text-viva-gold uppercase tracking-wider">New Lookbook Item</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="flex flex-col">
-                        <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-1.5">Photo Title</label>
-                        <input 
-                          type="text" 
-                          value={newGalleryItem.title} 
-                          onChange={(e) => setNewGalleryItem({ ...newGalleryItem, title: e.target.value })} 
-                          className="viva-input" 
-                          required 
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-1.5">Category</label>
-                        <select 
-                          value={newGalleryItem.category} 
-                          onChange={(e) => setNewGalleryItem({ ...newGalleryItem, category: e.target.value })} 
-                          className="viva-input cursor-pointer"
-                        >
-                          <option value="Haircut">Haircut</option>
-                          <option value="Hair Color">Hair Color</option>
-                          <option value="Bridal">Bridal</option>
-                          <option value="Nail Art">Nail Art</option>
-                          <option value="Spa">Spa</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col pt-2">
-                      <label className="flex items-center gap-2 text-xs text-viva-white cursor-pointer select-none">
-                        <input 
-                          type="checkbox" 
-                          checked={newGalleryItem.isBeforeAfter} 
-                          onChange={(e) => setNewGalleryItem({ ...newGalleryItem, isBeforeAfter: e.target.checked })} 
-                          className="w-4 h-4 accent-viva-gold cursor-pointer" 
-                        />
-                        <span>Enable Before & After comparison slider</span>
-                      </label>
-                    </div>
-
-                    {newGalleryItem.isBeforeAfter ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in">
-                        <div className="flex flex-col">
-                          <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-1.5">Before Image URL</label>
-                          <input 
-                            type="url" 
-                            value={newGalleryItem.beforeImageUrl} 
-                            onChange={(e) => setNewGalleryItem({ ...newGalleryItem, beforeImageUrl: e.target.value })} 
-                            className="viva-input" 
-                            required 
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-1.5">After Image URL</label>
-                          <input 
-                            type="url" 
-                            value={newGalleryItem.afterImageUrl} 
-                            onChange={(e) => setNewGalleryItem({ ...newGalleryItem, afterImageUrl: e.target.value })} 
-                            className="viva-input" 
-                            required 
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col">
-                        <label className="text-[9px] uppercase tracking-widest text-viva-gray mb-1.5">Single Photo URL</label>
-                        <input 
-                          type="url" 
-                          value={newGalleryItem.imageUrl} 
-                          onChange={(e) => setNewGalleryItem({ ...newGalleryItem, imageUrl: e.target.value })} 
-                          className="viva-input" 
-                          required 
-                        />
-                      </div>
-                    )}
-
-                    <div className="flex justify-end gap-3 pt-2">
-                      <button 
-                        type="button" 
-                        onClick={() => setShowGalleryForm(false)} 
-                        className="text-xs text-viva-gray border border-white/5 px-4 py-2 rounded"
-                      >
-                        Cancel
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="bg-viva-gold text-viva-black font-body font-bold text-xs uppercase tracking-widest px-5 py-2 rounded shadow-gold-glow"
-                      >
-                        Upload Look
-                      </button>
-                    </div>
-                  </form>
-                )}
-
-                {/* Gallery List */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  {gallery.map(item => (
-                    <div key={item._id} className="bg-viva-charcoal border border-white/5 p-3 rounded-lg flex flex-col justify-between gap-3">
-                      <div className="aspect-[4/3] w-full rounded overflow-hidden relative">
-                        <img src={item.imageUrl || item.afterImageUrl} alt={item.title} className="w-full h-full object-cover" />
-                        {item.isBeforeAfter && (
-                          <span className="absolute top-2 left-2 bg-viva-gold text-viva-black text-[8px] font-bold px-1.5 py-0.5 uppercase rounded tracking-wider">BeforeAfter</span>
-                        )}
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div className="min-w-0">
-                          <h4 className="font-heading font-bold text-xs text-viva-white uppercase truncate">{item.title}</h4>
-                          <span className="text-[8px] text-viva-gray uppercase tracking-widest block">{item.category}</span>
-                        </div>
-                        <button 
-                          onClick={() => handleDeleteGalleryItem(item._id)}
-                          className="p-1.5 border border-red-900/30 text-red-400 hover:bg-red-950/20 rounded transition-colors"
-                          title="Delete photo"
-                        >
-                          <FiTrash />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* TAB 5: PROMOS PLANNER */}
             {activeTab === 'offers' && (
               <div className="space-y-6 animate-fade-in">

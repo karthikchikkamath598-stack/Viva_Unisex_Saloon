@@ -80,7 +80,7 @@ const Contact = () => {
             <div>
               <h4 className="font-heading text-lg font-bold text-viva-white uppercase tracking-wider mb-2">Support & Press</h4>
               <p className="text-xs text-viva-gray leading-relaxed mb-1 font-light">Send an email for corporate collaborations or PR questions.</p>
-              <a href="mailto:dpjella123@gmail.com" className="text-viva-white font-semibold text-sm hover:underline">dpjella123@gmail.com</a>
+              <a href="mailto:viva.salonunisex@gmail.com" className="text-viva-white font-semibold text-sm hover:underline">viva.salonunisex@gmail.com</a>
             </div>
           </div>
 
@@ -91,7 +91,7 @@ const Contact = () => {
             <div>
               <h4 className="font-heading text-lg font-bold text-viva-white uppercase tracking-wider mb-2">Luxury Lounge Location</h4>
               <p className="text-xs text-viva-gray leading-relaxed mb-1 font-light">Visit our flagship styling center.</p>
-              <p className="text-viva-white text-xs font-semibold">Bhuvanagiri Town Main Rd, Bhuvanagiri, Telangana 508116</p>
+              <p className="text-viva-white text-xs font-semibold">Beside Prince Medical Hall Bhongir Main Road, Bhuvanagiri, Telangana - 508116.</p>
             </div>
           </div>
 
@@ -221,7 +221,7 @@ const Contact = () => {
             </div>
           </div>
           <iframe 
-            src="https://maps.google.com/maps?q=Bhuvanagiri%20Town%20Main%20Rd,%20Bhuvanagiri,%20Telangana%20508116&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            src="https://maps.google.com/maps?q=Beside%20Prince%20Medical%20Hall%20Bhongir%20Main%20Road,%20Bhuvanagiri,%20Telangana%20-%20508116&t=&z=15&ie=UTF8&iwloc=&output=embed"
             width="100%" 
             height="100%" 
             style={{ border: 0, filter: "invert(90%) hue-rotate(180deg) grayscale(80%) contrast(110%)" }}

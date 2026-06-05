@@ -171,10 +171,20 @@ const Home = () => {
 
 
             {/* Main Luxury Heading */}
-            <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-viva-white mb-6 uppercase leading-[1.12]">
+            <motion.h1 
+              animate={{ 
+                y: [0, -12, 0] 
+              }}
+              transition={{ 
+                duration: 5, 
+                repeat: Infinity, 
+                ease: "easeInOut" 
+              }}
+              className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold tracking-wide text-viva-white mb-6 uppercase leading-[1.12]"
+            >
               Transform Your Look <br />
               With <span className="text-gold-gradient gold-shine-text">Confidence</span>
-            </h1>
+            </motion.h1>
 
             {/* Subheading */}
             <p className="font-body text-xs sm:text-sm md:text-base text-viva-gray leading-relaxed mb-10 max-w-lg font-light">
@@ -190,10 +200,10 @@ const Home = () => {
                 Book Appointment
               </Link>
               <button
-                onClick={() => document.getElementById('services-section')?.scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="border border-white/20 hover:border-viva-gold text-viva-white hover:text-viva-gold font-body font-bold text-xs uppercase tracking-widest px-8 py-4.5 rounded transition-all w-full sm:w-auto text-center bg-white/5 hover:bg-white/10"
               >
-                View Services
+                Explore Catalog
               </button>
             </div>
           </motion.div>
@@ -512,129 +522,10 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* 3. SERVICES SECTION ("Beauty. Style. Confidence.") */}
-      <motion.section 
-        {...sectionAnimation}
-        id="services-section"
-        className="py-24 px-6 bg-viva-charcoal border-y border-white/5 relative"
-      >
-        <div className="max-w-7xl mx-auto">
-          
-          {/* Header segment with right side link */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-            <div className="text-left">
-              <span className="text-viva-gold text-xs font-bold uppercase tracking-[0.25em] mb-3 block">OUR SERVICES</span>
-              <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-wider uppercase text-viva-white">
-                Beauty. Style. <span className="text-gold-gradient">Confidence.</span>
-              </h2>
-            </div>
-            <Link 
-              to="/services" 
-              className="text-xs uppercase font-body font-bold tracking-widest text-viva-gold hover:text-viva-white border border-viva-gold/20 hover:border-viva-white px-5 py-3 rounded transition-colors self-start md:self-auto"
-            >
-              View All Services
-            </Link>
-          </div>
-
-          {/* 6-Column Grid matching reference */}
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="whileInView"
-            viewport={{ once: true, amount: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {/* Card 1 */}
-            <TiltCard className="p-8 rounded-lg flex flex-col justify-between h-[230px] group bg-viva-black border-white/5">
-              <div>
-                <div className="w-10 h-10 rounded border border-viva-gold/30 flex items-center justify-center text-viva-gold mb-5 group-hover:bg-viva-gold group-hover:text-viva-black transition-all">
-                  <FiScissors className="text-lg" />
-                </div>
-                <h4 className="font-heading text-lg font-bold text-viva-white uppercase mb-2">Hair Styling</h4>
-                <p className="text-[11px] text-viva-gray leading-relaxed font-light">Haircuts, blowdry, styling and advanced treatments.</p>
-              </div>
-              <Link to="/services" className="text-[10px] font-bold text-viva-gold tracking-wider uppercase flex items-center gap-1 mt-4">
-                Explore <FiArrowRight />
-              </Link>
-            </TiltCard>
-
-            {/* Card 2 */}
-            <TiltCard className="p-8 rounded-lg flex flex-col justify-between h-[230px] group bg-viva-black border-white/5">
-              <div>
-                <div className="w-10 h-10 rounded border border-viva-gold/30 flex items-center justify-center text-viva-gold mb-5 group-hover:bg-viva-gold group-hover:text-viva-black transition-all">
-                  <FaMagic className="text-lg" />
-                </div>
-                <h4 className="font-heading text-lg font-bold text-viva-white uppercase mb-2">Hair Treatments</h4>
-                <p className="text-[11px] text-viva-gray leading-relaxed font-light">Keratin, smoothening, hair spa and more.</p>
-              </div>
-              <Link to="/services" className="text-[10px] font-bold text-viva-gold tracking-wider uppercase flex items-center gap-1 mt-4">
-                Explore <FiArrowRight />
-              </Link>
-            </TiltCard>
-
-            {/* Card 3 */}
-            <TiltCard className="p-8 rounded-lg flex flex-col justify-between h-[230px] group bg-viva-black border-white/5">
-              <div>
-                <div className="w-10 h-10 rounded border border-viva-gold/30 flex items-center justify-center text-viva-gold mb-5 group-hover:bg-viva-gold group-hover:text-viva-black transition-all">
-                  <FaUserCheck className="text-lg" />
-                </div>
-                <h4 className="font-heading text-lg font-bold text-viva-white uppercase mb-2">Skin & Face</h4>
-                <p className="text-[11px] text-viva-gray leading-relaxed font-light">Facials, cleanups, detan and skin treatments.</p>
-              </div>
-              <Link to="/services" className="text-[10px] font-bold text-viva-gold tracking-wider uppercase flex items-center gap-1 mt-4">
-                Explore <FiArrowRight />
-              </Link>
-            </TiltCard>
-
-            {/* Card 4 */}
-            <TiltCard className="p-8 rounded-lg flex flex-col justify-between h-[230px] group bg-viva-black border-white/5">
-              <div>
-                <div className="w-10 h-10 rounded border border-viva-gold/30 flex items-center justify-center text-viva-gold mb-5 group-hover:bg-viva-gold group-hover:text-viva-black transition-all">
-                  <FiCompass className="text-lg" />
-                </div>
-                <h4 className="font-heading text-lg font-bold text-viva-white uppercase mb-2">Beard & Grooming</h4>
-                <p className="text-[11px] text-viva-gray leading-relaxed font-light">Beard styling, trimming and men's grooming.</p>
-              </div>
-              <Link to="/services" className="text-[10px] font-bold text-viva-gold tracking-wider uppercase flex items-center gap-1 mt-4">
-                Explore <FiArrowRight />
-              </Link>
-            </TiltCard>
-
-            {/* Card 5 */}
-            <TiltCard className="p-8 rounded-lg flex flex-col justify-between h-[230px] group bg-viva-black border-white/5">
-              <div>
-                <div className="w-10 h-10 rounded border border-viva-gold/30 flex items-center justify-center text-viva-gold mb-5 group-hover:bg-viva-gold group-hover:text-viva-black transition-all">
-                  <FaHandHoldingHeart className="text-lg" />
-                </div>
-                <h4 className="font-heading text-lg font-bold text-viva-white uppercase mb-2">Nail Care</h4>
-                <p className="text-[11px] text-viva-gray leading-relaxed font-light">Manicure, pedicure, nail extensions and more.</p>
-              </div>
-              <Link to="/services" className="text-[10px] font-bold text-viva-gold tracking-wider uppercase flex items-center gap-1 mt-4">
-                Explore <FiArrowRight />
-              </Link>
-            </TiltCard>
-
-            {/* Card 6 */}
-            <TiltCard className="p-8 rounded-lg flex flex-col justify-between h-[230px] group bg-viva-black border-white/5">
-              <div>
-                <div className="w-10 h-10 rounded border border-viva-gold/30 flex items-center justify-center text-viva-gold mb-5 group-hover:bg-viva-gold group-hover:text-viva-black transition-all">
-                  <FiAward className="text-lg" />
-                </div>
-                <h4 className="font-heading text-lg font-bold text-viva-white uppercase mb-2">Makeup</h4>
-                <p className="text-[11px] text-viva-gray leading-relaxed font-light">Bridal, party and editorial makeup services.</p>
-              </div>
-              <Link to="/services" className="text-[10px] font-bold text-viva-gold tracking-wider uppercase flex items-center gap-1 mt-4">
-                Explore <FiArrowRight />
-              </Link>
-            </TiltCard>
-          </motion.div>
-
-        </div>
-      </motion.section>
-
       {/* 4. EXPLORE CATALOG SECTION */}
       <motion.section 
         {...sectionAnimation}
+        id="catalog-section"
         className="py-24 px-6 bg-viva-black relative"
       >
         <div className="max-w-7xl mx-auto flex flex-col items-center">

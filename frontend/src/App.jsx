@@ -9,7 +9,7 @@ import { AuthProvider } from './context/AuthContext';
 // Common Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-// import CustomCursor from './components/CustomCursor';
+import CustomCursor from './components/CustomCursor';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingScreen from './components/LoadingScreen';
 import LuxuryBackground from './components/LuxuryBackground';
@@ -17,10 +17,8 @@ import LuxuryBackground from './components/LuxuryBackground';
 // Pages
 import Home from './pages/Home';
 import About from './pages/About';
-import Services from './pages/Services';
 import Catalog from './pages/Catalog';
 import Booking from './pages/Booking';
-import Gallery from './pages/Gallery';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -59,9 +57,7 @@ const AnimatedRoutes = () => {
         {/* Public Routes */}
         <Route path="/" element={<PageWrapper><Home /></PageWrapper>} />
         <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
-        <Route path="/services" element={<PageWrapper><Services /></PageWrapper>} />
         <Route path="/catalog" element={<PageWrapper><Catalog /></PageWrapper>} />
-        <Route path="/gallery" element={<PageWrapper><Gallery /></PageWrapper>} />
         <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
         <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
 
@@ -115,6 +111,7 @@ function App() {
             <ScrollToTop />
             
             <LuxuryBackground />
+            <CustomCursor />
             
             {/* Layout wrapper */}
             <div className="flex flex-col min-h-screen bg-transparent text-viva-white selection:bg-viva-gold selection:text-viva-black">

@@ -14,6 +14,21 @@ const connectDB = async () => {
     
     console.log('MongoDB connected successfully.');
     isMock = false;
+
+    // Auto-seed MongoDB with defaultServices if empty
+    try {
+      const Service = require('../models/Service');
+      const count = await Service.countDocuments();
+      if (count === 0) {
+        console.log('Seeding default services in MongoDB...');
+        const { readMockDB } = require('./mockDb');
+        const db = readMockDB();
+        await Service.insertMany(db.services);
+        console.log(`Successfully seeded ${db.services.length} services in MongoDB.`);
+      }
+    } catch (err) {
+      console.error('Failed to seed MongoDB default services:', err.message);
+    }
   } catch (error) {
     console.warn('\n================================================================');
     console.warn('WARNING: MongoDB connection failed!');

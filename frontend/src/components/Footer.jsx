@@ -40,7 +40,7 @@ const Footer = () => {
             Viva Unisex Salon is your go-to place for complete grooming and makeover. We bring out the best version of you.
           </p>
           <div className="flex items-center space-x-4">
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-viva-gold/20 flex items-center justify-center text-viva-gray hover:text-viva-gold hover:border-viva-gold transition-colors duration-300">
+            <a href="https://www.instagram.com/Viva_unisexsalon" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-viva-gold/20 flex items-center justify-center text-viva-gray hover:text-viva-gold hover:border-viva-gold transition-colors duration-300">
               <FiInstagram className="text-base" />
             </a>
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-viva-gold/20 flex items-center justify-center text-viva-gray hover:text-viva-gold hover:border-viva-gold transition-colors duration-300">
@@ -84,7 +84,7 @@ const Footer = () => {
           <ul className="space-y-4 text-sm text-viva-gray mb-4">
             <li>
               <span className="block text-xs uppercase tracking-wider text-viva-white/40 mb-1">Location</span>
-              <span className="text-viva-white font-medium">Bhuvanagiri Town Main Rd, Bhuvanagiri, Telangana 508116</span>
+              <span className="text-viva-white font-medium">Beside Prince Medical Hall Bhongir Main Road, Bhuvanagiri, Telangana - 508116.</span>
             </li>
             <li>
               <span className="block text-xs uppercase tracking-wider text-viva-white/40 mb-1">Bookings & Info</span>
@@ -92,7 +92,7 @@ const Footer = () => {
             </li>
             <li>
               <span className="block text-xs uppercase tracking-wider text-viva-white/40 mb-1">General Inquiries</span>
-              <a href="mailto:dpjella123@gmail.com" className="text-viva-white hover:underline font-medium">dpjella123@gmail.com</a>
+              <a href="mailto:viva.salonunisex@gmail.com" className="text-viva-white hover:underline font-medium">viva.salonunisex@gmail.com</a>
             </li>
           </ul>
         </div>
@@ -132,7 +132,7 @@ const Footer = () => {
         <div className="absolute inset-0 bg-viva-black/40 flex items-center justify-center z-10 pointer-events-none">
           <div className="bg-viva-black/85 backdrop-blur-sm border border-viva-gold/30 p-4 rounded text-center max-w-xs shadow-lg">
             <p className="font-heading text-viva-gold font-bold tracking-wider text-sm mb-1">VIVA Unisex Lounge</p>
-            <p className="text-[10px] text-viva-gray">Hovering on Main Street, Your City</p>
+            <p className="text-[10px] text-viva-gray">Beside Prince Medical Hall, Bhongir Main Road, Bhuvanagiri</p>
           </div>
         </div>
         {/* Mock Map Visual (Golden stylized canvas style) */}
