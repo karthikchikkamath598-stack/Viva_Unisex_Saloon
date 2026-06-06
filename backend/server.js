@@ -12,6 +12,7 @@ const galleryRoutes = require('./routes/galleryRoutes');
 const offerRoutes = require('./routes/offerRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,6 +45,7 @@ app.use('/api/gallery', galleryRoutes);
 app.use('/api/offers', offerRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Page Not Found (404) Handler
 app.use((req, res, next) => {
@@ -60,4 +62,8 @@ app.listen(PORT, () => {
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Local Access: http://localhost:${PORT}`);
   console.log(`======================================================\n`);
+  
+  // Start the background cron scheduler
+  const { startScheduler } = require('./services/scheduler');
+  startScheduler();
 });

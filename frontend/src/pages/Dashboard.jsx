@@ -1,17 +1,59 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { FiCalendar, FiClock, FiUser, FiBookmark, FiLogOut } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiUser, FiBookmark, FiLogOut, FiX } from 'react-icons/fi';
 import { FaTrash } from 'react-icons/fa';
 
 const Dashboard = () => {
-  const { user, logout, API_URL } = useContext(AuthContext);
+  const { user, logout, updateProfile, API_URL } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const [appointments, setAppointments] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancelLoadingId, setCancelLoadingId] = useState(null);
+
+  // Edit Profile States
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editEmail, setEditEmail] = useState(user?.email || '');
+  const [editPhone, setEditPhone] = useState(user?.phone || '');
+  const [editError, setEditError] = useState('');
+  const [editSuccess, setEditSuccess] = useState('');
+  const [updatingProfile, setUpdatingProfile] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setEditName(user.name || '');
+      setEditEmail(user.email || '');
+      setEditPhone(user.phone || '');
+    }
+  }, [user]);
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setEditError('');
+    setEditSuccess('');
+    setUpdatingProfile(true);
+
+    try {
+      const res = await updateProfile(editName, editEmail, editPhone);
+      if (res.success) {
+        setEditSuccess('Profile updated successfully!');
+        setTimeout(() => {
+          setShowEditModal(false);
+          setEditSuccess('');
+        }, 1500);
+      } else {
+        setEditError(res.message || 'Failed to update profile.');
+      }
+    } catch (err) {
+      setEditError('An error occurred during profile update.');
+    } finally {
+      setUpdatingProfile(false);
+    }
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -94,13 +136,22 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <button
-              onClick={logout}
-              className="w-full mt-8 py-2.5 bg-zinc-950 hover:bg-red-950/20 border border-zinc-800 hover:border-red-900/40 text-zinc-450 hover:text-red-400 text-xs font-bold uppercase tracking-widest rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <FiLogOut />
-              <span>Log Out</span>
-            </button>
+            <div className="mt-6 flex flex-col gap-2">
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="w-full py-2.5 bg-viva-gold hover:bg-viva-gold/90 text-zinc-950 text-xs font-bold uppercase tracking-widest rounded-lg transition-all duration-300 flex items-center justify-center gap-2 hover:scale-[1.01]"
+              >
+                <span>Edit Profile</span>
+              </button>
+              
+              <button
+                onClick={logout}
+                className="w-full py-2.5 bg-zinc-950 hover:bg-red-950/20 border border-zinc-800 hover:border-red-900/40 text-zinc-400 hover:text-red-400 text-xs font-bold uppercase tracking-widest rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <FiLogOut />
+                <span>Log Out</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -138,18 +189,18 @@ const Dashboard = () => {
                     <div>
                       {/* Services Booked */}
                       <div className="flex flex-wrap gap-1.5 mb-2">
-                        {app.serviceDetails?.map((srv, idx) => (
+                        {app.selectedServices?.map((srv, idx) => (
                           <span key={idx} className="bg-zinc-900 text-zinc-300 text-[9px] uppercase tracking-wider px-2 py-0.5 rounded border border-zinc-800">
-                            {srv.name}
+                            {srv.serviceName}
                           </span>
                         ))}
                       </div>
                       
                       {/* Booking Metadata */}
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-450">
-                        <span className="flex items-center gap-1"><FiCalendar className="text-viva-gold" /> {app.date}</span>
-                        <span className="flex items-center gap-1"><FiClock className="text-viva-gold" /> {app.timeSlot}</span>
-                        <span className="flex items-center gap-1"><FiUser className="text-viva-gold" /> {app.stylistName}</span>
+                        <span className="flex items-center gap-1"><FiCalendar className="text-viva-gold" /> {app.appointmentDate}</span>
+                        <span className="flex items-center gap-1"><FiClock className="text-viva-gold" /> {app.appointmentTime}</span>
+                        <span className="flex items-center gap-1"><FiUser className="text-viva-gold" /> {app.customerName}</span>
                       </div>
                     </div>
 
@@ -162,11 +213,11 @@ const Dashboard = () => {
 
                       {/* Status Badge */}
                       <span className={`text-[10px] uppercase font-bold px-2.5 py-1 rounded ${
-                        app.status === 'confirmed' 
+                        app.status === 'Confirmed' 
                           ? 'bg-green-950/30 text-green-300 border border-green-900/30' 
-                          : app.status === 'cancelled' 
+                          : app.status === 'Cancelled' 
                             ? 'bg-red-950/30 text-red-300 border border-red-900/30' 
-                            : app.status === 'completed'
+                            : app.status === 'Completed'
                               ? 'bg-blue-950/30 text-blue-300 border border-blue-900/30'
                               : 'bg-yellow-950/30 text-yellow-300 border border-yellow-900/30'
                       }`}>
@@ -174,7 +225,7 @@ const Dashboard = () => {
                       </span>
 
                       {/* Cancel Button */}
-                      {app.status === 'pending' && (
+                      {app.status === 'Pending' && (
                         <button
                           disabled={cancelLoadingId === app._id}
                           onClick={() => handleCancelBooking(app._id)}
@@ -228,6 +279,94 @@ const Dashboard = () => {
         </div>
 
       </div>
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-md w-full p-8 shadow-2xl relative transition-all duration-300">
+            <button 
+              onClick={() => {
+                setShowEditModal(false);
+                setEditError('');
+                setEditSuccess('');
+              }}
+              className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"
+            >
+              <FiX className="text-lg" />
+            </button>
+            
+            <div className="text-center mb-6">
+              <h3 className="font-heading text-lg font-bold text-white tracking-wide uppercase">Edit Profile</h3>
+              <p className="text-xs text-zinc-400 mt-1">Update your personal information below</p>
+            </div>
+
+            {editError && (
+              <div className="bg-red-950/30 border border-red-900/40 text-red-200 p-3 rounded-lg text-xs mb-4 text-center">
+                {editError}
+              </div>
+            )}
+
+            {editSuccess && (
+              <div className="bg-zinc-950 border border-viva-gold/30 text-viva-gold p-3 rounded-lg text-xs mb-4 text-center">
+                {editSuccess}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">Full Name</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold text-white text-sm rounded-lg py-2 px-3 outline-none"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">Email Address</label>
+                <input
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold text-white text-sm rounded-lg py-2 px-3 outline-none"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-zinc-400">Phone Number</label>
+                <input
+                  type="text"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-viva-gold text-white text-sm rounded-lg py-2 px-3 outline-none"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 py-2.5 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 rounded-lg text-xs font-bold text-zinc-400 uppercase tracking-widest transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updatingProfile}
+                  className="flex-1 py-2.5 bg-viva-gold hover:bg-viva-gold/90 text-zinc-950 font-bold text-xs uppercase tracking-widest rounded-lg transition-all"
+                >
+                  {updatingProfile ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

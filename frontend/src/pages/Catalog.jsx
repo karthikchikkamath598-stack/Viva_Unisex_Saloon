@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { FiSearch, FiShoppingCart, FiTrash2, FiClock, FiGrid, FiList } from 'react-icons/fi';
+import { useBooking } from '../context/BookingContext';
+import { FiSearch, FiShoppingCart, FiTrash2, FiClock, FiGrid, FiList, FiStar, FiArrowRight, FiX } from 'react-icons/fi';
 
 const fallbackServices = [
   { _id: "service_22", name: "Keratin Smoothing (Medium)", category: "Hair Services", price: 8500, duration: 150, rating: 4.9, description: "Deep protein smoothing treatment to eliminate frizz and add shine (Medium hair).", imageUrl: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
@@ -24,10 +28,22 @@ const Catalog = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('name-asc');
   const [viewMode, setViewMode] = useState('grid'); // grid or list
-  const [selectedServices, setSelectedServices] = useState([]); // Cart for booking
+  const [searchParams] = useSearchParams();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { API_URL } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  // Use BookingContext for persistent service selection
+  const { selectedServices, toggleService, removeService: removeBookingService, totalAmount, totalDuration } = useBooking();
+
+  // Alias for local removeService to match drawer usage
+  const removeService = removeBookingService;
+
+  useEffect(() => {
+    if (searchParams.get('drawer') === 'open' && selectedServices.length > 0) {
+      setIsDrawerOpen(true);
+    }
+  }, [searchParams, selectedServices]);
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -48,31 +64,31 @@ const Catalog = () => {
     fetchServices();
   }, [API_URL]);
 
-  // Cart operations
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Cart operations - delegates to BookingContext
   const toggleSelectService = (service) => {
-    setSelectedServices(prev => {
-      const exists = prev.some(s => s._id === service._id);
-      if (exists) {
-        return prev.filter(s => s._id !== service._id);
-      } else {
-        return [...prev, service];
-      }
-    });
+    toggleService(service);
     setIsDrawerOpen(true);
   };
 
-  const removeService = (id) => {
-    setSelectedServices(prev => prev.filter(s => s._id !== id));
-  };
 
   const handleCheckout = () => {
     if (selectedServices.length === 0) return;
-    const ids = selectedServices.map(s => s._id).join(',');
-    navigate(`/booking?services=${ids}`);
+    // Navigate to schedule page — services are in BookingContext+localStorage, no need to pass IDs
+    navigate('/schedule-appointment');
   };
 
-  const totalDuration = selectedServices.reduce((acc, curr) => acc + curr.duration, 0);
-  const totalPrice = selectedServices.reduce((acc, curr) => acc + curr.price, 0);
+  const totalDurationCalc = totalDuration;
+  const totalPriceCalc = totalAmount;
 
   // Filters logic
   const filtered = services.filter(srv => {
@@ -108,6 +124,19 @@ const Catalog = () => {
           </p>
         </div>
       </section>
+
+      {searchParams.get('msg') === 'select' && (
+        <div className="max-w-4xl mx-auto mt-8 px-6">
+          <div className="bg-zinc-900 border border-[#D4AF37]/30 p-5 rounded-lg text-center shadow-lg relative">
+            <h3 className="font-heading text-sm font-bold text-white uppercase tracking-wider mb-1">
+              Choose Your Ritual Experience
+            </h3>
+            <p className="text-xs text-[rgba(255,255,255,0.7)]">
+              Select one or more services before scheduling.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* 2. Controls Panel */}
       <section className="py-6 px-6 bg-viva-charcoal border-b border-white/5">
@@ -293,84 +322,181 @@ const Catalog = () => {
       </section>
 
       {/* 5. Sticky Floating Booking Drawer Toggle */}
-      {selectedServices.length > 0 && (
+      {selectedServices.length > 0 && createPortal(
         <button
           onClick={() => setIsDrawerOpen(true)}
-          className="fixed bottom-6 left-6 z-40 bg-viva-gold text-viva-black font-body font-bold text-xs uppercase tracking-widest px-6 py-4 rounded-full shadow-gold-glow flex items-center gap-2 hover:scale-105 transition-all duration-300"
+          className="fixed bottom-6 left-6 z-40 bg-[#D4AF37] text-zinc-950 font-body font-bold text-xs uppercase tracking-widest px-5 py-3 rounded-full shadow-lg flex items-center gap-2 hover:bg-[#F3C65F] transition-all duration-300"
         >
           <FiShoppingCart />
           <span>My Selected Ritual ({selectedServices.length})</span>
-        </button>
+        </button>,
+        document.body
       )}
 
       {/* 6. Dynamic Side Booking Drawer Overlay */}
-      {isDrawerOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden font-body">
-          <div className="absolute inset-0 bg-viva-black/80 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
-          <div className="absolute inset-y-0 right-0 max-w-md w-full bg-viva-charcoal border-l border-viva-gold/20 shadow-2xl flex flex-col justify-between">
-            
-            {/* Drawer Header */}
-            <div className="p-6 border-b border-white/5 flex items-center justify-between">
-              <h3 className="font-heading text-xl font-bold uppercase text-viva-gold tracking-wider">Your Ritual Items</h3>
-              <button 
-                onClick={() => setIsDrawerOpen(false)}
-                className="text-viva-gray hover:text-viva-white text-xs border border-white/10 px-2 py-1 rounded"
+      {createPortal(
+        <AnimatePresence>
+          {isDrawerOpen && (
+            <div className="fixed inset-0 z-50 overflow-hidden font-body">
+              {/* Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="absolute inset-0 bg-black/75 backdrop-blur-sm" 
+                onClick={() => setIsDrawerOpen(false)} 
+              />
+              
+              {/* Drawer Container */}
+              <motion.div 
+                initial={isMobile ? { y: '100%' } : { x: '100%' }}
+                animate={isMobile ? { y: 0 } : { x: 0 }}
+                exit={isMobile ? { y: '100%' } : { x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                drag={isMobile ? "y" : false}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0.05, bottom: 0.75 }}
+                onDragEnd={(event, info) => {
+                  if (isMobile && info.offset.y > 150) {
+                    setIsDrawerOpen(false);
+                  }
+                }}
+                className={`absolute bg-[#0A0A0A] border-[rgba(255,255,255,0.08)] shadow-2xl flex flex-col justify-between overflow-hidden z-10 ${
+                  isMobile 
+                    ? 'bottom-0 left-0 right-0 h-[65vh] rounded-t-2xl border-t' 
+                    : 'inset-y-0 right-0 max-w-sm w-full border-l'
+                }`}
               >
-                Close
-              </button>
-            </div>
+                {/* Mobile drag handle */}
+                {isMobile && (
+                  <div className="w-10 h-1 bg-white/20 rounded-full mx-auto my-3 cursor-grab active:cursor-grabbing flex-shrink-0" />
+                )}
 
-            {/* Selected Items List */}
-            <div className="p-6 overflow-y-auto flex-grow space-y-4">
-              {selectedServices.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-sm text-viva-gray">No treatments selected yet. Add services from the catalog!</p>
-                </div>
-              ) : (
-                selectedServices.map(item => (
-                  <div key={item._id} className="flex justify-between items-center bg-viva-black/60 p-4 rounded border border-white/5">
-                    <div>
-                      <h4 className="font-heading font-bold text-sm text-viva-white uppercase">{item.name}</h4>
-                      <div className="flex items-center space-x-2 text-[10px] text-viva-gray mt-1">
-                        <span>{item.duration} Min</span>
-                        <span>&bull;</span>
-                        <span className="text-viva-gold">₹{item.price}</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => removeService(item._id)}
-                      className="text-red-400 hover:text-red-300 p-2 hover:bg-white/5 rounded transition-colors"
+                {/* Header */}
+                {!isMobile && (
+                  <div className="p-3 border-b border-[rgba(255,255,255,0.08)] flex-shrink-0 relative">
+                    <button 
+                      onClick={() => setIsDrawerOpen(false)}
+                      className="absolute top-3 right-3 text-[rgba(255,255,255,0.6)] hover:text-white transition-colors p-1"
                     >
-                      <FiTrash2 />
+                      <FiX className="text-sm" />
                     </button>
+                    
+                    <h3 className="font-heading text-sm font-bold uppercase text-white tracking-wider">
+                      Ritual Planner
+                    </h3>
+                    <p className="text-[10px] text-[rgba(255,255,255,0.6)] font-light mt-0.5">
+                      {selectedServices.length} {selectedServices.length === 1 ? 'Service' : 'Services'} Selected
+                    </p>
                   </div>
-                ))
-              )}
-            </div>
+                )}
 
-            {/* Checkout Pricing Panel */}
-            {selectedServices.length > 0 && (
-              <div className="p-6 bg-viva-black border-t border-white/5">
-                <div className="space-y-2 mb-6">
-                  <div className="flex justify-between text-xs text-viva-gray">
-                    <span>Cumulative Duration:</span>
-                    <span>{totalDuration} Mins</span>
-                  </div>
-                  <div className="flex justify-between text-base font-heading font-bold text-viva-white">
-                    <span>Total Estimate Amount:</span>
-                    <span className="text-viva-gold">₹{totalPrice}</span>
-                  </div>
+                {/* Main Scrollable Content */}
+                <div className={`p-3 ${isMobile ? 'pt-1' : ''} overflow-y-auto flex-grow relative`}>
+                  <AnimatePresence mode="popLayout">
+                    {selectedServices.length === 0 ? (
+                      /* Premium Empty State */
+                      <motion.div 
+                        key="empty-state"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex flex-col items-center justify-center text-center py-12 px-4"
+                      >
+                        <h4 className="font-heading text-xs font-bold text-white uppercase tracking-wider mb-1">
+                          Craft Your Perfect Ritual
+                        </h4>
+                        <p className="text-[11px] text-[rgba(255,255,255,0.6)] max-w-[200px] leading-relaxed font-light">
+                          Select services from the catalog to begin creating your personalized salon experience.
+                        </p>
+                      </motion.div>
+                    ) : (
+                      /* Minimal Rows List */
+                      <motion.div 
+                        key="list-items"
+                        layout
+                        className="space-y-2"
+                      >
+                        {selectedServices.map(item => (
+                          <motion.div 
+                            key={item._id}
+                            layout
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, x: 30 }}
+                            transition={{ duration: 0.2 }}
+                            className="relative flex items-center justify-between gap-2 p-2 bg-white/[0.015] border border-white/[0.08] border-l-2 border-l-[#D4AF37]/40 rounded-md hover:border-[#D4AF37]/45 transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 rounded overflow-hidden flex-shrink-0 border border-white/10">
+                                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                              </div>
+                              <div>
+                                <h4 className="font-heading font-semibold text-[11px] text-white uppercase tracking-wider line-clamp-1 max-w-[170px]">
+                                  {item.name}
+                                </h4>
+                                <span className="text-[9px] text-[rgba(255,255,255,0.6)] font-light block mt-0.5">
+                                  {item.duration} mins
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <span className="font-heading text-[11px] font-bold text-[#D4AF37]">₹{item.price}</span>
+                              <button
+                                onClick={() => removeService(item._id)}
+                                className="text-[rgba(255,255,255,0.6)] hover:text-white transition-colors p-1"
+                              >
+                                <FiTrash2 className="text-xs" />
+                              </button>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-                <button
-                  onClick={handleCheckout}
-                  className="w-full py-4 bg-viva-gold hover:bg-viva-goldLight text-viva-black font-body font-bold text-xs uppercase tracking-widest rounded shadow-gold-glow transition-all duration-300 hover:scale-[1.02]"
-                >
-                  Proceed to Schedule
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+
+                {/* Drawer Footer Container */}
+                <div className="border-t border-[rgba(255,255,255,0.08)] p-3 bg-[#080809] flex-shrink-0">
+                  {selectedServices.length > 0 && (
+                    <>
+                      {/* Summary Section */}
+                      <div className="flex justify-between items-center mb-3 text-xs font-body">
+                        {isMobile ? (
+                          <div className="flex justify-between w-full items-center">
+                            <span className="text-[10px] uppercase tracking-wider text-[rgba(255,255,255,0.6)]">Total Price</span>
+                            <span className="font-heading font-bold text-sm text-[#D4AF37]">₹{totalPriceCalc}</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div>
+                              <span className="block text-[10px] uppercase tracking-wider text-[rgba(255,255,255,0.6)] mb-0.5">Duration</span>
+                              <span className="font-semibold text-white">{totalDurationCalc} mins</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="block text-[10px] uppercase tracking-wider text-[rgba(255,255,255,0.6)] mb-0.5">Total</span>
+                              <span className="font-heading font-bold text-sm text-[#D4AF37]">₹{totalPriceCalc}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      
+                      <button
+                        onClick={handleCheckout}
+                        className="w-full py-2.5 bg-[#D4AF37] hover:bg-[#F3C65F]/90 text-zinc-950 font-body font-bold text-xs uppercase tracking-widest rounded transition-all duration-300 shadow-md"
+                      >
+                        Proceed to Schedule
+                      </button>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
     </div>
   );

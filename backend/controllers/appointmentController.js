@@ -1,16 +1,51 @@
 const Appointment = require('../models/Appointment');
-const Stylist = require('../models/Stylist');
+const Settings = require('../models/Settings');
 const Service = require('../models/Service');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 const { getIsMock } = require('../config/db');
 const { readMockDB, writeMockDB } = require('../config/mockDb');
+const { sendBookingCreated, sendBookingConfirmed, sendBookingCancelled } = require('../services/notificationService');
 
-// Check available slots for a stylist on a specific date
+// Fetch default settings if no db record exists
+const getActiveSettings = async () => {
+  const defaultSettings = {
+    ownerName: 'David Salon Owner',
+    salonPhone: '+919999999999',
+    ownerWhatsapp: '+919999999999',
+    ownerEmail: 'owner@vivasalon.com',
+    workingHoursStart: '10:00 AM',
+    workingHoursEnd: '08:00 PM',
+    slots: [
+      "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM",
+      "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"
+    ],
+    disabledSlots: [],
+    blockedHolidays: []
+  };
+
+  if (getIsMock()) {
+    const db = readMockDB();
+    if (!db.settings) {
+      db.settings = { ...defaultSettings };
+      writeMockDB(db);
+    }
+    return db.settings;
+  } else {
+    let settings = await Settings.findOne();
+    if (!settings) {
+      settings = await Settings.create({});
+    }
+    return settings;
+  }
+};
+
+// Check available slots on a specific date (filtering Tuesday closures, blocked holidays, disabled slots, and already booked appointments)
 exports.getAvailableSlots = async (req, res, next) => {
-  const { stylistId, date } = req.query; // YYYY-MM-DD
+  const { date } = req.query; // YYYY-MM-DD
 
-  if (!stylistId || !date) {
-    return res.status(400).json({ success: false, message: 'Please provide stylistId and date' });
+  if (!date) {
+    return res.status(400).json({ success: false, message: 'Please provide a date' });
   }
 
   // Check Tuesday closure (2 = Tuesday in UTC)
@@ -20,46 +55,50 @@ exports.getAvailableSlots = async (req, res, next) => {
   }
 
   try {
-    let stylist;
+    const settings = await getActiveSettings();
+
+    // Check blocked holidays
+    const isHoliday = settings.blockedHolidays && settings.blockedHolidays.includes(date);
+    if (isHoliday) {
+      return res.json({
+        success: true,
+        date,
+        message: 'The salon is closed for a holiday on this date.',
+        slots: []
+      });
+    }
+
     let bookedSlots = [];
 
     if (getIsMock()) {
       const db = readMockDB();
-      stylist = db.stylists.find(s => s._id === stylistId);
-      
-      if (!stylist) {
-        return res.status(404).json({ success: false, message: 'Stylist not found' });
-      }
-
       bookedSlots = db.appointments
-        .filter(app => app.stylist === stylistId && app.date === date && app.status !== 'cancelled')
-        .map(app => app.timeSlot);
+        .filter(app => app.appointmentDate === date && app.status !== 'Cancelled')
+        .map(app => app.appointmentTime);
     } else {
-      stylist = await Stylist.findById(stylistId);
-      if (!stylist) {
-        return res.status(404).json({ success: false, message: 'Stylist not found' });
-      }
-
       const activeAppointments = await Appointment.find({
-        stylist: stylistId,
-        date,
-        status: { $ne: 'cancelled' }
+        appointmentDate: date,
+        status: { $ne: 'Cancelled' }
       });
-      bookedSlots = activeAppointments.map(app => app.timeSlot);
+      bookedSlots = activeAppointments.map(app => app.appointmentTime);
     }
 
-    // Get all potential slots for this stylist
-    const allSlots = stylist.availability.slots || [];
-    
-    // Filter out booked slots
-    const availableSlots = allSlots.map(slot => ({
-      slot,
-      isAvailable: !bookedSlots.includes(slot)
-    }));
+    // Get slots list from settings
+    const allSlots = settings.slots || [];
+    const disabledSlots = settings.disabledSlots || [];
+
+    // Filter out disabled slots and already booked slots
+    const availableSlots = allSlots.map(slot => {
+      const isDisabled = disabledSlots.includes(slot);
+      const isBooked = bookedSlots.includes(slot);
+      return {
+        slot,
+        isAvailable: !isDisabled && !isBooked
+      };
+    });
 
     res.json({
       success: true,
-      stylist: stylist.name,
       date,
       slots: availableSlots
     });
@@ -69,12 +108,21 @@ exports.getAvailableSlots = async (req, res, next) => {
 };
 
 // Create Appointment Booking
+// Accepts two formats from frontend:
+//   1. serviceDetails[] - full objects { serviceId, serviceName, price, duration } (preferred - avoids ObjectId cast errors)
+//   2. services[]       - array of IDs (only used as fallback when IDs are valid MongoDB ObjectIds)
 exports.createAppointment = async (req, res, next) => {
-  const { services, stylistId, date, timeSlot, notes } = req.body;
+  const { services, serviceDetails, date, timeSlot, notes, customerName, email, phone } = req.body;
   const userId = req.user._id;
 
-  if (!services || services.length === 0 || !stylistId || !date || !timeSlot) {
-    return res.status(400).json({ success: false, message: 'Please provide services, stylist, date and timeslot' });
+  const hasServiceDetails = Array.isArray(serviceDetails) && serviceDetails.length > 0;
+  const hasServiceIds = Array.isArray(services) && services.length > 0;
+
+  if (!hasServiceDetails && !hasServiceIds) {
+    return res.status(400).json({ success: false, message: 'Please provide services to book' });
+  }
+  if (!date || !timeSlot) {
+    return res.status(400).json({ success: false, message: 'Please provide date and timeslot' });
   }
 
   // Check Tuesday closure (2 = Tuesday in UTC)
@@ -84,38 +132,69 @@ exports.createAppointment = async (req, res, next) => {
   }
 
   try {
-    let totalAmount = 0;
-    let stylistExists = false;
+    const settings = await getActiveSettings();
 
-    // Calculate total price of services
+    // Check blocked holidays
+    if (settings.blockedHolidays && settings.blockedHolidays.includes(date)) {
+      return res.status(400).json({ success: false, message: 'This date is a blocked holiday.' });
+    }
+
+    // Check if slot is disabled in settings
+    if (settings.disabledSlots && settings.disabledSlots.includes(timeSlot)) {
+      return res.status(400).json({ success: false, message: 'This timeslot has been disabled.' });
+    }
+
+    let totalAmount = 0;
+    let totalDuration = 0;
+    const selectedServicesData = [];
+
     if (getIsMock()) {
       const db = readMockDB();
-      stylistExists = db.stylists.some(s => s._id === stylistId);
 
-      if (!stylistExists) {
-        return res.status(404).json({ success: false, message: 'Selected stylist does not exist' });
-      }
-
-      // Check slot conflict
+      // Check double booking
       const slotConflict = db.appointments.some(
-        app => app.stylist === stylistId && app.date === date && app.timeSlot === timeSlot && app.status !== 'cancelled'
+        app => app.appointmentDate === date && app.appointmentTime === timeSlot && app.status !== 'Cancelled'
       );
       if (slotConflict) {
-        return res.status(400).json({ success: false, message: 'This timeslot has already been booked' });
+        return res.status(400).json({ success: false, message: 'This slot is unavailable. Please choose another time.' });
       }
 
-      services.forEach(srvId => {
-        const srv = db.services.find(s => s._id === srvId);
-        if (srv) totalAmount += srv.price;
-      });
+      if (hasServiceDetails) {
+        // Use full details sent from frontend (handles non-ObjectId fallback IDs like "service_43")
+        serviceDetails.forEach(srv => {
+          const price = Number(srv.price) || 0;
+          const duration = Number(srv.duration) || 0;
+          totalAmount += price;
+          totalDuration += duration;
+          selectedServicesData.push({
+            serviceId: String(srv.serviceId || srv._id || 'unknown'),
+            serviceName: srv.serviceName || srv.name || 'Service',
+            price,
+            duration
+          });
+        });
+      } else {
+        // Fallback: look up by ID in mock DB
+        services.forEach(srvId => {
+          const srv = db.services.find(s => s._id === srvId);
+          if (srv) {
+            totalAmount += srv.price;
+            totalDuration += srv.duration;
+            selectedServicesData.push({
+              serviceId: srv._id,
+              serviceName: srv.name,
+              price: srv.price,
+              duration: srv.duration
+            });
+          }
+        });
+      }
 
-      // Reward membership points: 1 point per $10 spent
+      // Reward membership points
       const pointsEarned = Math.floor(totalAmount / 10);
       const userIndex = db.users.findIndex(u => u._id === userId);
       if (userIndex !== -1) {
         db.users[userIndex].membershipPoints = (db.users[userIndex].membershipPoints || 0) + pointsEarned;
-        
-        // Upgrade membership based on points
         const points = db.users[userIndex].membershipPoints;
         if (points >= 1000) db.users[userIndex].membershipType = 'VIP';
         else if (points >= 500) db.users[userIndex].membershipType = 'Platinum';
@@ -125,69 +204,117 @@ exports.createAppointment = async (req, res, next) => {
 
       const newApp = {
         _id: 'appointment_' + Date.now(),
-        user: userId,
-        services,
-        stylist: stylistId,
-        date,
-        timeSlot,
-        status: 'pending',
-        notes: notes || '',
+        customerId: userId,
+        customerName: customerName || req.user.name,
+        email: email || req.user.email,
+        phone: phone || req.user.phone,
+        selectedServices: selectedServicesData,
         totalAmount,
+        totalDuration,
+        appointmentDate: date,
+        appointmentTime: timeSlot,
+        status: 'Pending',
+        notes: notes || '',
+        reminderSent: false,
         createdAt: new Date().toISOString()
       };
 
       db.appointments.push(newApp);
       writeMockDB(db);
 
+      // Trigger asynchronous notifications
+      sendBookingCreated(newApp, settings).catch(console.error);
+
       res.status(201).json({
         success: true,
         message: 'Appointment booked successfully',
         appointment: newApp
       });
-    } else {
-      const stylist = await Stylist.findById(stylistId);
-      if (!stylist) {
-        return res.status(404).json({ success: false, message: 'Selected stylist does not exist' });
-      }
 
-      // Check slot conflict
+    } else {
+      // MongoDB path
+
+      // Check double booking
       const slotConflict = await Appointment.findOne({
-        stylist: stylistId,
-        date,
-        timeSlot,
-        status: { $ne: 'cancelled' }
+        appointmentDate: date,
+        appointmentTime: timeSlot,
+        status: { $ne: 'Cancelled' }
       });
       if (slotConflict) {
-        return res.status(400).json({ success: false, message: 'This timeslot has already been booked' });
+        return res.status(400).json({ success: false, message: 'This slot is unavailable. Please choose another time.' });
       }
 
-      // Fetch service prices
-      const dbServices = await Service.find({ _id: { $in: services } });
-      dbServices.forEach(s => {
-        totalAmount += s.price;
-      });
+      if (hasServiceDetails) {
+        // Use full details sent from frontend — avoids ObjectId cast error for IDs like "service_43"
+        serviceDetails.forEach(srv => {
+          const price = Number(srv.price) || 0;
+          const duration = Number(srv.duration) || 0;
+          totalAmount += price;
+          totalDuration += duration;
+          selectedServicesData.push({
+            serviceId: String(srv.serviceId || srv._id || 'unknown'),
+            serviceName: srv.serviceName || srv.name || 'Service',
+            price,
+            duration
+          });
+        });
+      } else {
+        // Only reach here when IDs are guaranteed valid MongoDB ObjectIds
+        const validIds = services.filter(id => mongoose.Types.ObjectId.isValid(id));
+        if (validIds.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'No valid service IDs provided. Please re-select services from the catalog.'
+          });
+        }
+        const dbServices = await Service.find({ _id: { $in: validIds } });
+        dbServices.forEach(s => {
+          totalAmount += s.price;
+          totalDuration += s.duration;
+          selectedServicesData.push({
+            serviceId: s._id,
+            serviceName: s.name,
+            price: s.price,
+            duration: s.duration
+          });
+        });
+      }
+
+      if (selectedServicesData.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Could not resolve any services. Please re-select services from the catalog.'
+        });
+      }
 
       const appointment = await Appointment.create({
-        user: userId,
-        services,
-        stylist: stylistId,
-        date,
-        timeSlot,
-        status: 'pending',
-        notes,
-        totalAmount
+        customerId: userId,
+        customerName: customerName || req.user.name,
+        email: email || req.user.email,
+        phone: phone || req.user.phone,
+        selectedServices: selectedServicesData,
+        totalAmount,
+        totalDuration,
+        appointmentDate: date,
+        appointmentTime: timeSlot,
+        status: 'Pending',
+        notes: notes || '',
+        reminderSent: false
       });
 
-      // Update points
+      // Update user membership points
       const pointsEarned = Math.floor(totalAmount / 10);
       const user = await User.findById(userId);
       if (user) {
-        user.membershipPoints += pointsEarned;
+        user.membershipPoints = (user.membershipPoints || 0) + pointsEarned;
         if (user.membershipPoints >= 1000) user.membershipType = 'VIP';
         else if (user.membershipPoints >= 500) user.membershipType = 'Platinum';
         else if (user.membershipPoints >= 200) user.membershipType = 'Gold';
         await user.save();
       }
+
+      // Trigger notifications
+      sendBookingCreated(appointment, settings).catch(console.error);
 
       res.status(201).json({
         success: true,
@@ -200,39 +327,25 @@ exports.createAppointment = async (req, res, next) => {
   }
 };
 
-// Get Logged In User's Bookings
+// Fetch Logged In User's Bookings
 exports.getUserAppointments = async (req, res, next) => {
   const userId = req.user._id;
 
   try {
     if (getIsMock()) {
       const db = readMockDB();
-      const userApps = db.appointments.filter(app => app.user === userId);
-
-      // Populate services and stylists names manually
-      const populated = userApps.map(app => {
-        const srvDetails = app.services.map(sId => db.services.find(s => s._id === sId)).filter(Boolean);
-        const stylistDetail = db.stylists.find(s => s._id === app.stylist);
-        return {
-          ...app,
-          serviceDetails: srvDetails,
-          stylistName: stylistDetail ? stylistDetail.name : 'Unknown Stylist'
-        };
-      }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const userApps = db.appointments.filter(app => app.customerId === userId || app.user === userId);
+      const populated = userApps.map(app => ({
+        ...app,
+        serviceDetails: app.selectedServices || []
+      })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       res.json({ success: true, count: populated.length, appointments: populated });
     } else {
-      const appointments = await Appointment.find({ user: userId }).sort({ createdAt: -1 });
-      
-      // Populate details
-      const populated = await Promise.all(appointments.map(async (app) => {
-        const srvDetails = await Service.find({ _id: { $in: app.services } });
-        const stylistDetail = await Stylist.findById(app.stylist);
-        return {
-          ...app._doc,
-          serviceDetails: srvDetails,
-          stylistName: stylistDetail ? stylistDetail.name : 'Unknown Stylist'
-        };
+      const appointments = await Appointment.find({ customerId: userId }).sort({ createdAt: -1 });
+      const populated = appointments.map(app => ({
+        ...app._doc,
+        serviceDetails: app.selectedServices || []
       }));
 
       res.json({ success: true, count: populated.length, appointments: populated });
@@ -242,41 +355,28 @@ exports.getUserAppointments = async (req, res, next) => {
   }
 };
 
-// Get All Bookings (Admin)
+// Fetch All Bookings (Admin)
 exports.getAdminAppointments = async (req, res, next) => {
   try {
     if (getIsMock()) {
       const db = readMockDB();
-      const populated = db.appointments.map(app => {
-        const userDetail = db.users.find(u => u._id === app.user);
-        const srvDetails = app.services.map(sId => db.services.find(s => s._id === sId)).filter(Boolean);
-        const stylistDetail = db.stylists.find(s => s._id === app.stylist);
-        return {
-          ...app,
-          userName: userDetail ? userDetail.name : 'Unknown Client',
-          userEmail: userDetail ? userDetail.email : '',
-          userPhone: userDetail ? userDetail.phone : '',
-          serviceDetails: srvDetails,
-          stylistName: stylistDetail ? stylistDetail.name : 'Unknown Stylist'
-        };
-      }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const populated = db.appointments.map(app => ({
+        ...app,
+        userName: app.customerName,
+        userEmail: app.email,
+        userPhone: app.phone,
+        serviceDetails: app.selectedServices || []
+      })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
       res.json({ success: true, count: populated.length, appointments: populated });
     } else {
       const appointments = await Appointment.find().sort({ createdAt: -1 });
-
-      const populated = await Promise.all(appointments.map(async (app) => {
-        const userDetail = await User.findById(app.user);
-        const srvDetails = await Service.find({ _id: { $in: app.services } });
-        const stylistDetail = await Stylist.findById(app.stylist);
-        return {
-          ...app._doc,
-          userName: userDetail ? userDetail.name : 'Unknown Client',
-          userEmail: userDetail ? userDetail.email : '',
-          userPhone: userDetail ? userDetail.phone : '',
-          serviceDetails: srvDetails,
-          stylistName: stylistDetail ? stylistDetail.name : 'Unknown Stylist'
-        };
+      const populated = appointments.map(app => ({
+        ...app._doc,
+        userName: app.customerName,
+        userEmail: app.email,
+        userPhone: app.phone,
+        serviceDetails: app.selectedServices || []
       }));
 
       res.json({ success: true, count: populated.length, appointments: populated });
@@ -286,12 +386,21 @@ exports.getAdminAppointments = async (req, res, next) => {
   }
 };
 
-// Update Appointment Status (Admin or User canceling)
+// Update Appointment Status (Pending, Confirmed, Completed, Cancelled)
 exports.updateAppointmentStatus = async (req, res, next) => {
   const { id } = req.params;
-  const { status } = req.body; // pending, confirmed, cancelled, completed
+  const { status } = req.body; // Pending, Confirmed, Completed, Cancelled
+
+  if (!status) {
+    return res.status(400).json({ success: false, message: 'Please provide status' });
+  }
+
+  // Normalise case to match schema enum: "Pending", "Confirmed", "Completed", "Cancelled"
+  const normalizedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
   try {
+    const settings = await getActiveSettings();
+
     if (getIsMock()) {
       const db = readMockDB();
       const index = db.appointments.findIndex(app => app._id === id);
@@ -299,29 +408,44 @@ exports.updateAppointmentStatus = async (req, res, next) => {
         return res.status(404).json({ success: false, message: 'Appointment not found' });
       }
 
-      // If user is trying to cancel, ensure they own the booking (or is admin)
-      if (status === 'cancelled' && req.user.role !== 'admin' && db.appointments[index].user !== req.user._id) {
+      // Authorization check for cancel
+      if (normalizedStatus === 'Cancelled' && req.user.role !== 'admin' && db.appointments[index].customerId !== req.user._id) {
         return res.status(403).json({ success: false, message: 'Not authorized to modify this booking' });
       }
 
-      db.appointments[index].status = status;
+      db.appointments[index].status = normalizedStatus;
       writeMockDB(db);
 
-      res.json({ success: true, message: `Appointment status updated to ${status}`, appointment: db.appointments[index] });
+      // Trigger status notifications
+      const app = db.appointments[index];
+      if (normalizedStatus === 'Confirmed') {
+        sendBookingConfirmed(app, settings).catch(console.error);
+      } else if (normalizedStatus === 'Cancelled') {
+        sendBookingCancelled(app, settings).catch(console.error);
+      }
+
+      res.json({ success: true, message: `Appointment status updated to ${normalizedStatus}`, appointment: app });
     } else {
       const appointment = await Appointment.findById(id);
       if (!appointment) {
         return res.status(404).json({ success: false, message: 'Appointment not found' });
       }
 
-      if (status === 'cancelled' && req.user.role !== 'admin' && appointment.user.toString() !== req.user._id.toString()) {
+      if (normalizedStatus === 'Cancelled' && req.user.role !== 'admin' && appointment.customerId.toString() !== req.user._id.toString()) {
         return res.status(403).json({ success: false, message: 'Not authorized to modify this booking' });
       }
 
-      appointment.status = status;
+      appointment.status = normalizedStatus;
       await appointment.save();
 
-      res.json({ success: true, message: `Appointment status updated to ${status}`, appointment });
+      // Trigger status notifications
+      if (normalizedStatus === 'Confirmed') {
+        sendBookingConfirmed(appointment, settings).catch(console.error);
+      } else if (normalizedStatus === 'Cancelled') {
+        sendBookingCancelled(appointment, settings).catch(console.error);
+      }
+
+      res.json({ success: true, message: `Appointment status updated to ${normalizedStatus}`, appointment });
     }
   } catch (error) {
     next(error);

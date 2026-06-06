@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { useBooking } from '../context/BookingContext';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
 import { RiUserSharedLine } from 'react-icons/ri';
 import VivaLogo from './VivaLogo';
@@ -9,6 +10,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
+  const { selectedServices } = useBooking();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,12 +31,37 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
+  const handleBookRitual = () => {
+    if (selectedServices.length > 0) {
+      navigate('/catalog?drawer=open');
+    } else {
+      navigate('/catalog?msg=select');
+    }
+  };
+
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
     { name: 'Catalog', path: '/catalog' },
     { name: 'Contact', path: '/contact' }
   ];
+
+  const renderAvatar = () => {
+    if (user?.profileImage || user?.imageUrl) {
+      return (
+        <img 
+          src={user.profileImage || user.imageUrl} 
+          alt={user.name} 
+          className="w-8 h-8 rounded-full border border-viva-gold/40 object-cover"
+        />
+      );
+    }
+    return (
+      <div className="w-8 h-8 rounded-full bg-viva-gold/10 border border-viva-gold/40 flex items-center justify-center text-viva-gold font-bold text-xs uppercase">
+        {user?.name?.charAt(0) || 'U'}
+      </div>
+    );
+  };
 
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
@@ -72,48 +99,62 @@ const Navbar = () => {
         </div>
 
         {/* Action Button Controls */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-6">
           {user ? (
             <div className="flex items-center space-x-4">
               <Link 
                 to={user.role === 'admin' ? '/admin' : '/dashboard'} 
-                className="font-body text-sm text-viva-gold hover:text-viva-white transition-colors duration-300 flex items-center space-x-1"
+                className="flex items-center space-x-2 group animate-fade-in"
               >
-                <span>Dashboard</span>
+                {renderAvatar()}
+                <span className="font-body text-xs text-viva-white group-hover:text-viva-gold transition-colors duration-300 font-medium">
+                  {user.role === 'admin' ? 'Admin Portal' : 'My Account'}
+                </span>
               </Link>
               <button 
                 onClick={handleLogout}
-                className="text-xs text-viva-gray hover:text-viva-white border border-viva-gray/30 hover:border-viva-white/60 px-3 py-1.5 rounded transition-all duration-300"
+                className="text-xs text-viva-gray hover:text-viva-white border border-viva-gray/30 hover:border-viva-white/60 px-3 py-1.5 rounded transition-all duration-300 animate-fade-in"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <Link 
-              to="/login"
-              className="text-viva-white hover:text-viva-gold transition-colors duration-300 flex items-center space-x-1 py-1"
-            >
-              <RiUserSharedLine className="text-lg" />
-              <span className="text-sm font-body tracking-wider">Login</span>
-            </Link>
+            <div className="flex items-center space-x-4 animate-fade-in">
+              <Link 
+                to="/login"
+                className="text-viva-white hover:text-viva-gold transition-colors duration-300 flex items-center space-x-1 py-1"
+              >
+                <RiUserSharedLine className="text-lg" />
+                <span className="text-xs font-body tracking-wider font-semibold">Login</span>
+              </Link>
+              <Link 
+                to="/signup"
+                className="text-xs text-viva-white border border-viva-white/30 hover:border-viva-gold hover:text-zinc-950 hover:bg-viva-gold px-3 py-1.5 rounded transition-all duration-300 font-semibold"
+              >
+                Sign Up
+              </Link>
+            </div>
           )}
 
-          <Link
-            to="/booking"
+          <button
+            onClick={handleBookRitual}
             className="gold-shimmer text-viva-black font-body font-bold text-xs uppercase tracking-widest px-5 py-3 rounded shadow-gold-glow hover:scale-105 transition-transform duration-300"
           >
             Book Ritual
-          </Link>
+          </button>
         </div>
 
         {/* Mobile menu trigger button */}
         <div className="md:hidden flex items-center space-x-4">
-          <Link
-            to="/booking"
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              handleBookRitual();
+            }}
             className="gold-shimmer text-viva-black font-body font-bold text-[10px] uppercase tracking-widest px-3 py-2 rounded shadow-gold-glow"
           >
             Book
-          </Link>
+          </button>
           <button 
             onClick={() => setIsOpen(!isOpen)}
             className="text-viva-white hover:text-viva-gold transition-colors duration-300 p-1"
@@ -143,29 +184,41 @@ const Navbar = () => {
 
           {user ? (
             <div className="flex flex-col items-center space-y-4">
-              <span className="text-sm font-body text-viva-gray">Hello, {user.name}</span>
+              <div className="flex items-center gap-3">
+                {renderAvatar()}
+                <span className="text-sm font-body text-viva-gray">Hello, {user.name}</span>
+              </div>
               <Link
                 to={user.role === 'admin' ? '/admin' : '/dashboard'}
                 onClick={() => setIsOpen(false)}
-                className="font-body text-base text-viva-gold"
+                className="font-body text-base text-viva-gold font-bold tracking-wider"
               >
-                Go to Dashboard
+                {user.role === 'admin' ? 'Admin Dashboard' : 'My Dashboard'}
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-sm text-viva-gray border border-viva-gray/30 px-6 py-2 rounded"
+                className="text-sm text-viva-gray border border-viva-gray/30 hover:border-viva-white px-6 py-2 rounded transition-colors"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <Link
-              to="/login"
-              onClick={() => setIsOpen(false)}
-              className="font-body text-lg text-viva-white hover:text-viva-gold transition-colors"
-            >
-              Login / Sign Up
-            </Link>
+            <div className="flex flex-col items-center space-y-4">
+              <Link
+                to="/login"
+                onClick={() => setIsOpen(false)}
+                className="font-body text-lg text-viva-white hover:text-viva-gold transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                onClick={() => setIsOpen(false)}
+                className="font-body text-lg text-viva-white hover:text-viva-gold transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
           )}
         </div>
       </div>

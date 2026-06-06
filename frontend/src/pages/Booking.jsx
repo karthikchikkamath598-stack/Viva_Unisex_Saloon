@@ -111,12 +111,7 @@ const Booking = () => {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [error, setError] = useState('');
 
-  // Auth Redirect check
-  useEffect(() => {
-    if (!token && !user) {
-      navigate('/login?redirect=booking');
-    }
-  }, [token, user, navigate]);
+  // Auth Redirect check has been replaced by the modal overlay block in the render method below
 
   // Fetch initial services & stylists
   useEffect(() => {
@@ -340,6 +335,59 @@ const Booking = () => {
 
   return (
     <div className="pt-24 min-h-screen bg-viva-black pb-16 font-body">
+      <AnimatePresence>
+        {!user && (
+          <motion.div 
+            className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[100] p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="max-w-md w-full bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl relative text-center overflow-hidden"
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 180 }}
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gold-gradient" />
+              
+              <div className="w-16 h-16 bg-viva-gold/10 border border-viva-gold/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <FiLock className="text-viva-gold text-2xl" />
+              </div>
+              
+              <h3 className="font-heading text-2xl font-bold text-white tracking-wider uppercase mb-3">Sign In Required</h3>
+              <p className="text-xs text-zinc-400 mb-8 leading-relaxed font-light">
+                Please sign in to book an appointment. Create an account or sign in to configure your custom makeover ritual slots.
+              </p>
+
+              <div className="flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate('/login?redirect=booking')}
+                  className="w-full bg-viva-gold hover:bg-viva-gold/90 text-zinc-950 font-bold text-xs uppercase tracking-widest py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/signup?redirect=booking')}
+                  className="w-full bg-transparent hover:bg-zinc-800 border border-zinc-700 text-white font-bold text-xs uppercase tracking-widest py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2 hover:scale-[1.02]"
+                >
+                  Register Account
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/')}
+                  className="text-xs text-zinc-500 hover:text-zinc-300 font-medium transition-colors pt-3"
+                >
+                  Return to Home
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="max-w-5xl mx-auto px-6">
         {/* Progress header */}
         <div className="mb-12 text-center">

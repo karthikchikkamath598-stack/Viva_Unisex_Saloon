@@ -115,6 +115,44 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('All');
   const isClosedToday = new Date().getDay() === 2; // 2 = Tuesday
 
+  const handleBookRitual = () => {
+    let services = [];
+    try {
+      const local = localStorage.getItem('viva_selected_services');
+      services = local ? JSON.parse(local) : [];
+    } catch (e) {
+      services = [];
+    }
+
+    if (services.length > 0) {
+      navigate('/catalog?drawer=open');
+    } else {
+      navigate('/catalog?msg=select');
+    }
+  };
+
+  const handleQuickBook = (serviceId) => {
+    const foundItem = catalogItems.find(item => item.id === serviceId);
+    if (foundItem) {
+      const durationMap = {
+        service_1: 45, service_2: 60, service_3: 60, service_4: 120,
+        service_5: 90, service_6: 45, service_7: 75, service_8: 30,
+        service_9: 40, service_10: 180
+      };
+      const selected = {
+        _id: foundItem.id,
+        name: foundItem.name,
+        price: foundItem.price,
+        duration: durationMap[foundItem.id] || 45,
+        imageUrl: foundItem.image
+      };
+      localStorage.setItem('viva_selected_services', JSON.stringify([selected]));
+      navigate('/schedule-appointment');
+    } else {
+      navigate(`/schedule-appointment?services=${serviceId}`);
+    }
+  };
+
   // Clean, elegant scroll reveals
   const sectionAnimation = {
     initial: { opacity: 0, y: 40 },
@@ -193,12 +231,12 @@ const Home = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 items-center w-full sm:w-auto">
-              <Link
-                to="/booking"
+              <button
+                onClick={handleBookRitual}
                 className="gold-shimmer text-viva-black font-body font-bold text-xs uppercase tracking-widest px-8 py-4.5 rounded shadow-gold-glow hover:scale-105 transition-all w-full sm:w-auto text-center"
               >
                 Book Appointment
-              </Link>
+              </button>
               <button
                 onClick={() => document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth' })}
                 className="border border-white/20 hover:border-viva-gold text-viva-white hover:text-viva-gold font-body font-bold text-xs uppercase tracking-widest px-8 py-4.5 rounded transition-all w-full sm:w-auto text-center bg-white/5 hover:bg-white/10"
@@ -409,12 +447,12 @@ const Home = () => {
                   <p className="text-[9px] text-viva-gray uppercase tracking-widest">Next Available Slot</p>
                   <p className="text-xs text-viva-gold font-bold">Today at 3:30 PM</p>
                 </div>
-                <Link
-                  to="/booking"
+                <button
+                  onClick={handleBookRitual}
                   className="gold-shimmer text-viva-black text-center font-body font-bold text-[10px] uppercase tracking-widest px-5 py-3 rounded shadow-gold-glow hover:scale-105 transition-all"
                 >
                   Book Now
-                </Link>
+                </button>
               </div>
             </TiltCard>
 
@@ -489,7 +527,7 @@ const Home = () => {
                   </code>
                 </div>
                 <button 
-                  onClick={() => navigate('/booking?promo=VIVAGLOW20')}
+                  onClick={() => navigate('/schedule-appointment?promo=VIVAGLOW20')}
                   className="text-[10px] font-bold text-viva-gold hover:text-viva-white transition-colors uppercase tracking-widest flex items-center gap-1"
                 >
                   Claim Code <FiArrowRight />
@@ -579,7 +617,7 @@ const Home = () => {
                   <div className="flex justify-between items-center border-t border-white/5 pt-3 mt-3">
                     <span className="font-heading text-viva-gold font-bold text-sm">₹{item.price}</span>
                     <button
-                      onClick={() => navigate(`/booking?service=${item.id}`)}
+                      onClick={() => handleQuickBook(item.id)}
                       className="text-[9px] font-bold text-viva-white hover:text-viva-gold transition-colors uppercase tracking-widest"
                     >
                       Book Now

@@ -222,7 +222,10 @@ exports.googleLogin = async (req, res, next) => {
   }
 };
 
-// Forgot Password / OTP request
+// Temp store for Reset Tokens
+const resetTokenStore = new Map();
+
+// Forgot Password - Generate Reset Token
 exports.forgotPassword = async (req, res, next) => {
   const { email } = req.body;
 
@@ -233,34 +236,112 @@ exports.forgotPassword = async (req, res, next) => {
     const normalizedEmail = email.toLowerCase().trim();
 
     let userExists = false;
+    let userName = '';
     if (getIsMock()) {
       const db = readMockDB();
-      userExists = db.users.some(u => u.email === normalizedEmail);
+      const user = db.users.find(u => u.email === normalizedEmail);
+      userExists = !!user;
+      if (user) userName = user.name;
     } else {
-      userExists = await User.findOne({ email: normalizedEmail });
+      const user = await User.findOne({ email: normalizedEmail });
+      userExists = !!user;
+      if (user) userName = user.name;
     }
 
     if (!userExists) {
       return res.status(404).json({ success: false, message: 'User not found with this email' });
     }
 
-    // Generate a 6-digit OTP
+    // Generate token
+    const crypto = require('crypto');
+    const token = crypto.randomBytes(20).toString('hex');
+    
+    // Store token (valid for 1 hour)
+    resetTokenStore.set(token, {
+      email: normalizedEmail,
+      expires: Date.now() + 3600000 // 1 hour
+    });
+
+    // Also support OTP for backwards compatibility
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     otpStore.set(normalizedEmail, { otp, expires: Date.now() + 600000 }); // 10 minutes expiry
 
-    console.log(`[VIVA OTP SYSTEM] Generated OTP ${otp} for email ${normalizedEmail}`);
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const resetUrl = `${clientUrl}/reset-password/${token}`;
+    console.log(`\n================================================================`);
+    console.log(`[VIVA PASSWORD RESET SYSTEM]`);
+    console.log(`User: ${userName} (${normalizedEmail})`);
+    console.log(`Reset URL: ${resetUrl}`);
+    console.log(`OTP (Fallback): ${otp}`);
+    console.log(`================================================================\n`);
 
     res.json({
       success: true,
-      message: 'OTP sent successfully to your email (for simulation, check server logs or use: 123456)',
-      otp: process.env.NODE_ENV === 'production' ? null : otp // expose OTP in development for easy UI testing
+      message: 'Password reset link sent to your email (for simulation, check server console logs)',
+      token: process.env.NODE_ENV === 'production' ? null : token, // expose token in development
+      otp: process.env.NODE_ENV === 'production' ? null : otp
     });
   } catch (error) {
     next(error);
   }
 };
 
-// Verify OTP & Reset Password
+// Validate Reset Token
+exports.validateResetToken = async (req, res, next) => {
+  const { token } = req.params;
+  try {
+    const record = resetTokenStore.get(token);
+    if (!record || record.expires < Date.now()) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+    }
+    res.json({ success: true, message: 'Token is valid' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Reset Password
+exports.resetPassword = async (req, res, next) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  try {
+    const record = resetTokenStore.get(token);
+
+    if (!record || record.expires < Date.now()) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+    }
+
+    const { email } = record;
+
+    if (getIsMock()) {
+      const db = readMockDB();
+      const userIndex = db.users.findIndex(u => u.email === email);
+      if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      db.users[userIndex].password = await bcrypt.hash(password, 10);
+      writeMockDB(db);
+    } else {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+      user.password = password; // pre-save hook will hash it
+      await user.save();
+    }
+
+    // Clear the token
+    resetTokenStore.delete(token);
+
+    res.json({ success: true, message: 'Password has been reset successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Verify OTP & Reset Password (Fallback / legacy)
 exports.verifyOtp = async (req, res, next) => {
   const { email, otp, newPassword } = req.body;
 
@@ -272,7 +353,6 @@ exports.verifyOtp = async (req, res, next) => {
 
     const record = otpStore.get(normalizedEmail);
 
-    // Allow a development back-door OTP of "123456" for simpler testing
     const isValidDevOtp = otp === '123456';
     const isValidSystemOtp = record && record.otp === otp && record.expires > Date.now();
 
@@ -280,7 +360,6 @@ exports.verifyOtp = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid or expired OTP' });
     }
 
-    // Clear OTP
     otpStore.delete(normalizedEmail);
 
     if (getIsMock()) {
@@ -355,6 +434,73 @@ exports.toggleSavedService = async (req, res, next) => {
 
       await user.save();
       res.json({ success: true, savedServices: user.savedServices });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Update Profile
+exports.updateProfile = async (req, res, next) => {
+  const { name, email, phone } = req.body;
+  const userId = req.user._id;
+
+  try {
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    const normalizedEmail = email.toLowerCase().trim();
+
+    if (getIsMock()) {
+      const db = readMockDB();
+      
+      // Check if email is taken by another user
+      const emailTaken = db.users.some(u => u.email === normalizedEmail && u._id !== userId);
+      if (emailTaken) {
+        return res.status(400).json({ success: false, message: 'Email already in use' });
+      }
+
+      const userIndex = db.users.findIndex(u => u._id === userId);
+      if (userIndex === -1) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      db.users[userIndex].name = name || db.users[userIndex].name;
+      db.users[userIndex].email = normalizedEmail;
+      db.users[userIndex].phone = phone || db.users[userIndex].phone;
+      
+      writeMockDB(db);
+      
+      const updatedUser = { ...db.users[userIndex] };
+      delete updatedUser.password;
+      
+      res.json({
+        success: true,
+        user: updatedUser
+      });
+    } else {
+      // Check if email is taken by another user
+      const emailTaken = await User.findOne({ email: normalizedEmail, _id: { $ne: userId } });
+      if (emailTaken) {
+        return res.status(400).json({ success: false, message: 'Email already in use' });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      user.name = name || user.name;
+      user.email = normalizedEmail;
+      user.phone = phone || user.phone;
+
+      await user.save();
+      
+      const userWithoutPassword = await User.findById(userId).select('-password');
+      res.json({
+        success: true,
+        user: userWithoutPassword
+      });
     }
   } catch (error) {
     next(error);

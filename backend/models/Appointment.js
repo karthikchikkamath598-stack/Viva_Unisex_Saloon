@@ -1,39 +1,69 @@
 const mongoose = require('mongoose');
 
 const appointmentSchema = new mongoose.Schema({
-  user: {
+  customerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  services: [{
-    type: String, // service IDs or references
-    required: true
-  }],
-  stylist: {
-    type: String, // stylist ID
+  customerName: {
+    type: String,
     required: true
   },
-  date: {
+  email: {
+    type: String,
+    required: true
+  },
+  phone: {
+    type: String,
+    required: true
+  },
+  selectedServices: [{
+    serviceId: {
+      type: String,
+      required: true
+    },
+    serviceName: {
+      type: String,
+      required: true
+    },
+    price: {
+      type: Number,
+      required: true
+    },
+    duration: {
+      type: Number,
+      required: true
+    }
+  }],
+  totalAmount: {
+    type: Number,
+    required: true
+  },
+  totalDuration: {
+    type: Number,
+    required: true
+  },
+  appointmentDate: {
     type: String, // YYYY-MM-DD format
     required: true
   },
-  timeSlot: {
-    type: String, // e.g. "11:00 AM"
+  appointmentTime: {
+    type: String, // e.g., "11:00 AM"
     required: true
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'cancelled', 'completed'],
-    default: 'pending'
+    enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'],
+    default: 'Pending'
   },
   notes: {
     type: String,
     default: ''
   },
-  totalAmount: {
-    type: Number,
-    required: true
+  reminderSent: {
+    type: Boolean,
+    default: false
   },
   createdAt: {
     type: Date,

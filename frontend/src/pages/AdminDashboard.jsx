@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { FiTrendingUp, FiCalendar, FiDollarSign, FiUsers, FiPlus, FiTrash, FiCheck, FiX, FiLayers, FiSettings, FiImage } from 'react-icons/fi';
+import { FiTrendingUp, FiCalendar, FiDollarSign, FiUsers, FiPlus, FiTrash, FiCheck, FiX, FiLayers, FiSettings, FiImage, FiSliders } from 'react-icons/fi';
 
 const AdminDashboard = () => {
   const { API_URL } = useContext(AuthContext);
@@ -164,7 +165,8 @@ const AdminDashboard = () => {
             { id: 'analytics', label: 'Analytics Report', icon: <FiTrendingUp /> },
             { id: 'bookings', label: 'Bookings Calendar', icon: <FiCalendar /> },
             { id: 'services', label: 'Services Manager', icon: <FiLayers /> },
-            { id: 'offers', label: 'Promos Planner', icon: <FiSettings /> }
+            { id: 'offers', label: 'Promos Planner', icon: <FiSettings /> },
+            { id: 'settings', label: 'Salon Settings', icon: <FiSliders /> }
           ].map(tab => (
             <button
               key={tab.id}
@@ -303,30 +305,30 @@ const AdminDashboard = () => {
                       {bookings.map(app => (
                         <tr key={app._id} className="hover:bg-viva-black/25">
                           <td className="p-3">
-                            <span className="block text-viva-white font-bold">{app.userName}</span>
-                            <span className="block text-[10px] text-viva-gray">{app.userEmail}</span>
-                            <span className="block text-[10px] text-viva-gray">{app.userPhone}</span>
+                            <span className="block text-viva-white font-bold">{app.customerName}</span>
+                            <span className="block text-[10px] text-viva-gray">{app.email}</span>
+                            <span className="block text-[10px] text-viva-gray">{app.phone}</span>
                           </td>
                           <td className="p-3">
                             <div className="flex flex-col gap-0.5 max-w-xs truncate">
-                              {app.serviceDetails?.map((s, i) => (
-                                <span key={i} className="text-[10px] text-viva-white font-semibold">&bull; {s.name}</span>
+                              {app.selectedServices?.map((s, i) => (
+                                <span key={i} className="text-[10px] text-viva-white font-semibold">&bull; {s.serviceName}</span>
                               ))}
                             </div>
                           </td>
-                          <td className="p-3 text-viva-white font-semibold">{app.stylistName}</td>
+                          <td className="p-3 text-viva-white font-semibold">{app.notes || '—'}</td>
                           <td className="p-3">
-                            <span className="block text-viva-white font-bold">{app.date}</span>
-                            <span className="block text-[10px] text-viva-gold font-mono">{app.timeSlot}</span>
+                            <span className="block text-viva-white font-bold">{app.appointmentDate}</span>
+                            <span className="block text-[10px] text-viva-gold font-mono">{app.appointmentTime}</span>
                           </td>
                           <td className="p-3 text-viva-gold font-bold text-sm">₹{app.totalAmount}</td>
                           <td className="p-3">
                             <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded border ${
-                              app.status === 'confirmed' 
+                              app.status === 'Confirmed' 
                                 ? 'bg-green-950/30 text-green-300 border-green-900/40' 
-                                : app.status === 'cancelled' 
+                                : app.status === 'Cancelled' 
                                   ? 'bg-red-950/30 text-red-300 border-red-900/40' 
-                                  : app.status === 'completed'
+                                  : app.status === 'Completed'
                                     ? 'bg-blue-950/30 text-blue-300 border-blue-900/40'
                                     : 'bg-yellow-950/30 text-yellow-300 border-yellow-900/40'
                             }`}>
@@ -334,17 +336,17 @@ const AdminDashboard = () => {
                             </span>
                           </td>
                           <td className="p-3 text-right">
-                            {app.status === 'pending' && (
+                            {app.status === 'Pending' && (
                               <div className="flex justify-end gap-1.5">
                                 <button 
-                                  onClick={() => handleUpdateStatus(app._id, 'confirmed')}
+                                  onClick={() => handleUpdateStatus(app._id, 'Confirmed')}
                                   className="w-7 h-7 bg-green-900/20 hover:bg-green-900/50 border border-green-800 text-green-300 rounded flex items-center justify-center transition-colors"
                                   title="Approve"
                                 >
                                   <FiCheck />
                                 </button>
                                 <button 
-                                  onClick={() => handleUpdateStatus(app._id, 'cancelled')}
+                                  onClick={() => handleUpdateStatus(app._id, 'Cancelled')}
                                   className="w-7 h-7 bg-red-900/20 hover:bg-red-950/50 border border-red-800 text-red-300 rounded flex items-center justify-center transition-colors"
                                   title="Reject"
                                 >
@@ -352,9 +354,9 @@ const AdminDashboard = () => {
                                 </button>
                               </div>
                             )}
-                            {app.status === 'confirmed' && (
+                            {app.status === 'Confirmed' && (
                               <button 
-                                onClick={() => handleUpdateStatus(app._id, 'completed')}
+                                onClick={() => handleUpdateStatus(app._id, 'Completed')}
                                 className="bg-blue-900/30 hover:bg-blue-900/60 border border-blue-800 text-blue-300 px-3 py-1 rounded text-[10px] uppercase font-bold tracking-wider transition-colors"
                               >
                                 Mark Completed
@@ -638,6 +640,37 @@ const AdminDashboard = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: SALON SETTINGS */}
+            {activeTab === 'settings' && (
+              <div className="animate-fade-in space-y-6">
+                <div className="bg-viva-charcoal border border-white/5 p-6 rounded-lg">
+                  <h3 className="font-heading text-xl font-bold uppercase tracking-wider text-viva-gold mb-2">Salon Configuration</h3>
+                  <p className="text-xs text-viva-gray mb-6">Manage working hours, time slots, blocked dates, and contact details for VIVA Unisex Salon.</p>
+                  <Link
+                    to="/admin/settings"
+                    className="inline-flex items-center gap-2 bg-viva-gold hover:bg-viva-gold/90 text-viva-black font-body font-bold text-xs uppercase tracking-widest px-6 py-3 rounded shadow-gold-glow transition-all hover:scale-105"
+                  >
+                    <FiSliders />
+                    Open Salon Settings Panel
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-viva-charcoal border border-white/5 p-5 rounded-lg">
+                    <span className="text-[10px] text-viva-gray uppercase tracking-widest block mb-2">Working Hours</span>
+                    <p className="text-xs text-viva-white">Configure opening and closing times for each day of the week.</p>
+                  </div>
+                  <div className="bg-viva-charcoal border border-white/5 p-5 rounded-lg">
+                    <span className="text-[10px] text-viva-gray uppercase tracking-widest block mb-2">Slot Duration</span>
+                    <p className="text-xs text-viva-white">Set the default appointment slot length and buffer time between bookings.</p>
+                  </div>
+                  <div className="bg-viva-charcoal border border-white/5 p-5 rounded-lg">
+                    <span className="text-[10px] text-viva-gray uppercase tracking-widest block mb-2">Blocked Dates</span>
+                    <p className="text-xs text-viva-white">Mark holidays or unavailable dates to block appointment scheduling.</p>
+                  </div>
                 </div>
               </div>
             )}

@@ -5,6 +5,7 @@ import { ReactLenis } from 'lenis/react';
 import 'lenis/dist/lenis.css';
 
 import { AuthProvider } from './context/AuthContext';
+import { BookingProvider } from './context/BookingContext';
 
 // Common Components
 import Navbar from './components/Navbar';
@@ -18,11 +19,17 @@ import LuxuryBackground from './components/LuxuryBackground';
 import Home from './pages/Home';
 import About from './pages/About';
 import Catalog from './pages/Catalog';
-import Booking from './pages/Booking';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
+import ScheduleAppointment from './pages/ScheduleAppointment';
+import BookingSuccess from './pages/BookingSuccess';
+import AdminSettings from './pages/AdminSettings';
 
 // Scroll to top helper when switching pages
 const ScrollToTop = () => {
@@ -60,6 +67,10 @@ const AnimatedRoutes = () => {
         <Route path="/catalog" element={<PageWrapper><Catalog /></PageWrapper>} />
         <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
         <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
+        <Route path="/signup" element={<PageWrapper><Signup /></PageWrapper>} />
+        <Route path="/forgot-password" element={<PageWrapper><ForgotPassword /></PageWrapper>} />
+        <Route path="/reset-password/:token" element={<PageWrapper><ResetPassword /></PageWrapper>} />
+        <Route path="/admin/login" element={<PageWrapper><AdminLogin /></PageWrapper>} />
 
         {/* Protected User Dashboard */}
         <Route 
@@ -71,22 +82,25 @@ const AnimatedRoutes = () => {
           } 
         />
 
-        {/* Protected Booking Page */}
-        <Route 
-          path="/booking" 
-          element={
-            <ProtectedRoute>
-              <PageWrapper><Booking /></PageWrapper>
-            </ProtectedRoute>
-          } 
-        />
+        {/* Booking & Scheduling Pages */}
+        <Route path="/booking" element={<PageWrapper><ScheduleAppointment /></PageWrapper>} />
+        <Route path="/schedule-appointment" element={<PageWrapper><ScheduleAppointment /></PageWrapper>} />
+        <Route path="/booking-success" element={<PageWrapper><BookingSuccess /></PageWrapper>} />
 
-        {/* Protected Admin Dashboard */}
+        {/* Protected Admin Dashboard & Settings */}
         <Route 
           path="/admin" 
           element={
             <ProtectedRoute adminOnly={true}>
               <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/settings" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminSettings /></PageWrapper>
             </ProtectedRoute>
           } 
         />
@@ -103,6 +117,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <BookingProvider>
       {showLoader ? (
         <LoadingScreen onComplete={() => setShowLoader(false)} />
       ) : (
@@ -126,6 +141,7 @@ function App() {
           </Router>
         </ReactLenis>
       )}
+      </BookingProvider>
     </AuthProvider>
   );
 }

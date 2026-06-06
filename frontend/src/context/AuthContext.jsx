@@ -6,7 +6,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('viva_token'));
+  const [token, setToken] = useState(localStorage.getItem('viva_token') || sessionStorage.getItem('viva_token'));
   const [loading, setLoading] = useState(true);
 
   // Configure axios default header
@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }) => {
       } catch (err) {
         console.error('Auth verification failed, clearing credentials.', err);
         localStorage.removeItem('viva_token');
+        sessionStorage.removeItem('viva_token');
         setToken(null);
         setUser(null);
       } finally {
@@ -46,11 +47,17 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [token]);
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = true) => {
     try {
       const res = await axios.post(`${API_URL}/auth/login`, { email, password });
       if (res.data.success) {
-        localStorage.setItem('viva_token', res.data.token);
+        if (rememberMe) {
+          localStorage.setItem('viva_token', res.data.token);
+          sessionStorage.removeItem('viva_token');
+        } else {
+          sessionStorage.setItem('viva_token', res.data.token);
+          localStorage.removeItem('viva_token');
+        }
         setToken(res.data.token);
         setUser(res.data.user);
         return { success: true };
@@ -64,11 +71,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password, phone) => {
+  const register = async (name, email, password, phone, rememberMe = true) => {
     try {
       const res = await axios.post(`${API_URL}/auth/register`, { name, email, password, phone });
       if (res.data.success) {
-        localStorage.setItem('viva_token', res.data.token);
+        if (rememberMe) {
+          localStorage.setItem('viva_token', res.data.token);
+          sessionStorage.removeItem('viva_token');
+        } else {
+          sessionStorage.setItem('viva_token', res.data.token);
+          localStorage.removeItem('viva_token');
+        }
         setToken(res.data.token);
         setUser(res.data.user);
         return { success: true };
@@ -82,11 +95,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginWithGoogle = async (googleData) => {
+  const loginWithGoogle = async (googleData, rememberMe = true) => {
     try {
       const res = await axios.post(`${API_URL}/auth/google-login`, googleData);
       if (res.data.success) {
-        localStorage.setItem('viva_token', res.data.token);
+        if (rememberMe) {
+          localStorage.setItem('viva_token', res.data.token);
+          sessionStorage.removeItem('viva_token');
+        } else {
+          sessionStorage.setItem('viva_token', res.data.token);
+          localStorage.removeItem('viva_token');
+        }
         setToken(res.data.token);
         setUser(res.data.user);
         return { success: true };
@@ -102,6 +121,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('viva_token');
+    sessionStorage.removeItem('viva_token');
     setToken(null);
     setUser(null);
   };
@@ -125,6 +145,58 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (name, email, phone) => {
+    try {
+      const res = await axios.put(`${API_URL}/auth/profile`, { name, email, phone });
+      if (res.data.success) {
+        setUser(res.data.user);
+        return { success: true };
+      }
+      return { success: false, message: res.data.message || 'Failed to update profile.' };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Failed to update profile.'
+      };
+    }
+  };
+
+  const forgotPassword = async (email) => {
+    try {
+      const res = await axios.post(`${API_URL}/auth/forgot-password`, { email });
+      return { success: res.data.success, message: res.data.message, token: res.data.token };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Failed to send reset link.'
+      };
+    }
+  };
+
+  const resetPassword = async (tokenParam, password) => {
+    try {
+      const res = await axios.post(`${API_URL}/auth/reset-password/${tokenParam}`, { password });
+      return { success: res.data.success, message: res.data.message };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Failed to reset password.'
+      };
+    }
+  };
+
+  const validateResetToken = async (tokenParam) => {
+    try {
+      const res = await axios.get(`${API_URL}/auth/reset-password/${tokenParam}`);
+      return { success: res.data.success, message: res.data.message };
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Reset token is invalid or expired.'
+      };
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -135,6 +207,10 @@ export const AuthProvider = ({ children }) => {
       loginWithGoogle,
       logout,
       toggleSaveService,
+      updateProfile,
+      forgotPassword,
+      resetPassword,
+      validateResetToken,
       API_URL
     }}>
       {children}
