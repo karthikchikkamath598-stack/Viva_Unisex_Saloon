@@ -13,6 +13,7 @@ if (!process.env.JWT_SECRET) {
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const { connectDB } = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -75,8 +76,10 @@ const loginLimiter = rateLimit({
 });
 app.use('/api/auth/admin-login', loginLimiter);
 
-// Serve frontend static assets (CSS, JS, images)
-app.use(express.static(FRONTEND_DIST));
+// Serve frontend static assets (CSS, JS, images) if build folder exists
+if (fs.existsSync(FRONTEND_DIST)) {
+  app.use(express.static(FRONTEND_DIST));
+}
 
 // API Routes Mapping (must come before the catch-all)
 app.use('/api/auth', authRoutes);
@@ -92,10 +95,27 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/billing', billingRoutes);
 
-// Catch-all: serve React index.html for any non-API route (SPA routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
-});
+// Catch-all: serve React index.html if dist folder exists, otherwise return API welcome/404
+if (fs.existsSync(FRONTEND_DIST)) {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.json({
+      success: true,
+      message: 'VIVA Unisex Salon API Service is running.',
+      environment: process.env.NODE_ENV
+    });
+  });
+
+  app.get('*', (req, res) => {
+    res.status(404).json({
+      success: false,
+      message: 'API Endpoint Not Found'
+    });
+  });
+}
 
 // Global Error Handler
 app.use(errorHandler);
