@@ -7,6 +7,15 @@
 # 1. Dependency Directories
 # ------------------------------------------------------------------------------
 node_modules/
+jspm_packages/
+web_modules/
+.pnpm-store/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # ------------------------------------------------------------------------------
 # 2. Environment and Secret Files (Protect Credentials)
@@ -35,6 +44,11 @@ out/
 bin/
 obj/
 *.local
+.next/
+.nuxt/
+.output/
+.vuepress/dist/
+**/.vitepress/dist/
 
 # ------------------------------------------------------------------------------
 # 4. Testing & Coverage Reports
@@ -53,6 +67,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # ------------------------------------------------------------------------------
 # 6. Database (Prisma / PostgreSQL Local DB files)
@@ -92,15 +107,43 @@ Desktop.ini
 *.sw?
 *.swo
 *.swp
+.vscode-test
+.tern-port
 
 # ------------------------------------------------------------------------------
-# 9. Runtime Uploads & Cache
+# 9. Runtime Uploads, Cache, & Serverless
 # ------------------------------------------------------------------------------
 # Generated runtime uploads folder (if uploads are created dynamically)
 uploads/
 backend/uploads/
 .eslintcache
+.stylelintcache
 .parcel-cache
 .cache/
 tmp/
 temp/
+.temp/
+pids
+*.pid
+*.seed
+*.pid.lock
+lib-cov/
+.grunt/
+bower_components/
+.lock-wscript
+build/Release/
+*.tsbuildinfo
+.npm/
+.node_repl_history
+*.tgz
+.yarn-integrity
+.svelte-kit/
+**/.vitepress/cache/
+.docusaurus/
+.serverless/
+.fusebox/
+.dynamodb/
+.firebase/
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+.vite/
