@@ -10,26 +10,22 @@ import { BookingProvider } from './context/BookingContext';
 // Common Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import CustomCursor from './components/CustomCursor';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoadingScreen from './components/LoadingScreen';
 import LuxuryBackground from './components/LuxuryBackground';
 
-// Pages
-import Home from './pages/Home';
-import About from './pages/About';
-import Catalog from './pages/Catalog';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import Dashboard from './pages/Dashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminLogin from './pages/AdminLogin';
-import ScheduleAppointment from './pages/ScheduleAppointment';
-import BookingSuccess from './pages/BookingSuccess';
-import AdminSettings from './pages/AdminSettings';
+// Pages (Lazy Loaded)
+const Home = React.lazy(() => import('./pages/Home'));
+const About = React.lazy(() => import('./pages/About'));
+const Catalog = React.lazy(() => import('./pages/Catalog'));
+const Contact = React.lazy(() => import('./pages/Contact'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminLogin = React.lazy(() => import('./pages/AdminLogin'));
+const AdminRegister = React.lazy(() => import('./pages/AdminRegister'));
+const ScheduleAppointment = React.lazy(() => import('./pages/ScheduleAppointment'));
+const BookingSuccess = React.lazy(() => import('./pages/BookingSuccess'));
+const AdminSettings = React.lazy(() => import('./pages/AdminSettings'));
+const Memberships = React.lazy(() => import('./pages/Memberships'));
 
 // Scroll to top helper when switching pages
 const ScrollToTop = () => {
@@ -66,21 +62,13 @@ const AnimatedRoutes = () => {
         <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
         <Route path="/catalog" element={<PageWrapper><Catalog /></PageWrapper>} />
         <Route path="/contact" element={<PageWrapper><Contact /></PageWrapper>} />
-        <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
-        <Route path="/signup" element={<PageWrapper><Signup /></PageWrapper>} />
-        <Route path="/forgot-password" element={<PageWrapper><ForgotPassword /></PageWrapper>} />
-        <Route path="/reset-password/:token" element={<PageWrapper><ResetPassword /></PageWrapper>} />
+        <Route path="/memberships" element={<PageWrapper><Memberships /></PageWrapper>} />
+        <Route path="/membership" element={<PageWrapper><Memberships /></PageWrapper>} />
+        <Route path="/login" element={<PageWrapper><AdminLogin /></PageWrapper>} />
         <Route path="/admin/login" element={<PageWrapper><AdminLogin /></PageWrapper>} />
-
-        {/* Protected User Dashboard */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <PageWrapper><Dashboard /></PageWrapper>
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/admin-login" element={<PageWrapper><AdminLogin /></PageWrapper>} />
+        <Route path="/admin/register" element={<PageWrapper><AdminRegister /></PageWrapper>} />
+        <Route path="/admin-register" element={<PageWrapper><AdminRegister /></PageWrapper>} />
 
         {/* Booking & Scheduling Pages */}
         <Route path="/booking" element={<PageWrapper><ScheduleAppointment /></PageWrapper>} />
@@ -90,6 +78,102 @@ const AnimatedRoutes = () => {
         {/* Protected Admin Dashboard & Settings */}
         <Route 
           path="/admin" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/dashboard" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/services" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/catalog" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/orders" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/revenue" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/staff" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/memberships" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/customers" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/gallery" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/notifications" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <PageWrapper><AdminDashboard /></PageWrapper>
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/billing" 
           element={
             <ProtectedRoute adminOnly={true}>
               <PageWrapper><AdminDashboard /></PageWrapper>
@@ -112,6 +196,22 @@ const AnimatedRoutes = () => {
   );
 };
 
+const LayoutWrapper = () => {
+  return (
+    <div className="flex flex-col min-h-screen bg-transparent text-viva-white selection:bg-viva-gold selection:text-viva-black">
+      <Navbar />
+      
+      <main className="flex-grow">
+        <React.Suspense fallback={<div className="min-h-screen bg-zinc-950 flex items-center justify-center"><div className="w-8 h-8 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin"></div></div>}>
+          <AnimatedRoutes />
+        </React.Suspense>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
 function App() {
   const [showLoader, setShowLoader] = useState(true);
 
@@ -126,18 +226,8 @@ function App() {
             <ScrollToTop />
             
             <LuxuryBackground />
-            <CustomCursor />
             
-            {/* Layout wrapper */}
-            <div className="flex flex-col min-h-screen bg-transparent text-viva-white selection:bg-viva-gold selection:text-viva-black">
-              <Navbar />
-              
-              <main className="flex-grow">
-                <AnimatedRoutes />
-              </main>
-
-              <Footer />
-            </div>
+            <LayoutWrapper />
           </Router>
         </ReactLenis>
       )}

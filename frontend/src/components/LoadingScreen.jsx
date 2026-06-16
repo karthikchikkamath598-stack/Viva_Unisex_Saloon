@@ -50,18 +50,28 @@ export const LoadingScreen = ({ onComplete }) => {
           <div className="relative flex flex-col items-center z-10">
             {/* Logo Container with gold shimmer pulse */}
             <motion.div
-              initial={{ scale: 0.85, opacity: 0 }}
+              initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="mb-8 relative"
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              className="mb-8 relative overflow-hidden rounded-full"
             >
-              <VivaLogo size={140} className="filter drop-shadow-[0_0_15px_rgba(212,164,55,0.2)]" />
-              {/* Shimmer light bar across logo */}
-              <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent w-full h-full skew-x-12"
+              {/* Gold glow background pulse */}
+              <motion.div
+                className="absolute inset-0 rounded-full"
+                animate={{ opacity: [0.15, 0.35, 0.15] }}
+                transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
+                style={{ background: 'radial-gradient(circle, rgba(212,164,55,0.4) 0%, transparent 70%)' }}
+              />
+              <VivaLogo
+                size={160}
+                className="relative z-10 drop-shadow-[0_0_20px_rgba(212,164,55,0.5)]"
+              />
+              {/* Shimmer sweep across logo */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/12 to-transparent skew-x-12 z-20"
                 initial={{ x: '-150%' }}
                 animate={{ x: '150%' }}
-                transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 0.5 }}
+                transition={{ repeat: Infinity, duration: 2.2, ease: 'linear', repeatDelay: 0.8 }}
               />
             </motion.div>
 

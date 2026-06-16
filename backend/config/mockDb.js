@@ -6,2277 +6,294 @@ const dbPath = path.join(__dirname, '..', 'mock_db.json');
 
 const defaultStylists = [
   {
-    _id: "stylist_1",
-    name: "Alex Gold",
-    specialty: "Hair Styling & Color Design",
-    rating: 5.0,
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
-    skills: ["Balayage", "Keratin Therapy", "Creative Haircuts", "Barbering"],
+    _id: "stylist_fardeen",
+    name: "Fardeen",
+    specialty: "Master Barber & Hair Artisan",
+    rating: 4.9,
+    imageUrl: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80&w=600",
+    skills: ["Precision Fades", "Classic Shaves", "Hair Styling", "Beard Grooming"],
     availability: {
       days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      slots: ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"]
+      slots: ["10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"]
     }
   },
   {
-    _id: "stylist_2",
-    name: "Sophia Rose",
-    specialty: "Bridal Makeup & Premium Facials",
-    rating: 4.9,
-    imageUrl: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=600",
-    skills: ["Airbrush Makeup", "Hydra Facial", "Nail Extensions", "Skin Hydration"],
-    availability: {
-      days: ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-      slots: ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"]
-    }
-  },
-  {
-    _id: "stylist_3",
-    name: "Marcus Beard",
-    specialty: "Men's Luxury Grooming & Styling",
+    _id: "stylist_hussain",
+    name: "Hussain",
+    specialty: "Hair Colorist & Stylist",
     rating: 4.8,
-    imageUrl: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    skills: ["Beard Sculpting", "Classic Shaves", "Taper Fades", "Head Massages"],
+    imageUrl: "https://images.unsplash.com/photo-1595894155162-e0709be9b595?auto=format&fit=crop&q=80&w=600",
+    skills: ["Balayage", "Highlighting", "Modern Hair Coloring", "Hair Cut"],
     availability: {
-      days: ["Monday", "Tuesday", "Thursday", "Friday", "Saturday"],
-      slots: ["10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"]
+      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      slots: ["10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"]
     }
   },
   {
-    _id: "stylist_4",
-    name: "Chloe Nails",
-    specialty: "Nail Art & Luxury Spa Services",
-    rating: 4.7,
-    imageUrl: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=600",
-    skills: ["Gel Extensions", "Chrome Nails", "Paraffin Therapy", "Custom Nail Art"],
+    _id: "stylist_sandhya",
+    name: "Sandhya",
+    specialty: "Skin Care Expert & Hair Stylist",
+    rating: 5.0,
+    imageUrl: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=600",
+    skills: ["Advanced Facials", "Skin Treatment", "Bridal Styling", "Nail Polish"],
     availability: {
-      days: ["Tuesday", "Wednesday", "Friday", "Saturday", "Sunday"],
-      slots: ["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"]
+      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      slots: ["10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"]
     }
   }
 ];
 
-const defaultServices = [
-  {
-    "_id": "service_1",
-    "name": "Balancing Treatment (Short)",
-    "category": "Hair Services",
-    "description": "Scalp treatment for oily/sensitive scalp (Short hair).",
-    "price": 1600,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 64,
-    "isPopular": false
-  },
-  {
-    "_id": "service_2",
-    "name": "Balancing Treatment (Medium)",
-    "category": "Hair Services",
-    "description": "Scalp treatment for oily/sensitive scalp (Medium hair).",
-    "price": 1900,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 65,
-    "isPopular": false
-  },
-  {
-    "_id": "service_3",
-    "name": "Balancing Treatment (Long)",
-    "category": "Hair Services",
-    "description": "Scalp treatment for oily/sensitive scalp (Long hair).",
-    "price": 2200,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 97,
-    "isPopular": false
-  },
-  {
-    "_id": "service_4",
-    "name": "Balancing Treatment (Extra Long)",
-    "category": "Hair Services",
-    "description": "Scalp treatment for oily/sensitive scalp (Extra Long hair).",
-    "price": 2500,
-    "duration": 70,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 147,
-    "isPopular": false
-  },
-  {
-    "_id": "service_5",
-    "name": "Anti Dandruff Treatment (Short)",
-    "category": "Hair Services",
-    "description": "Active soothing treatment to eliminate dandruff issues (Short hair).",
-    "price": 1600,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 18,
-    "isPopular": false
-  },
-  {
-    "_id": "service_6",
-    "name": "Anti Dandruff Treatment (Medium)",
-    "category": "Hair Services",
-    "description": "Active soothing treatment to eliminate dandruff issues (Medium hair).",
-    "price": 1900,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 135,
-    "isPopular": false
-  },
-  {
-    "_id": "service_7",
-    "name": "Anti Dandruff Treatment (Long)",
-    "category": "Hair Services",
-    "description": "Active soothing treatment to eliminate dandruff issues (Long hair).",
-    "price": 2200,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 83,
-    "isPopular": false
-  },
-  {
-    "_id": "service_8",
-    "name": "Anti Dandruff Treatment (Extra Long)",
-    "category": "Hair Services",
-    "description": "Active soothing treatment to eliminate dandruff issues (Extra Long hair).",
-    "price": 2500,
-    "duration": 70,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 32,
-    "isPopular": false
-  },
-  {
-    "_id": "service_9",
-    "name": "Anti Hair Fall Treatment (Short)",
-    "category": "Hair Services",
-    "description": "Strengthening therapy to combat hair loss and revive roots (Short hair).",
-    "price": 1600,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 96,
-    "isPopular": false
-  },
-  {
-    "_id": "service_10",
-    "name": "Anti Hair Fall Treatment (Medium)",
-    "category": "Hair Services",
-    "description": "Strengthening therapy to combat hair loss and revive roots (Medium hair).",
-    "price": 1900,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 35,
-    "isPopular": false
-  },
-  {
-    "_id": "service_11",
-    "name": "Anti Hair Fall Treatment (Long)",
-    "category": "Hair Services",
-    "description": "Strengthening therapy to combat hair loss and revive roots (Long hair).",
-    "price": 2200,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 18,
-    "isPopular": false
-  },
-  {
-    "_id": "service_12",
-    "name": "Anti Hair Fall Treatment (Extra Long)",
-    "category": "Hair Services",
-    "description": "Strengthening therapy to combat hair loss and revive roots (Extra Long hair).",
-    "price": 2500,
-    "duration": 70,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 24,
-    "isPopular": false
-  },
-  {
-    "_id": "service_13",
-    "name": "Plex Treatment (Short)",
-    "category": "Hair Services",
-    "description": "Strength treatment for coloured and chemically treated hair (Short hair).",
-    "price": 1600,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 120,
-    "isPopular": false
-  },
-  {
-    "_id": "service_14",
-    "name": "Plex Treatment (Medium)",
-    "category": "Hair Services",
-    "description": "Strength treatment for coloured and chemically treated hair (Medium hair).",
-    "price": 1900,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 99,
-    "isPopular": false
-  },
-  {
-    "_id": "service_15",
-    "name": "Plex Treatment (Long)",
-    "category": "Hair Services",
-    "description": "Strength treatment for coloured and chemically treated hair (Long hair).",
-    "price": 2200,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 73,
-    "isPopular": false
-  },
-  {
-    "_id": "service_16",
-    "name": "Plex Treatment (Extra Long)",
-    "category": "Hair Services",
-    "description": "Strength treatment for coloured and chemically treated hair (Extra Long hair).",
-    "price": 2500,
-    "duration": 70,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 85,
-    "isPopular": false
-  },
-  {
-    "_id": "service_17",
-    "name": "Hair Rebonding (Short)",
-    "category": "Hair Services",
-    "description": "Permanent chemical hair straightening system for a sleek finish (Short hair).",
-    "price": 5000,
-    "duration": 120,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 15,
-    "isPopular": false
-  },
-  {
-    "_id": "service_18",
-    "name": "Hair Rebonding (Medium)",
-    "category": "Hair Services",
-    "description": "Permanent chemical hair straightening system for a sleek finish (Medium hair).",
-    "price": 7000,
-    "duration": 150,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 20,
-    "isPopular": false
-  },
-  {
-    "_id": "service_19",
-    "name": "Hair Rebonding (Long)",
-    "category": "Hair Services",
-    "description": "Permanent chemical hair straightening system for a sleek finish (Long hair).",
-    "price": 9500,
-    "duration": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 107,
-    "isPopular": false
-  },
-  {
-    "_id": "service_20",
-    "name": "Hair Rebonding (Extra Long)",
-    "category": "Hair Services",
-    "description": "Permanent chemical hair straightening system for a sleek finish (Extra Long hair).",
-    "price": 12000,
-    "duration": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 125,
-    "isPopular": false
-  },
-  {
-    "_id": "service_21",
-    "name": "Keratin Smoothing (Short)",
-    "category": "Hair Services",
-    "description": "Deep protein smoothing treatment to eliminate frizz and add shine (Short hair).",
-    "price": 6500,
-    "duration": 120,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 60,
-    "isPopular": false
-  },
-  {
-    "_id": "service_22",
-    "name": "Keratin Smoothing (Medium)",
-    "category": "Hair Services",
-    "description": "Deep protein smoothing treatment to eliminate frizz and add shine (Medium hair).",
-    "price": 8500,
-    "duration": 150,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 83,
-    "isPopular": true
-  },
-  {
-    "_id": "service_23",
-    "name": "Keratin Smoothing (Long)",
-    "category": "Hair Services",
-    "description": "Deep protein smoothing treatment to eliminate frizz and add shine (Long hair).",
-    "price": 11500,
-    "duration": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 64,
-    "isPopular": false
-  },
-  {
-    "_id": "service_24",
-    "name": "Keratin Smoothing (Extra Long)",
-    "category": "Hair Services",
-    "description": "Deep protein smoothing treatment to eliminate frizz and add shine (Extra Long hair).",
-    "price": 13500,
-    "duration": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 68,
-    "isPopular": false
-  },
-  {
-    "_id": "service_25",
-    "name": "Temporary Straightening (Short)",
-    "category": "Hair Services",
-    "description": "Quick temporary hot styling using flat ironing or tongs (Short hair).",
-    "price": 700,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 137,
-    "isPopular": false
-  },
-  {
-    "_id": "service_26",
-    "name": "Temporary Straightening (Medium)",
-    "category": "Hair Services",
-    "description": "Quick temporary hot styling using flat ironing or tongs (Medium hair).",
-    "price": 1000,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 89,
-    "isPopular": false
-  },
-  {
-    "_id": "service_27",
-    "name": "Temporary Straightening (Long)",
-    "category": "Hair Services",
-    "description": "Quick temporary hot styling using flat ironing or tongs (Long hair).",
-    "price": 1200,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 83,
-    "isPopular": false
-  },
-  {
-    "_id": "service_28",
-    "name": "Temporary Straightening (Extra Long)",
-    "category": "Hair Services",
-    "description": "Quick temporary hot styling using flat ironing or tongs (Extra Long hair).",
-    "price": 1500,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 13,
-    "isPopular": false
-  },
-  {
-    "_id": "service_29",
-    "name": "Basic Colours",
-    "category": "Hair Services",
-    "description": "Essential single-shade root touch-up and base hair coloring.",
-    "price": 600,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 75,
-    "isPopular": false
-  },
-  {
-    "_id": "service_30",
-    "name": "Matrix Hair Colour",
-    "category": "Hair Services",
-    "description": "Rich dimensional hair coloring with professional Matrix pigments.",
-    "price": 1200,
-    "duration": 75,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 114,
-    "isPopular": false
-  },
-  {
-    "_id": "service_31",
-    "name": "Loreal Hair Colour (Ammonia Free)",
-    "category": "Hair Services",
-    "description": "Premium nourishing Ammonia-Free base color from L'Oreal.",
-    "price": 1200,
-    "duration": 75,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 56,
-    "isPopular": true
-  },
-  {
-    "_id": "service_32",
-    "name": "Innova Hair Colour (Ammonia Free)",
-    "category": "Hair Services",
-    "description": "Vibrant long-lasting Ammonia-Free color treatment from Indola Innova.",
-    "price": 1200,
-    "duration": 75,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 150,
-    "isPopular": false
-  },
-  {
-    "_id": "service_33",
-    "name": "Hair Colour Highlights Golden",
-    "category": "Hair Services",
-    "description": "Luminous hand-painted golden highlights for a sun-kissed aesthetic.",
-    "price": 1800,
-    "duration": 90,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 37,
-    "isPopular": true
-  },
-  {
-    "_id": "service_34",
-    "name": "Repairing Hair Spa (Short)",
-    "category": "Hair Services",
-    "description": "Therapy for extremely damaged hair, restoring locks and texture. (Short hair).",
-    "price": 1200,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 150,
-    "isPopular": false
-  },
-  {
-    "_id": "service_35",
-    "name": "Repairing Hair Spa (Medium)",
-    "category": "Hair Services",
-    "description": "Therapy for extremely damaged hair, restoring locks and texture. (Medium hair).",
-    "price": 1400,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 146,
-    "isPopular": false
-  },
-  {
-    "_id": "service_36",
-    "name": "Repairing Hair Spa (Long)",
-    "category": "Hair Services",
-    "description": "Therapy for extremely damaged hair, restoring locks and texture. (Long hair).",
-    "price": 1600,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 68,
-    "isPopular": false
-  },
-  {
-    "_id": "service_37",
-    "name": "Repairing Hair Spa (Extra Long)",
-    "category": "Hair Services",
-    "description": "Therapy for extremely damaged hair, restoring locks and texture. (Extra Long hair).",
-    "price": 1800,
-    "duration": 65,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 91,
-    "isPopular": false
-  },
-  {
-    "_id": "service_38",
-    "name": "Smoothening Hair Spa (Short)",
-    "category": "Hair Services",
-    "description": "Deep conditioning steam massage therapy for dry and frizzy hair. (Short hair).",
-    "price": 1200,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 42,
-    "isPopular": false
-  },
-  {
-    "_id": "service_39",
-    "name": "Smoothening Hair Spa (Medium)",
-    "category": "Hair Services",
-    "description": "Deep conditioning steam massage therapy for dry and frizzy hair. (Medium hair).",
-    "price": 1400,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 131,
-    "isPopular": false
-  },
-  {
-    "_id": "service_40",
-    "name": "Smoothening Hair Spa (Long)",
-    "category": "Hair Services",
-    "description": "Deep conditioning steam massage therapy for dry and frizzy hair. (Long hair).",
-    "price": 1600,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 25,
-    "isPopular": false
-  },
-  {
-    "_id": "service_41",
-    "name": "Smoothening Hair Spa (Extra Long)",
-    "category": "Hair Services",
-    "description": "Deep conditioning steam massage therapy for dry and frizzy hair. (Extra Long hair).",
-    "price": 1800,
-    "duration": 65,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 39,
-    "isPopular": false
-  },
-  {
-    "_id": "service_42",
-    "name": "Vitalising Hair Spa (Short)",
-    "category": "Hair Services",
-    "description": "Revitalising spa treatment specifically formulated for chemically treated hair. (Short hair).",
-    "price": 1200,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 91,
-    "isPopular": false
-  },
-  {
-    "_id": "service_43",
-    "name": "Vitalising Hair Spa (Medium)",
-    "category": "Hair Services",
-    "description": "Revitalising spa treatment specifically formulated for chemically treated hair. (Medium hair).",
-    "price": 1400,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 147,
-    "isPopular": false
-  },
-  {
-    "_id": "service_44",
-    "name": "Vitalising Hair Spa (Long)",
-    "category": "Hair Services",
-    "description": "Revitalising spa treatment specifically formulated for chemically treated hair. (Long hair).",
-    "price": 1600,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 111,
-    "isPopular": false
-  },
-  {
-    "_id": "service_45",
-    "name": "Vitalising Hair Spa (Extra Long)",
-    "category": "Hair Services",
-    "description": "Revitalising spa treatment specifically formulated for chemically treated hair. (Extra Long hair).",
-    "price": 1800,
-    "duration": 65,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 154,
-    "isPopular": false
-  },
-  {
-    "_id": "service_46",
-    "name": "Nourishing Hair Spa (Short)",
-    "category": "Hair Services",
-    "description": "Essential scalp nourishment and hair root feeding for all hair types. (Short hair).",
-    "price": 1200,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 122,
-    "isPopular": false
-  },
-  {
-    "_id": "service_47",
-    "name": "Nourishing Hair Spa (Medium)",
-    "category": "Hair Services",
-    "description": "Essential scalp nourishment and hair root feeding for all hair types. (Medium hair).",
-    "price": 1400,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 54,
-    "isPopular": false
-  },
-  {
-    "_id": "service_48",
-    "name": "Nourishing Hair Spa (Long)",
-    "category": "Hair Services",
-    "description": "Essential scalp nourishment and hair root feeding for all hair types. (Long hair).",
-    "price": 1600,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 132,
-    "isPopular": false
-  },
-  {
-    "_id": "service_49",
-    "name": "Nourishing Hair Spa (Extra Long)",
-    "category": "Hair Services",
-    "description": "Essential scalp nourishment and hair root feeding for all hair types. (Extra Long hair).",
-    "price": 1800,
-    "duration": 65,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 44,
-    "isPopular": false
-  },
-  {
-    "_id": "service_50",
-    "name": "Colour Brilliance Hair Spa (Short)",
-    "category": "Hair Services",
-    "description": "Colour enhancing and protecting spa to seal shade vibrancy. (Short hair).",
-    "price": 1200,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 63,
-    "isPopular": false
-  },
-  {
-    "_id": "service_51",
-    "name": "Colour Brilliance Hair Spa (Medium)",
-    "category": "Hair Services",
-    "description": "Colour enhancing and protecting spa to seal shade vibrancy. (Medium hair).",
-    "price": 1400,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 66,
-    "isPopular": false
-  },
-  {
-    "_id": "service_52",
-    "name": "Colour Brilliance Hair Spa (Long)",
-    "category": "Hair Services",
-    "description": "Colour enhancing and protecting spa to seal shade vibrancy. (Long hair).",
-    "price": 1600,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 124,
-    "isPopular": false
-  },
-  {
-    "_id": "service_53",
-    "name": "Colour Brilliance Hair Spa (Extra Long)",
-    "category": "Hair Services",
-    "description": "Colour enhancing and protecting spa to seal shade vibrancy. (Extra Long hair).",
-    "price": 1800,
-    "duration": 65,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 142,
-    "isPopular": false
-  },
-  {
-    "_id": "service_54",
-    "name": "Volume Boost Hair Spa (Short)",
-    "category": "Hair Services",
-    "description": "Volume enhancing spa for fine, limp, and thin hair. (Short hair).",
-    "price": 1200,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 76,
-    "isPopular": false
-  },
-  {
-    "_id": "service_55",
-    "name": "Volume Boost Hair Spa (Medium)",
-    "category": "Hair Services",
-    "description": "Volume enhancing spa for fine, limp, and thin hair. (Medium hair).",
-    "price": 1400,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 16,
-    "isPopular": false
-  },
-  {
-    "_id": "service_56",
-    "name": "Volume Boost Hair Spa (Long)",
-    "category": "Hair Services",
-    "description": "Volume enhancing spa for fine, limp, and thin hair. (Long hair).",
-    "price": 1600,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 98,
-    "isPopular": false
-  },
-  {
-    "_id": "service_57",
-    "name": "Volume Boost Hair Spa (Extra Long)",
-    "category": "Hair Services",
-    "description": "Volume enhancing spa for fine, limp, and thin hair. (Extra Long hair).",
-    "price": 1800,
-    "duration": 65,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 22,
-    "isPopular": false
-  },
-  {
-    "_id": "service_58",
-    "name": "Kids Hair Cut",
-    "category": "Hair Services",
-    "description": "Fun and gentle haircut customized for kids.",
-    "price": 300,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 69,
-    "isPopular": false
-  },
-  {
-    "_id": "service_59",
-    "name": "Hair Wash",
-    "category": "Hair Services",
-    "description": "Signature wash using premium shampoo and hydrating conditioners.",
-    "price": 300,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 106,
-    "isPopular": false
-  },
-  {
-    "_id": "service_60",
-    "name": "Basic Hair Cut",
-    "category": "Hair Services",
-    "description": "Classic trim and simple haircut styling.",
-    "price": 400,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 146,
-    "isPopular": false
-  },
-  {
-    "_id": "service_61",
-    "name": "Advance Hair Cut",
-    "category": "Hair Services",
-    "description": "Couture haircut including shampoo wash, conditioner, and blow dry setting.",
-    "price": 1200,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 53,
-    "isPopular": true
-  },
-  {
-    "_id": "service_62",
-    "name": "Blow Dry - Curl Short",
-    "category": "Hair Services",
-    "description": "Stylized blowout curl service for short hair lengths.",
-    "price": 300,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 158,
-    "isPopular": false
-  },
-  {
-    "_id": "service_63",
-    "name": "Blow Dry - Curl Medium",
-    "category": "Hair Services",
-    "description": "Stylized blowout curl service for medium hair lengths.",
-    "price": 450,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 16,
-    "isPopular": false
-  },
-  {
-    "_id": "service_64",
-    "name": "Blow Dry - Curl Long",
-    "category": "Hair Services",
-    "description": "Stylized blowout curl service for long hair lengths.",
-    "price": 600,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 58,
-    "isPopular": false
-  },
-  {
-    "_id": "service_65",
-    "name": "Straightening/Smoothening (Short)",
-    "category": "Hair Services",
-    "description": "High-performance smoothing therapy to straighten and repair cuticles (Short hair).",
-    "price": 4500,
-    "duration": 120,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 123,
-    "isPopular": false
-  },
-  {
-    "_id": "service_66",
-    "name": "Straightening/Smoothening (Medium)",
-    "category": "Hair Services",
-    "description": "High-performance smoothing therapy to straighten and repair cuticles (Medium hair).",
-    "price": 5500,
-    "duration": 150,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 29,
-    "isPopular": false
-  },
-  {
-    "_id": "service_67",
-    "name": "Straightening/Smoothening (Long)",
-    "category": "Hair Services",
-    "description": "High-performance smoothing therapy to straighten and repair cuticles (Long hair).",
-    "price": 7500,
-    "duration": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 46,
-    "isPopular": false
-  },
-  {
-    "_id": "service_68",
-    "name": "Straightening/Smoothening (Extra Long)",
-    "category": "Hair Services",
-    "description": "High-performance smoothing therapy to straighten and repair cuticles (Extra Long hair).",
-    "price": 11000,
-    "duration": 210,
-    "imageUrl": "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 37,
-    "isPopular": false
-  },
-  {
-    "_id": "service_69",
-    "name": "De Tan Premium - Half Arms",
-    "category": "Skin Services",
-    "description": "Advanced premium de-tanning mask and scrubbing treatment for half arms.",
-    "price": 950,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 77,
-    "isPopular": false
-  },
-  {
-    "_id": "service_70",
-    "name": "De Tan Premium - Full Arms",
-    "category": "Skin Services",
-    "description": "Advanced premium de-tanning mask and scrubbing treatment for full arms.",
-    "price": 1200,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 134,
-    "isPopular": false
-  },
-  {
-    "_id": "service_71",
-    "name": "De Tan Premium - Half Legs",
-    "category": "Skin Services",
-    "description": "Advanced premium de-tanning mask and scrubbing treatment for half legs.",
-    "price": 1150,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 94,
-    "isPopular": false
-  },
-  {
-    "_id": "service_72",
-    "name": "De Tan Premium - Full Legs",
-    "category": "Skin Services",
-    "description": "Advanced premium de-tanning mask and scrubbing treatment for full legs.",
-    "price": 1800,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 146,
-    "isPopular": false
-  },
-  {
-    "_id": "service_73",
-    "name": "De Tan Premium - Face",
-    "category": "Skin Services",
-    "description": "Advanced premium de-tanning mask and scrubbing treatment for face.",
-    "price": 800,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 137,
-    "isPopular": false
-  },
-  {
-    "_id": "service_74",
-    "name": "De Tan Premium - Front Neck",
-    "category": "Skin Services",
-    "description": "Advanced premium de-tanning mask and scrubbing treatment for front neck.",
-    "price": 600,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 132,
-    "isPopular": false
-  },
-  {
-    "_id": "service_75",
-    "name": "De Tan Premium - Back Neck",
-    "category": "Skin Services",
-    "description": "Advanced premium de-tanning mask and scrubbing treatment for back neck.",
-    "price": 600,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 129,
-    "isPopular": false
-  },
-  {
-    "_id": "service_76",
-    "name": "De Tan Premium - Full Body",
-    "category": "Skin Services",
-    "description": "Advanced premium de-tanning mask and scrubbing treatment for full body.",
-    "price": 3000,
-    "duration": 90,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 140,
-    "isPopular": false
-  },
-  {
-    "_id": "service_77",
-    "name": "Classic Facial - Fruit",
-    "category": "Skin Services",
-    "description": "Exquisite classic skin therapy utilizing active fruit extracts.",
-    "price": 1100,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 79,
-    "isPopular": false
-  },
-  {
-    "_id": "service_78",
-    "name": "Classic Facial - Herbal",
-    "category": "Skin Services",
-    "description": "Exquisite classic skin therapy utilizing active herbal extracts.",
-    "price": 1300,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 115,
-    "isPopular": false
-  },
-  {
-    "_id": "service_79",
-    "name": "Classic Facial - Papaya",
-    "category": "Skin Services",
-    "description": "Exquisite classic skin therapy utilizing active papaya extracts.",
-    "price": 1400,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 147,
-    "isPopular": false
-  },
-  {
-    "_id": "service_80",
-    "name": "Classic Facial - Silver",
-    "category": "Skin Services",
-    "description": "Exquisite classic skin therapy utilizing active silver extracts.",
-    "price": 1600,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 132,
-    "isPopular": false
-  },
-  {
-    "_id": "service_81",
-    "name": "Classic Facial - Golden",
-    "category": "Skin Services",
-    "description": "Exquisite classic skin therapy utilizing active golden extracts.",
-    "price": 1700,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 83,
-    "isPopular": false
-  },
-  {
-    "_id": "service_82",
-    "name": "Classic Facial - Diamond",
-    "category": "Skin Services",
-    "description": "Exquisite classic skin therapy utilizing active diamond extracts.",
-    "price": 2350,
-    "duration": 70,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 72,
-    "isPopular": false
-  },
-  {
-    "_id": "service_83",
-    "name": "Classic Facial - Platinum",
-    "category": "Skin Services",
-    "description": "Exquisite classic skin therapy utilizing active platinum extracts.",
-    "price": 2500,
-    "duration": 75,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 141,
-    "isPopular": false
-  },
-  {
-    "_id": "service_84",
-    "name": "Premium Facial - Advance Gold",
-    "category": "Skin Services",
-    "description": "Luxury advanced clinical treatment specifically formulated as a advance gold therapy.",
-    "price": 2500,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 146,
-    "isPopular": true
-  },
-  {
-    "_id": "service_85",
-    "name": "Premium Facial - Acne Facial",
-    "category": "Skin Services",
-    "description": "Luxury advanced clinical treatment specifically formulated as a acne facial therapy.",
-    "price": 2200,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 91,
-    "isPopular": false
-  },
-  {
-    "_id": "service_86",
-    "name": "Premium Facial - Insta Fair Facial",
-    "category": "Skin Services",
-    "description": "Luxury advanced clinical treatment specifically formulated as a insta fair facial therapy.",
-    "price": 2400,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 25,
-    "isPopular": false
-  },
-  {
-    "_id": "service_87",
-    "name": "Premium Facial - Layer Advance Radiance",
-    "category": "Skin Services",
-    "description": "Luxury advanced clinical treatment specifically formulated as a layer advance radiance therapy.",
-    "price": 2600,
-    "duration": 75,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 123,
-    "isPopular": false
-  },
-  {
-    "_id": "service_88",
-    "name": "Premium Facial - Layer Advance Whitening",
-    "category": "Skin Services",
-    "description": "Luxury advanced clinical treatment specifically formulated as a layer advance whitening therapy.",
-    "price": 2800,
-    "duration": 75,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 129,
-    "isPopular": false
-  },
-  {
-    "_id": "service_89",
-    "name": "Premium Facial - Advance Kiwi Fruit Marmalade",
-    "category": "Skin Services",
-    "description": "Luxury advanced clinical treatment specifically formulated as a advance kiwi fruit marmalade therapy.",
-    "price": 3000,
-    "duration": 80,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 61,
-    "isPopular": false
-  },
-  {
-    "_id": "service_90",
-    "name": "Premium Facial - Advance Pineapple Fruit Marmalade",
-    "category": "Skin Services",
-    "description": "Luxury advanced clinical treatment specifically formulated as a advance pineapple fruit marmalade therapy.",
-    "price": 2800,
-    "duration": 80,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 92,
-    "isPopular": false
-  },
-  {
-    "_id": "service_91",
-    "name": "Face Clean Up - Oily Skin",
-    "category": "Skin Services",
-    "description": "Sebum balancing deep extraction and cleansing mask for oily skin.",
-    "price": 750,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 17,
-    "isPopular": false
-  },
-  {
-    "_id": "service_92",
-    "name": "Face Clean Up - Dry Skin",
-    "category": "Skin Services",
-    "description": "Hydrating nourishment cleanup with botanical extracts for dry skin.",
-    "price": 500,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 93,
-    "isPopular": false
-  },
-  {
-    "_id": "service_93",
-    "name": "Signature Facial - Whitening",
-    "category": "Skin Services",
-    "description": "Elite multi-step whitening facial with premium active ingredients.",
-    "price": 3000,
-    "duration": 70,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 120,
-    "isPopular": false
-  },
-  {
-    "_id": "service_94",
-    "name": "Signature Facial - Shine & Glow",
-    "category": "Skin Services",
-    "description": "Illuminating luxury signature facial for red-carpet glowing skin.",
-    "price": 3500,
-    "duration": 75,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 26,
-    "isPopular": true
-  },
-  {
-    "_id": "service_95",
-    "name": "Signature Facial - Anti Aging",
-    "category": "Skin Services",
-    "description": "Collagen-rich signature treatment to reduce fine lines and lift sagging skin.",
-    "price": 4000,
-    "duration": 80,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 70,
-    "isPopular": false
-  },
-  {
-    "_id": "service_96",
-    "name": "Signature Facial - Bridal Special",
-    "category": "Skin Services",
-    "description": "The ultimate Brightening & Whitening premium bridal glow face ritual.",
-    "price": 4500,
-    "duration": 90,
-    "imageUrl": "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 110,
-    "isPopular": true
-  },
-  {
-    "_id": "service_97",
-    "name": "Threading - Eye Brow",
-    "category": "Nail Services",
-    "description": "Precision threading and profiling for eye brow.",
-    "price": 50,
-    "duration": 10,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 119,
-    "isPopular": false
-  },
-  {
-    "_id": "service_98",
-    "name": "Threading - Upper & Lower Lip",
-    "category": "Nail Services",
-    "description": "Precision threading and profiling for upper & lower lip.",
-    "price": 40,
-    "duration": 10,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 122,
-    "isPopular": false
-  },
-  {
-    "_id": "service_99",
-    "name": "Threading - Chin",
-    "category": "Nail Services",
-    "description": "Precision threading and profiling for chin.",
-    "price": 40,
-    "duration": 10,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 148,
-    "isPopular": false
-  },
-  {
-    "_id": "service_100",
-    "name": "Threading - Forehead",
-    "category": "Nail Services",
-    "description": "Precision threading and profiling for forehead.",
-    "price": 40,
-    "duration": 10,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 25,
-    "isPopular": false
-  },
-  {
-    "_id": "service_101",
-    "name": "Threading - Side locks",
-    "category": "Nail Services",
-    "description": "Precision threading and profiling for side locks.",
-    "price": 50,
-    "duration": 10,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 23,
-    "isPopular": false
-  },
-  {
-    "_id": "service_102",
-    "name": "Threading - Full Face",
-    "category": "Nail Services",
-    "description": "Precision threading and profiling for full face.",
-    "price": 200,
-    "duration": 25,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 33,
-    "isPopular": false
-  },
-  {
-    "_id": "service_103",
-    "name": "Waxing (Flavour) - Full Face",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on full face.",
-    "price": 300,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 47,
-    "isPopular": false
-  },
-  {
-    "_id": "service_104",
-    "name": "Waxing (Premium) - Full Face",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on full face.",
-    "price": 400,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 64,
-    "isPopular": false
-  },
-  {
-    "_id": "service_105",
-    "name": "Waxing (Flavour) - Full Arms",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on full arms.",
-    "price": 300,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 125,
-    "isPopular": false
-  },
-  {
-    "_id": "service_106",
-    "name": "Waxing (Premium) - Full Arms",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on full arms.",
-    "price": 500,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 138,
-    "isPopular": false
-  },
-  {
-    "_id": "service_107",
-    "name": "Waxing (Flavour) - Half Arms",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on half arms.",
-    "price": 200,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 82,
-    "isPopular": false
-  },
-  {
-    "_id": "service_108",
-    "name": "Waxing (Premium) - Half Arms",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on half arms.",
-    "price": 300,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 115,
-    "isPopular": false
-  },
-  {
-    "_id": "service_109",
-    "name": "Waxing (Flavour) - Under Arms",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on under arms.",
-    "price": 100,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 116,
-    "isPopular": false
-  },
-  {
-    "_id": "service_110",
-    "name": "Waxing (Premium) - Under Arms",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on under arms.",
-    "price": 200,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 58,
-    "isPopular": false
-  },
-  {
-    "_id": "service_111",
-    "name": "Waxing (Flavour) - Half Legs",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on half legs.",
-    "price": 300,
-    "duration": 25,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 113,
-    "isPopular": false
-  },
-  {
-    "_id": "service_112",
-    "name": "Waxing (Premium) - Half Legs",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on half legs.",
-    "price": 500,
-    "duration": 25,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 49,
-    "isPopular": false
-  },
-  {
-    "_id": "service_113",
-    "name": "Waxing (Flavour) - Full Legs",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on full legs.",
-    "price": 400,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 57,
-    "isPopular": false
-  },
-  {
-    "_id": "service_114",
-    "name": "Waxing (Premium) - Full Legs",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on full legs.",
-    "price": 700,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 114,
-    "isPopular": false
-  },
-  {
-    "_id": "service_115",
-    "name": "Waxing (Flavour) - Stomach",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on stomach.",
-    "price": 300,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 140,
-    "isPopular": false
-  },
-  {
-    "_id": "service_116",
-    "name": "Waxing (Premium) - Stomach",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on stomach.",
-    "price": 500,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 15,
-    "isPopular": false
-  },
-  {
-    "_id": "service_117",
-    "name": "Waxing (Flavour) - Full Front",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on full front.",
-    "price": 600,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 37,
-    "isPopular": false
-  },
-  {
-    "_id": "service_118",
-    "name": "Waxing (Premium) - Full Front",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on full front.",
-    "price": 900,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 31,
-    "isPopular": false
-  },
-  {
-    "_id": "service_119",
-    "name": "Waxing (Flavour) - Full Back",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on full back.",
-    "price": 600,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 33,
-    "isPopular": false
-  },
-  {
-    "_id": "service_120",
-    "name": "Waxing (Premium) - Full Back",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on full back.",
-    "price": 900,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 18,
-    "isPopular": false
-  },
-  {
-    "_id": "service_121",
-    "name": "Waxing (Flavour) - Full Body",
-    "category": "Nail Services",
-    "description": "Smooth hair removal using organic flavored wax on full body.",
-    "price": 5200,
-    "duration": 90,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 30,
-    "isPopular": false
-  },
-  {
-    "_id": "service_122",
-    "name": "Waxing (Premium) - Full Body",
-    "category": "Nail Services",
-    "description": "Deluxe soothing skin hair removal using premium wax on full body.",
-    "price": 7000,
-    "duration": 90,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 86,
-    "isPopular": false
-  },
-  {
-    "_id": "service_123",
-    "name": "Bikini Waxing",
-    "category": "Nail Services",
-    "description": "Professional hygienic intimate waxing treatment.",
-    "price": 2200,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 58,
-    "isPopular": false
-  },
-  {
-    "_id": "service_124",
-    "name": "Manicure - Herbal",
-    "category": "Nail Services",
-    "description": "Luxury therapeutic skin exfoliating and profiling ritual for hands/feet.",
-    "price": 300,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 65,
-    "isPopular": false
-  },
-  {
-    "_id": "service_125",
-    "name": "Manicure - Spa",
-    "category": "Nail Services",
-    "description": "Luxury therapeutic skin exfoliating and profiling ritual for hands/feet.",
-    "price": 450,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 49,
-    "isPopular": false
-  },
-  {
-    "_id": "service_126",
-    "name": "Manicure - Crystal",
-    "category": "Nail Services",
-    "description": "Luxury therapeutic skin exfoliating and profiling ritual for hands/feet.",
-    "price": 550,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 127,
-    "isPopular": false
-  },
-  {
-    "_id": "service_127",
-    "name": "Manicure - D Tan",
-    "category": "Nail Services",
-    "description": "Luxury therapeutic skin exfoliating and profiling ritual for hands/feet.",
-    "price": 700,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 142,
-    "isPopular": false
-  },
-  {
-    "_id": "service_128",
-    "name": "Pedicure - Herbal",
-    "category": "Nail Services",
-    "description": "Luxury therapeutic skin exfoliating and profiling ritual for hands/feet.",
-    "price": 600,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 111,
-    "isPopular": false
-  },
-  {
-    "_id": "service_129",
-    "name": "Pedicure - Spa",
-    "category": "Nail Services",
-    "description": "Luxury therapeutic skin exfoliating and profiling ritual for hands/feet.",
-    "price": 550,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 51,
-    "isPopular": false
-  },
-  {
-    "_id": "service_130",
-    "name": "Pedicure - Crystal",
-    "category": "Nail Services",
-    "description": "Luxury therapeutic skin exfoliating and profiling ritual for hands/feet.",
-    "price": 650,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 44,
-    "isPopular": false
-  },
-  {
-    "_id": "service_131",
-    "name": "Pedicure - D Tan",
-    "category": "Nail Services",
-    "description": "Luxury therapeutic skin exfoliating and profiling ritual for hands/feet.",
-    "price": 950,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 41,
-    "isPopular": false
-  },
-  {
-    "_id": "service_132",
-    "name": "Nailpolish - Hands",
-    "category": "Nail Services",
-    "description": "Define & Play with vibrant colors for your fingernails.",
-    "price": 80,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 34,
-    "isPopular": false
-  },
-  {
-    "_id": "service_133",
-    "name": "Nailpolish - Legs",
-    "category": "Nail Services",
-    "description": "Define & Play with vibrant colors for your toenails.",
-    "price": 130,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 140,
-    "isPopular": false
-  },
-  {
-    "_id": "service_134",
-    "name": "Foot Massage (15 min)",
-    "category": "Nail Services",
-    "description": "Reflexology foot massage to relieve fatigue.",
-    "price": 250,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 133,
-    "isPopular": false
-  },
-  {
-    "_id": "service_135",
-    "name": "Leg Massage (15 min)",
-    "category": "Nail Services",
-    "description": "Relaxing lower leg massage using aromatherapy oils.",
-    "price": 500,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 122,
-    "isPopular": false
-  },
-  {
-    "_id": "service_136",
-    "name": "Kings Grooming - Eye Brows",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: eye brows.",
-    "price": 49,
-    "duration": 10,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 86,
-    "isPopular": false
-  },
-  {
-    "_id": "service_137",
-    "name": "Kings Grooming - Head Wash",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: head wash.",
-    "price": 49,
-    "duration": 10,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 20,
-    "isPopular": false
-  },
-  {
-    "_id": "service_138",
-    "name": "Kings Grooming - Shaving",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: shaving.",
-    "price": 79,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 140,
-    "isPopular": false
-  },
-  {
-    "_id": "service_139",
-    "name": "Kings Grooming - Trimming",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: trimming.",
-    "price": 79,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 14,
-    "isPopular": false
-  },
-  {
-    "_id": "service_140",
-    "name": "Kings Grooming - Stylish Beard",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: stylish beard.",
-    "price": 79,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 104,
-    "isPopular": false
-  },
-  {
-    "_id": "service_141",
-    "name": "Kings Grooming - Hair Cut",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: hair cut.",
-    "price": 179,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 143,
-    "isPopular": false
-  },
-  {
-    "_id": "service_142",
-    "name": "Kings Grooming - Stylish Hair Cut",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: stylish hair cut.",
-    "price": 229,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 74,
-    "isPopular": false
-  },
-  {
-    "_id": "service_143",
-    "name": "Kings Grooming - Hair Straightening",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: hair straightening.",
-    "price": 1999,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 20,
-    "isPopular": false
-  },
-  {
-    "_id": "service_144",
-    "name": "Kings Grooming - Keratin Hair Treatment",
-    "category": "Grooming",
-    "description": "Premium men's grooming and styling service: keratin hair treatment.",
-    "price": 4999,
-    "duration": 90,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 77,
-    "isPopular": false
-  },
-  {
-    "_id": "service_145",
-    "name": "Kings Colours - Beard Normal Colours",
-    "category": "Grooming",
-    "description": "Special men's hair coloring: beard normal colours.",
-    "price": 79,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 35,
-    "isPopular": false
-  },
-  {
-    "_id": "service_146",
-    "name": "Kings Colours - Basic Colours",
-    "category": "Grooming",
-    "description": "Special men's hair coloring: basic colours.",
-    "price": 199,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 145,
-    "isPopular": false
-  },
-  {
-    "_id": "service_147",
-    "name": "Kings Colours - Matrix Hair Colour",
-    "category": "Grooming",
-    "description": "Special men's hair coloring: matrix hair colour.",
-    "price": 349,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 70,
-    "isPopular": false
-  },
-  {
-    "_id": "service_148",
-    "name": "Kings Colours - Loreal Hair Colour (Ammonia Free)",
-    "category": "Grooming",
-    "description": "Special men's hair coloring: loreal hair colour (ammonia free).",
-    "price": 449,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 128,
-    "isPopular": false
-  },
-  {
-    "_id": "service_149",
-    "name": "Kings Colours - Innova Hair Colour (Ammonia Free)",
-    "category": "Grooming",
-    "description": "Special men's hair coloring: innova hair colour (ammonia free).",
-    "price": 599,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 125,
-    "isPopular": false
-  },
-  {
-    "_id": "service_150",
-    "name": "Kings Colours - Hair Colour Highlights Golden",
-    "category": "Grooming",
-    "description": "Special men's hair coloring: hair colour highlights golden.",
-    "price": 799,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 114,
-    "isPopular": false
-  },
-  {
-    "_id": "service_151",
-    "name": "Kings Special Groom - Beard",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: beard.",
-    "price": 80,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 65,
-    "isPopular": false
-  },
-  {
-    "_id": "service_152",
-    "name": "Kings Special Groom - Hair Cut",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: hair cut.",
-    "price": 179,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 117,
-    "isPopular": false
-  },
-  {
-    "_id": "service_153",
-    "name": "Kings Special Groom - D-Tan",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: d-tan.",
-    "price": 499,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 82,
-    "isPopular": false
-  },
-  {
-    "_id": "service_154",
-    "name": "Kings Special Groom - Hand D-Tan",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: hand d-tan.",
-    "price": 399,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 142,
-    "isPopular": false
-  },
-  {
-    "_id": "service_155",
-    "name": "Kings Special Groom - Neck D-Tan",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: neck d-tan.",
-    "price": 199,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 109,
-    "isPopular": false
-  },
-  {
-    "_id": "service_156",
-    "name": "Kings Special Groom - Golden Facial",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: golden facial.",
-    "price": 1999,
-    "duration": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 132,
-    "isPopular": false
-  },
-  {
-    "_id": "service_157",
-    "name": "Kings Special Groom - Mani Cure",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: mani cure.",
-    "price": 249,
-    "duration": 30,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 74,
-    "isPopular": false
-  },
-  {
-    "_id": "service_158",
-    "name": "Kings Special Groom - Normal Pedicure",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: normal pedicure.",
-    "price": 399,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 70,
-    "isPopular": false
-  },
-  {
-    "_id": "service_159",
-    "name": "Kings Special Groom - Deluxe Pedicure",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: deluxe pedicure.",
-    "price": 699,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 35,
-    "isPopular": false
-  },
-  {
-    "_id": "service_160",
-    "name": "Kings Special Groom - Hair Colour",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: hair colour.",
-    "price": 699,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 137,
-    "isPopular": false
-  },
-  {
-    "_id": "service_161",
-    "name": "Kings Special Groom - Hair Spa",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: hair spa.",
-    "price": 999,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 120,
-    "isPopular": false
-  },
-  {
-    "_id": "service_162",
-    "name": "Kings Special Groom - In Saloon",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: in saloon.",
-    "price": 5999,
-    "duration": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 111,
-    "isPopular": true
-  },
-  {
-    "_id": "service_163",
-    "name": "Kings Special Groom - Home Service",
-    "category": "Grooming",
-    "description": "Exclusive groom ritual bundle package: home service.",
-    "price": 6999,
-    "duration": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 11,
-    "isPopular": false
-  },
-  {
-    "_id": "service_164",
-    "name": "Kings Beauty - Face Scrub",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: face scrub.",
-    "price": 199,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 85,
-    "isPopular": false
-  },
-  {
-    "_id": "service_165",
-    "name": "Kings Beauty - Face Scrub with Steam",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: face scrub with steam.",
-    "price": 269,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 85,
-    "isPopular": false
-  },
-  {
-    "_id": "service_166",
-    "name": "Kings Beauty - Face Tan Pak",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: face tan pak.",
-    "price": 499,
-    "duration": 25,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 71,
-    "isPopular": false
-  },
-  {
-    "_id": "service_167",
-    "name": "Kings Beauty - Neck D-Tan",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: neck d-tan.",
-    "price": 199,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 24,
-    "isPopular": false
-  },
-  {
-    "_id": "service_168",
-    "name": "Kings Beauty - Clean Up Basic Facial",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: clean up basic facial.",
-    "price": 599,
-    "duration": 35,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 42,
-    "isPopular": false
-  },
-  {
-    "_id": "service_169",
-    "name": "Kings Beauty - Whitening Facial",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: whitening facial.",
-    "price": 999,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 79,
-    "isPopular": false
-  },
-  {
-    "_id": "service_170",
-    "name": "Kings Beauty - Fruit Facial",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: fruit facial.",
-    "price": 1099,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 61,
-    "isPopular": false
-  },
-  {
-    "_id": "service_171",
-    "name": "Kings Beauty - Diamond Facial",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: diamond facial.",
-    "price": 1999,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 133,
-    "isPopular": false
-  },
-  {
-    "_id": "service_172",
-    "name": "Kings Beauty - Gold Facial",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: gold facial.",
-    "price": 1999,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 29,
-    "isPopular": false
-  },
-  {
-    "_id": "service_173",
-    "name": "Kings Beauty - Pearl Facial",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: pearl facial.",
-    "price": 1799,
-    "duration": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 28,
-    "isPopular": false
-  },
-  {
-    "_id": "service_174",
-    "name": "Kings Beauty - Charcoal Facial",
-    "category": "Grooming",
-    "description": "Tailored facial care for men: charcoal facial.",
-    "price": 1199,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 98,
-    "isPopular": false
-  },
-  {
-    "_id": "service_175",
-    "name": "Kings Spa - Oil Head Massage",
-    "category": "Grooming",
-    "description": "Men's relaxing spa ritual: oil head massage.",
-    "price": 99,
-    "duration": 15,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.7,
-    "reviewsCount": 154,
-    "isPopular": false
-  },
-  {
-    "_id": "service_176",
-    "name": "Kings Spa - Oil Head Massage with Machine",
-    "category": "Grooming",
-    "description": "Men's relaxing spa ritual: oil head massage with machine.",
-    "price": 129,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 41,
-    "isPopular": false
-  },
-  {
-    "_id": "service_177",
-    "name": "Kings Spa - Scalp Massage with Steam",
-    "category": "Grooming",
-    "description": "Men's relaxing spa ritual: scalp massage with steam.",
-    "price": 159,
-    "duration": 20,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 110,
-    "isPopular": false
-  },
-  {
-    "_id": "service_178",
-    "name": "Kings Spa - Hair Spa",
-    "category": "Grooming",
-    "description": "Men's relaxing spa ritual: hair spa.",
-    "price": 899,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.5,
-    "reviewsCount": 104,
-    "isPopular": false
-  },
-  {
-    "_id": "service_179",
-    "name": "Kings Spa - Hair Dandruff Treatment",
-    "category": "Grooming",
-    "description": "Men's relaxing spa ritual: hair dandruff treatment.",
-    "price": 1099,
-    "duration": 45,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 5,
-    "reviewsCount": 39,
-    "isPopular": false
-  },
-  {
-    "_id": "service_180",
-    "name": "Kings Spa - Full Body Massage",
-    "category": "Grooming",
-    "description": "Men's relaxing spa ritual: full body massage.",
-    "price": 999,
-    "duration": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.8,
-    "reviewsCount": 36,
-    "isPopular": false
-  },
-  {
-    "_id": "service_181",
-    "name": "Bridal Makeup - Engagement",
-    "category": "Bridal Services",
-    "description": "Premium high-definition cosmetic makeover for engagement.",
-    "price": 8000,
-    "duration": 120,
-    "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 18,
-    "isPopular": false
-  },
-  {
-    "_id": "service_182",
-    "name": "Bridal Makeup - Haldi & Mehendi",
-    "category": "Bridal Services",
-    "description": "Traditional glow makeup design for Haldi and Mehendi functions.",
-    "price": 7000,
-    "duration": 90,
-    "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.6,
-    "reviewsCount": 42,
-    "isPopular": false
-  },
-  {
-    "_id": "service_183",
-    "name": "Bridal Makeup - Marriage",
-    "category": "Bridal Services",
-    "description": "Signature ultimate high-definition bridal makeup and bridal look.",
-    "price": 18000,
-    "duration": 180,
-    "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 20,
-    "isPopular": true
-  },
-  {
-    "_id": "service_184",
-    "name": "Bridal Makeup - Reception",
-    "category": "Bridal Services",
-    "description": "Stunning reception makeover layout with styling and glazes.",
-    "price": 16000,
-    "duration": 150,
-    "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 38,
-    "isPopular": true
-  },
-  {
-    "_id": "service_185",
-    "name": "Saree Draping",
-    "category": "Bridal Services",
-    "description": "Traditional wedding saree draping, pin-up, and styling service.",
-    "price": 1800,
-    "duration": 40,
-    "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600",
-    "rating": 4.9,
-    "reviewsCount": 17,
-    "isPopular": false
-  }
+// Helper to generate services dynamically
+const rawServices = [
+  // --- WOMEN'S SERVICES ---
+  
+  // Premium Facial (Image 3)
+  { name: "Advance Gold Facial", cat: "Women's Services", sub: "Premium Facial", price: 2500, dur: 60, img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=600", pop: true },
+  { name: "Acne Facial", cat: "Women's Services", sub: "Premium Facial", price: 2200, dur: 60, img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=600" },
+  { name: "Insta Fair Facial", cat: "Women's Services", sub: "Premium Facial", price: 2400, dur: 60, img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=600" },
+  { name: "Layer Advance Radiance", cat: "Women's Services", sub: "Premium Facial", price: 2600, dur: 75, img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=600" },
+  { name: "Layer Advance Whitening Facial", cat: "Women's Services", sub: "Premium Facial", price: 2800, dur: 75, img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=600" },
+  { name: "Advance Kiwi Fruit Marmalade", cat: "Women's Services", sub: "Premium Facial", price: 3000, dur: 75, img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=600" },
+  { name: "Advance Pineapple Fruit Marmalade", cat: "Women's Services", sub: "Premium Facial", price: 2800, dur: 75, img: "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=600" },
+
+  // Face Clean Up (Image 3)
+  { name: "Oily Skin", cat: "Women's Services", sub: "Face Clean Up", price: 750, dur: 40, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Dry Skin", cat: "Women's Services", sub: "Face Clean Up", price: 500, dur: 40, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+  // Signature Facial (Image 3)
+  { name: "Whitening Facial", cat: "Women's Services", sub: "Signature Facial", price: 3000, dur: 60, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Shine & Glow Facial", cat: "Women's Services", sub: "Signature Facial", price: 3500, dur: 60, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600", pop: true },
+  { name: "Anti Aging Facial", cat: "Women's Services", sub: "Signature Facial", price: 4000, dur: 75, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: 'Brightening & Whitening Facial "Bridal Special"', cat: "Women's Services", sub: "Signature Facial", price: 4500, dur: 75, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+  // Hair Spa (Image 3)
+  ...["Repairing Hair Spa", "Smoothening Hair Spa", "Vitalising Hair Spa", "Nourishing Hair Spa", "Colour Brilliance Hair Spa", "Volume Boost Hair Spa"].flatMap(spaType => [
+    { name: `${spaType} (Short)`, cat: "Women's Services", sub: "Hair Spa", price: 1200, dur: 45, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+    { name: `${spaType} (Medium)`, cat: "Women's Services", sub: "Hair Spa", price: 1400, dur: 50, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+    { name: `${spaType} (Long)`, cat: "Women's Services", sub: "Hair Spa", price: 1600, dur: 55, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+    { name: `${spaType} (Extra Long)`, cat: "Women's Services", sub: "Hair Spa", price: 1800, dur: 60, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" }
+  ]),
+
+  // Hair Treatment (Image 2)
+  ...[
+    { name: "Balancing Treatment" },
+    { name: "Anti Dandruff" },
+    { name: "Anti Hair Fall Treatment" },
+    { name: "Plex Treatment" }
+  ].flatMap(treat => [
+    { name: `${treat.name} (Short)`, cat: "Women's Services", sub: "Hair Treatment", price: 1600, dur: 45, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+    { name: `${treat.name} (Medium)`, cat: "Women's Services", sub: "Hair Treatment", price: 1900, dur: 50, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+    { name: `${treat.name} (Long)`, cat: "Women's Services", sub: "Hair Treatment", price: 2200, dur: 55, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+    { name: `${treat.name} (Extra Long)`, cat: "Women's Services", sub: "Hair Treatment", price: 2500, dur: 60, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" }
+  ]),
+
+  // Rebonding (Image 2)
+  { name: "Rebonding (Short)", cat: "Women's Services", sub: "Rebonding", price: 5000, dur: 120, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Rebonding (Medium)", cat: "Women's Services", sub: "Rebonding", price: 7000, dur: 150, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Rebonding (Long)", cat: "Women's Services", sub: "Rebonding", price: 9500, dur: 180, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Rebonding (Extra Long)", cat: "Women's Services", sub: "Rebonding", price: 12000, dur: 210, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+
+  // Keratin (Image 2)
+  { name: "Keratin (Short)", cat: "Women's Services", sub: "Keratin", price: 6500, dur: 120, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Keratin (Medium)", cat: "Women's Services", sub: "Keratin", price: 8500, dur: 150, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600", pop: true },
+  { name: "Keratin (Long)", cat: "Women's Services", sub: "Keratin", price: 11500, dur: 180, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Keratin (Extra Long)", cat: "Women's Services", sub: "Keratin", price: 13500, dur: 210, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+
+  // Temporary Straightening (Image 2)
+  { name: "Temporary Straightening (Short)", cat: "Women's Services", sub: "Temporary Straightening", price: 700, dur: 25, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Temporary Straightening (Medium)", cat: "Women's Services", sub: "Temporary Straightening", price: 1000, dur: 30, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Temporary Straightening (Long)", cat: "Women's Services", sub: "Temporary Straightening", price: 1200, dur: 35, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Temporary Straightening (Extra Long)", cat: "Women's Services", sub: "Temporary Straightening", price: 1500, dur: 45, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+
+  // Colours (Image 2)
+  { name: "Basic Colours", cat: "Women's Services", sub: "Colours", price: 600, dur: 60, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Matrix Hair Colour", cat: "Women's Services", sub: "Colours", price: 1200, dur: 60, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Loreal Hair Colour (Ammonia Free)", cat: "Women's Services", sub: "Colours", price: 1200, dur: 60, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Innova Hair Colour (Ammonia Free)", cat: "Women's Services", sub: "Colours", price: 1200, dur: 60, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Colour Highlights Golden", cat: "Women's Services", sub: "Colours", price: 1800, dur: 75, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+
+  // Makeup (Image 2)
+  { name: "Eye Makeup", cat: "Women's Services", sub: "Makeup", price: 1300, dur: 30, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600" },
+  { name: "Light Makeup", cat: "Women's Services", sub: "Makeup", price: 2800, dur: 45, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600" },
+  { name: "Party Makeup", cat: "Women's Services", sub: "Makeup", price: 3000, dur: 60, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600" },
+  { name: "Makeup For Photo Shoot", cat: "Women's Services", sub: "Makeup", price: 17000, dur: 120, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600" },
+
+  // Bridal Makeup (Image 2)
+  { name: "Engagement", cat: "Women's Services", sub: "Bridal Makeup", price: 8000, dur: 120, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600" },
+  { name: "Haldi & Mehendi Makeup", cat: "Women's Services", sub: "Bridal Makeup", price: 7000, dur: 120, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600" },
+  { name: "Marriage", cat: "Women's Services", sub: "Bridal Makeup", price: 18000, dur: 180, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600", pop: true },
+  { name: "Reception", cat: "Women's Services", sub: "Bridal Makeup", price: 16000, dur: 150, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600" },
+  { name: "Saree Drapping", cat: "Women's Services", sub: "Bridal Makeup", price: 1800, dur: 45, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600" },
+
+  // Hair Cut (Image 3)
+  { name: "Kids Hair Cut", cat: "Women's Services", sub: "Hair Cut", price: 300, dur: 20, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Wash", cat: "Women's Services", sub: "Hair Cut", price: 300, dur: 15, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Basic Hair Cut", cat: "Women's Services", sub: "Hair Cut", price: 400, dur: 30, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Advance Hair Cut (Shampoo + Conditioner + Setting)", cat: "Women's Services", sub: "Hair Cut", price: 1200, dur: 45, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600", pop: true },
+
+  // Blow Dry (Image 3)
+  { name: "Curl Short", cat: "Women's Services", sub: "Blow Dry", price: 300, dur: 25, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Curl Medium", cat: "Women's Services", sub: "Blow Dry", price: 450, dur: 30, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Curl Long", cat: "Women's Services", sub: "Blow Dry", price: 600, dur: 40, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+
+  // Straightening / Smoothening (Image 3)
+  { name: "Straightening/Smoothening (Short)", cat: "Women's Services", sub: "Straightening / Smoothening", price: 4500, dur: 120, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Straightening/Smoothening (Medium)", cat: "Women's Services", sub: "Straightening / Smoothening", price: 5500, dur: 140, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Straightening/Smoothening (Long)", cat: "Women's Services", sub: "Straightening / Smoothening", price: 7500, dur: 160, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+  { name: "Straightening/Smoothening (Extra Long)", cat: "Women's Services", sub: "Straightening / Smoothening", price: 11000, dur: 180, img: "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=600" },
+
+  // Threading (Image 4)
+  { name: "Eye Brow Threading", cat: "Women's Services", sub: "Threading", price: 50, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Upper Lip & Lower Lip Threading", cat: "Women's Services", sub: "Threading", price: 40, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Chin Threading", cat: "Women's Services", sub: "Threading", price: 40, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Forehead Threading", cat: "Women's Services", sub: "Threading", price: 40, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Side locks Threading", cat: "Women's Services", sub: "Threading", price: 50, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Face Threading", cat: "Women's Services", sub: "Threading", price: 200, dur: 20, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+  // Threading Premium Waxing (Image 4)
+  { name: "Eye Brow Premium Waxing", cat: "Women's Services", sub: "Waxing", price: 80, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Upper Lip & Lower Lip Premium Waxing", cat: "Women's Services", sub: "Waxing", price: 70, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Chin Premium Waxing", cat: "Women's Services", sub: "Waxing", price: 70, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Forehead Premium Waxing", cat: "Women's Services", sub: "Waxing", price: 70, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Side locks Premium Waxing", cat: "Women's Services", sub: "Waxing", price: 100, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+  // Waxing (Image 4)
+  { name: "Full Face Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 300, dur: 25, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Face Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 400, dur: 30, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Arms Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 300, dur: 30, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Arms Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 500, dur: 35, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Half Arms Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 200, dur: 20, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Half Arms Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 300, dur: 25, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Under Arms Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 100, dur: 10, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Under Arms Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 200, dur: 15, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Half Legs Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 300, dur: 25, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Half Legs Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 500, dur: 30, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Legs Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 400, dur: 35, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Legs Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 700, dur: 40, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Stomach Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 300, dur: 25, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Stomach Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 500, dur: 30, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Front Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 600, dur: 35, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Front Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 900, dur: 40, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Back Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 600, dur: 35, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Back Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 900, dur: 40, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Body Waxing (Flavour)", cat: "Women's Services", sub: "Waxing", price: 5200, dur: 90, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Body Waxing (Premium)", cat: "Women's Services", sub: "Waxing", price: 7000, dur: 100, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Bikini Waxing", cat: "Women's Services", sub: "Waxing", price: 2200, dur: 45, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+  // Manicure (Image 4)
+  { name: "Herbal Manicure", cat: "Women's Services", sub: "Manicure", price: 300, dur: 30, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+  { name: "Spa Manicure", cat: "Women's Services", sub: "Manicure", price: 450, dur: 40, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+  { name: "Crystal Manicure", cat: "Women's Services", sub: "Manicure", price: 550, dur: 45, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+  { name: "D Tan Manicure", cat: "Women's Services", sub: "Manicure", price: 700, dur: 45, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+
+  // Pedicure (Image 4)
+  { name: "Herbal Pedicure", cat: "Women's Services", sub: "Pedicure", price: 600, dur: 40, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+  { name: "Spa Pedicure", cat: "Women's Services", sub: "Pedicure", price: 550, dur: 45, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+  { name: "Crystal Pedicure", cat: "Women's Services", sub: "Pedicure", price: 650, dur: 50, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+  { name: "D Tan Manicure", cat: "Women's Services", sub: "Pedicure", price: 950, dur: 50, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+
+  // Nail Polish (Image 4)
+  { name: "Nail Polish - Hands", cat: "Women's Services", sub: "Nail Polish", price: 80, dur: 15, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+  { name: "Nail Polish - Legs", cat: "Women's Services", sub: "Nail Polish", price: 130, dur: 15, img: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600" },
+
+  // Foot Massage (Image 4)
+  { name: "Foot Massage (15 Mins)", cat: "Women's Services", sub: "Foot Massage", price: 250, dur: 15, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+  // Leg Massage (Image 4)
+  { name: "Leg Massage (15 Mins)", cat: "Women's Services", sub: "Leg Massage", price: 500, dur: 15, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+  // De Tan Premium (Image 4)
+  { name: "De Tan Premium - Half Arms", cat: "Women's Services", sub: "De Tan Premium", price: 950, dur: 30, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "De Tan Premium - Full Arms", cat: "Women's Services", sub: "De Tan Premium", price: 1200, dur: 45, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "De Tan Premium - Half Legs", cat: "Women's Services", sub: "De Tan Premium", price: 1150, dur: 40, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "De Tan Premium - Full Legs", cat: "Women's Services", sub: "De Tan Premium", price: 1800, dur: 50, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "De Tan Premium - Face", cat: "Women's Services", sub: "De Tan Premium", price: 800, dur: 30, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "De Tan Premium - Front Neck", cat: "Women's Services", sub: "De Tan Premium", price: 600, dur: 20, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "De Tan Premium - Back Neck", cat: "Women's Services", sub: "De Tan Premium", price: 600, dur: 20, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "De Tan Premium - Full Body", cat: "Women's Services", sub: "De Tan Premium", price: 3000, dur: 90, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+  // Classic Facial (Image 4)
+  { name: "Classic Facial - Fruit", cat: "Women's Services", sub: "Classic Facial", price: 1100, dur: 50, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Classic Facial - Papaya", cat: "Women's Services", sub: "Classic Facial", price: 1400, dur: 50, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Classic Facial - Herbal", cat: "Women's Services", sub: "Classic Facial", price: 1300, dur: 50, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Classic Facial - Silver", cat: "Women's Services", sub: "Classic Facial", price: 1600, dur: 60, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Classic Facial - Golden", cat: "Women's Services", sub: "Classic Facial", price: 1700, dur: 60, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Classic Facial - Diamond", cat: "Women's Services", sub: "Classic Facial", price: 2350, dur: 60, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+  { name: "Classic Facial - Platinum", cat: "Women's Services", sub: "Classic Facial", price: 2500, dur: 60, img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600" },
+
+
+  // --- MEN'S SERVICES ---
+  
+  // Grooming (Image 1)
+  { name: "Eye Brows", cat: "Men's Services", sub: "Grooming", price: 49, dur: 10, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Head Wash", cat: "Men's Services", sub: "Grooming", price: 49, dur: 15, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Shaving", cat: "Men's Services", sub: "Grooming", price: 79, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Trimming", cat: "Men's Services", sub: "Grooming", price: 79, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Stylish Beard", cat: "Men's Services", sub: "Grooming", price: 79, dur: 25, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Cut", cat: "Men's Services", sub: "Grooming", price: 179, dur: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Stylish Hair Cut", cat: "Men's Services", sub: "Grooming", price: 229, dur: 35, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600", pop: true },
+  { name: "Hair Straightening (Depends on Hair)", cat: "Men's Services", sub: "Grooming", price: 1999, dur: 90, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Keratin Hair Treatment", cat: "Men's Services", sub: "Grooming", price: 4999, dur: 120, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+
+  // Colours (Image 1)
+  { name: "Beard Normal Colours", cat: "Men's Services", sub: "Colours", price: 79, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Basic Colours", cat: "Men's Services", sub: "Colours", price: 199, dur: 40, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Matrix Hair Colour", cat: "Men's Services", sub: "Colours", price: 349, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Loreal Hair Colour (Ammonia Free)", cat: "Men's Services", sub: "Colours", price: 449, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Innova Hair Colour (Ammonia Free)", cat: "Men's Services", sub: "Colours", price: 599, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Colour Highlights Golden", cat: "Men's Services", sub: "Colours", price: 799, dur: 60, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+
+  // Special Groom Package (Image 1)
+  { name: "Beard", cat: "Men's Services", sub: "Special Groom Package", price: 80, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Cut", cat: "Men's Services", sub: "Special Groom Package", price: 179, dur: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "D-Tan", cat: "Men's Services", sub: "Special Groom Package", price: 499, dur: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hand D-Tan", cat: "Men's Services", sub: "Special Groom Package", price: 399, dur: 25, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Neck D-Tan", cat: "Men's Services", sub: "Special Groom Package", price: 199, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Goldern Facial", cat: "Men's Services", sub: "Special Groom Package", price: 1999, dur: 55, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Mani Cure", cat: "Men's Services", sub: "Special Groom Package", price: 249, dur: 30, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Normal Pedicure", cat: "Men's Services", sub: "Special Groom Package", price: 399, dur: 40, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Deluxe Pedicure", cat: "Men's Services", sub: "Special Groom Package", price: 699, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Colour", cat: "Men's Services", sub: "Special Groom Package", price: 699, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Spa", cat: "Men's Services", sub: "Special Groom Package", price: 999, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "In Saloon", cat: "Men's Services", sub: "Special Groom Package", price: 5999, dur: 180, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600", pop: true },
+  { name: "Home Service", cat: "Men's Services", sub: "Special Groom Package", price: 6999, dur: 180, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+
+  // Beauty (Image 1)
+  { name: "Face Scurb", cat: "Men's Services", sub: "Beauty", price: 199, dur: 15, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Face Scurb with Steam", cat: "Men's Services", sub: "Beauty", price: 269, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Face Tan Pak", cat: "Men's Services", sub: "Beauty", price: 499, dur: 25, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Neck D-Tan", cat: "Men's Services", sub: "Beauty", price: 199, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Clean Up Basic Facial", cat: "Men's Services", sub: "Beauty", price: 599, dur: 35, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Whitening Facial", cat: "Men's Services", sub: "Beauty", price: 999, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Fruit Facial", cat: "Men's Services", sub: "Beauty", price: 1099, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Diamond Facial", cat: "Men's Services", sub: "Beauty", price: 1999, dur: 55, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Gold Facial", cat: "Men's Services", sub: "Beauty", price: 1999, dur: 55, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Pearl Facial", cat: "Men's Services", sub: "Beauty", price: 1799, dur: 55, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Charcoal", cat: "Men's Services", sub: "Beauty", price: 1199, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+
+  // Spa (Image 1)
+  { name: "Oil Head Massage", cat: "Men's Services", sub: "Spa", price: 99, dur: 15, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Oil Head Massage with Machine", cat: "Men's Services", sub: "Spa", price: 129, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Scalp Massage with Steam", cat: "Men's Services", sub: "Spa", price: 159, dur: 20, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Spa", cat: "Men's Services", sub: "Spa", price: 899, dur: 40, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Hair Dandruff Treatment", cat: "Men's Services", sub: "Spa", price: 1099, dur: 45, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Body Massgae", cat: "Men's Services", sub: "Spa", price: 999, dur: 60, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" },
+  { name: "Full Body Massgae (With Steam +300)", cat: "Men's Services", sub: "Spa", price: 1299, dur: 75, img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&q=80&w=600" }
 ];
+
+const defaultServices = rawServices.map((s, index) => ({
+  _id: `service_${index + 1}`,
+  name: s.name,
+  category: s.cat,
+  subcategory: s.sub,
+  description: `Premium luxury styling for ${s.name} at VIVA Unisex Salon.`,
+  price: s.price,
+  duration: s.dur,
+  imageUrl: s.img,
+  rating: 4.8,
+  reviewsCount: Math.floor(Math.random() * 100) + 15,
+  isPopular: !!s.pop
+}));
 
 const defaultGallery = [
   {
@@ -2296,27 +313,6 @@ const defaultGallery = [
     isBeforeAfter: true,
     beforeImageUrl: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=600",
     afterImageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=600"
-  },
-  {
-    _id: "gallery_3",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
-    category: "Hairstyling",
-    title: "Sleek Fade & Beard Trim",
-    isBeforeAfter: false
-  },
-  {
-    _id: "gallery_4",
-    imageUrl: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80&w=600",
-    category: "Nails",
-    title: "Chrome French Extensions",
-    isBeforeAfter: false
-  },
-  {
-    _id: "gallery_5",
-    imageUrl: "https://images.unsplash.com/photo-1595853035070-59a39fe84de3?auto=format&fit=crop&q=80&w=600",
-    category: "Spa",
-    title: "Keratin Revival Finish",
-    isBeforeAfter: false
   }
 ];
 
@@ -2329,24 +325,6 @@ const defaultOffers = [
     discountPercentage: 20,
     expiryDate: "2027-12-31",
     bannerImageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    _id: "offer_2",
-    title: "Bridal Complete Bundle",
-    description: "Save 15% on booking full bridal makeup + extensions package.",
-    discountCode: "BRIDAL15",
-    discountPercentage: 15,
-    expiryDate: "2027-12-31",
-    bannerImageUrl: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    _id: "offer_3",
-    title: "VIVA VIP Membership",
-    description: "Get 10% cashpoints back on all services and unlock early bookings.",
-    discountCode: "VIVACLUB",
-    discountPercentage: 10,
-    expiryDate: "2027-12-31",
-    bannerImageUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&q=80&w=800"
   }
 ];
 
@@ -2359,84 +337,50 @@ const defaultReviews = [
     },
     rating: 5,
     comment: "The Gold Hydra Facial is pure magic. My skin has never glowed like this before. The matte black & gold interior smells like pure royalty!",
-    serviceId: "service_5",
-    createdAt: new Date().toISOString()
-  },
-  {
-    _id: "review_2",
-    user: {
-      name: "Ethan Vance",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150"
-    },
-    rating: 5,
-    comment: "Sophia Rose did an amazing job with my hair smoothing. The precision and luxury treatment is unmatched.",
-    serviceId: "service_3",
-    createdAt: new Date().toISOString()
-  },
-  {
-    _id: "review_3",
-    user: {
-      name: "Clara Reynolds",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150"
-    },
-    rating: 4,
-    comment: "Absolutely loved the bridal styling session. Highly recommended package for weddings.",
-    serviceId: "service_11",
+    serviceId: "service_1",
     createdAt: new Date().toISOString()
   }
 ];
 
-// Read mock database file
 const readMockDB = () => {
   if (!fs.existsSync(dbPath)) {
-    const adminHash = bcrypt.hashSync("adminpassword123", 10);
-    const userHash = bcrypt.hashSync("userpassword123", 10);
+    const adminHash = bcrypt.hashSync("Vivasaloon@1234", 10);
     
     const initialData = {
-      users: [
+      admins: [
         {
-          _id: "user_admin",
-          name: "VIVA Admin Manager",
-          email: "admin@vivasalon.com",
+          _id: "admin_owner",
+          fullName: "VIVA Owner",
+          name: "VIVA Owner",
+          email: "owner@vivasalon.com",
           password: adminHash,
-          phone: "+15550199",
-          role: "admin",
-          membershipType: "VIP",
-          membershipPoints: 1250,
-          savedServices: ["service_2", "service_5"],
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: "user_customer",
-          name: "Diana Prince",
-          email: "user@vivasalon.com",
-          password: userHash,
-          phone: "+15550299",
-          role: "customer",
-          membershipType: "Gold",
-          membershipPoints: 340,
-          savedServices: ["service_3"],
+          mobileNumber: "7799399955",
+          phone: "7799399955",
+          role: "owner",
           createdAt: new Date().toISOString()
         }
       ],
       services: defaultServices,
-      appointments: [
-        {
-          _id: "appointment_1",
-          user: "user_customer",
-          service: "service_5",
-          stylist: "stylist_2",
-          date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // tomorrow
-          timeSlot: "11:00 AM",
-          status: "confirmed",
-          notes: "Need extra steam service.",
-          createdAt: new Date().toISOString()
-        }
-      ],
+      appointments: [],
       stylists: defaultStylists,
       gallery: defaultGallery,
       offers: defaultOffers,
-      reviews: defaultReviews
+      reviews: defaultReviews,
+      memberships: [
+        {
+          _id: "member_1",
+          customerName: "Diana Prince",
+          phone: "9876543210",
+          membershipType: "Silver",
+          price: 2999,
+          startDate: new Date().toISOString(),
+          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+          discount: 10,
+          status: "Active",
+          createdAt: new Date().toISOString()
+        }
+      ],
+      bills: []
     };
     fs.writeFileSync(dbPath, JSON.stringify(initialData, null, 2), 'utf-8');
     return initialData;
@@ -2444,19 +388,80 @@ const readMockDB = () => {
   
   try {
     const raw = fs.readFileSync(dbPath, 'utf-8');
-    return JSON.parse(raw);
+    const db = JSON.parse(raw);
+
+    // Sync admin 7799399955 credentials in mock_db.json
+    if (!db.admins) db.admins = [];
+    const targetAdminIndex = db.admins.findIndex(a => a.mobileNumber === "7799399955" || a.phone === "7799399955");
+    const adminHash = bcrypt.hashSync("Vivasaloon@1234", 10);
+    const targetAdmin = {
+      _id: "admin_owner",
+      fullName: "VIVA Owner",
+      name: "VIVA Owner",
+      email: "owner@vivasalon.com",
+      password: adminHash,
+      mobileNumber: "7799399955",
+      phone: "7799399955",
+      role: "owner",
+      createdAt: new Date().toISOString()
+    };
+    if (targetAdminIndex === -1) {
+      console.log("Seeding admin 7799399955 in mock_db.json...");
+      db.admins.push(targetAdmin);
+      fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf-8');
+    } else {
+      const current = db.admins[targetAdminIndex];
+      if (current.role !== "owner" || !bcrypt.compareSync("Vivasaloon@1234", current.password)) {
+        console.log("Updating admin 7799399955 credentials in mock_db.json...");
+        db.admins[targetAdminIndex] = { ...current, ...targetAdmin };
+        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf-8');
+      }
+    }
+    
+    // Safety check: if DB services array contains the old balancing treatments, or doesn't match current length/names, overwrite it completely
+    const hasOldServices = !db.services || 
+      db.services.length !== defaultServices.length ||
+      db.services.some(s => s.name === "Golden Facial" || s.name === "Face Scrub" || s.name === "Full Body Massage");
+    
+    if (hasOldServices || !db.bills || !db.memberships) {
+      console.log("Upgrading mock_db.json to the new VIVA Unisex Salon POS and services database schema...");
+      db.services = defaultServices;
+      db.stylists = defaultStylists;
+      if (!db.memberships) {
+        db.memberships = [
+          {
+            _id: "member_1",
+            customerName: "Diana Prince",
+            phone: "9876543210",
+            membershipType: "Silver",
+            price: 2999,
+            startDate: new Date().toISOString(),
+            expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            discount: 10,
+            status: "Active",
+            createdAt: new Date().toISOString()
+          }
+        ];
+      }
+      if (!db.bills) db.bills = [];
+      fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf-8');
+    }
+    
+    return db;
   } catch (err) {
     console.error("Error reading Mock DB, resetting...", err);
     return {};
   }
 };
 
-// Write mock database file
+
 const writeMockDB = (data) => {
   fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf-8');
 };
 
 module.exports = {
   readMockDB,
-  writeMockDB
+  writeMockDB,
+  defaultServices,
+  defaultStylists
 };

@@ -69,7 +69,7 @@ const Contact = () => {
             <div>
               <h4 className="font-heading text-lg font-bold text-viva-white uppercase tracking-wider mb-2">Bookings & Info</h4>
               <p className="text-xs text-viva-gray leading-relaxed mb-1 font-light">Contact our front desk directly for booking alterations.</p>
-              <a href="tel:+919347581733" className="text-viva-gold font-mono font-bold text-base hover:underline">+91 93475 81733</a>
+              <a href="tel:+917799399955" className="text-viva-gold font-mono font-bold text-base hover:underline">+91 77993 99955</a>
             </div>
           </div>
 
@@ -234,7 +234,7 @@ const Contact = () => {
 
       {/* Floating WhatsApp Floater */}
       <a
-        href="https://wa.me/919347581733?text=Hello%20VIVA%20Salon!%20I%20would%20like%20to%20inquire%20about..."
+        href="https://wa.me/917799399955?text=Hello%20VIVA%20Salon!%20I%20would%20like%20to%20inquire%20about..."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-40 bg-green-600 hover:bg-green-500 text-white font-body font-bold text-xs uppercase tracking-widest px-5 py-4 rounded-full shadow-lg flex items-center gap-2 transition-transform duration-300 hover:scale-105"

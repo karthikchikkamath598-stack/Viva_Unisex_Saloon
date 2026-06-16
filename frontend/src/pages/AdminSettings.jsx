@@ -1,10 +1,23 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
-import { FiSave, FiPlus, FiTrash, FiCalendar, FiClock, FiSettings, FiPhone, FiMail, FiUser } from 'react-icons/fi';
+import { 
+  FiSave, FiPlus, FiTrash, FiCalendar, FiClock, FiSettings, 
+  FiPhone, FiMail, FiUser, FiSliders, FiTrendingUp, FiLayers, 
+  FiUsers, FiAward, FiImage, FiBell, FiPower 
+} from 'react-icons/fi';
+import VivaLogo from '../components/VivaLogo';
 
 const AdminSettings = () => {
-  const { API_URL } = useContext(AuthContext);
+  const { API_URL, logout, user } = useContext(AuthContext);
+  const { pathname } = useLocation();
+
+  const formatRole = (role) => {
+    if (!role) return '';
+    if (role === 'software_developer' || role === 'software_manager') return 'Software Developer';
+    return role.charAt(0).toUpperCase() + role.slice(1);
+  };
   
   // Settings details state
   const [ownerName, setOwnerName] = useState('');
@@ -140,17 +153,81 @@ const AdminSettings = () => {
   }
 
   return (
-    <div className="pt-24 min-h-screen bg-zinc-950 pb-16 font-body text-white">
-      <div className="max-w-7xl mx-auto px-6">
+    <div data-lenis-prevent className="min-h-screen bg-zinc-950 font-body text-white flex flex-col md:flex-row">
+      
+      {/* Left Sidebar Navigation */}
+      <aside className="w-full md:w-64 bg-zinc-900 border-b md:border-b-0 md:border-r border-white/5 flex flex-col md:h-screen md:sticky md:top-0 md:left-0 flex-shrink-0 z-40">
+        {/* Sidebar Logo Header */}
+        <div className="flex items-center gap-3 p-6 border-b border-white/5">
+          <VivaLogo
+            size={40}
+            className="drop-shadow-[0_0_8px_rgba(212,164,55,0.3)] flex-shrink-0"
+          />
+          <div>
+            <h1 className="font-heading text-lg font-bold uppercase tracking-widest text-white">VIVA Salon</h1>
+            <span className="text-[#D4AF37] text-[9px] uppercase tracking-widest font-semibold">Admin Panel</span>
+          </div>
+        </div>
+
+        {/* Navigation items */}
+        <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
+          {[
+            { id: 'overview', label: 'Dashboard Overview', icon: <FiSliders />, path: '/admin/dashboard' },
+            { id: 'bookings', label: 'Appointments', icon: <FiCalendar />, path: '/admin/orders' },
+            { id: 'customers', label: 'Customers', icon: <FiUsers />, path: '/admin/customers' },
+            { id: 'services', label: 'Services', icon: <FiLayers />, path: '/admin/catalog' },
+            { id: 'memberships', label: 'Memberships', icon: <FiAward />, path: '/admin/memberships' },
+            { id: 'gallery', label: 'Gallery', icon: <FiImage />, path: '/admin/gallery' },
+            { id: 'notifications', label: 'Notifications', icon: <FiBell />, path: '/admin/notifications' },
+            { id: 'revenue', label: 'Revenue Analytics', icon: <FiTrendingUp />, path: '/admin/revenue' },
+            { id: 'settings', label: 'Settings', icon: <FiSettings />, path: '/admin/settings' }
+          ].map(tab => {
+            const isActive = pathname === tab.path || (tab.id === 'settings' && pathname === '/admin/settings');
+            return (
+              <Link
+                key={tab.id}
+                to={tab.path}
+                className={`flex items-center gap-3 px-4 py-3 rounded text-xs uppercase tracking-wider transition-all duration-200 border ${
+                  isActive 
+                    ? 'bg-[#D4AF37] border-[#D4AF37] text-zinc-950 font-bold shadow-gold-glow' 
+                    : 'bg-transparent border-transparent text-white hover:bg-white/5 hover:border-white/5'
+                }`}
+              >
+                <span className="text-sm">{tab.icon}</span>
+                <span>{tab.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar Footer / Logout */}
+        <button 
+          onClick={logout}
+          className="flex items-center gap-3 px-6 py-4 text-red-400 hover:text-red-300 hover:bg-white/5 text-xs font-bold uppercase tracking-widest mt-auto border-t border-white/5 outline-none"
+        >
+          <FiPower className="text-sm" />
+          <span>Logout</span>
+        </button>
+      </aside>
+
+      {/* Right Content Area */}
+      <main className="flex-grow p-6 md:p-10 max-w-full overflow-x-hidden md:h-screen md:overflow-y-auto">
         
-        {/* Settings Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-zinc-800 pb-6 mb-8 gap-4">
+        {/* Top Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-zinc-800 pb-6 mb-8 gap-4">
           <div>
             <span className="text-[#D4AF37] text-xs uppercase tracking-widest font-semibold flex items-center gap-1">
               <FiSettings /> Configuration Panel
             </span>
-            <h1 className="font-heading text-3xl font-bold uppercase tracking-widest mt-1">Salon Settings</h1>
+            <h2 className="font-heading text-2xl font-bold uppercase tracking-widest mt-1">Salon Settings</h2>
           </div>
+          {user && (
+            <div className="text-right hidden sm:block">
+              <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold block">Logged In As: <span className="text-[#D4AF37]">{formatRole(user.role)}</span></span>
+              <span className="text-xs text-white font-bold block">{user.fullName || user.name}</span>
+              <span className="text-[10px] text-zinc-400 block font-mono">{user.mobileNumber || user.phone}</span>
+            </div>
+          )}
         </div>
 
         {error && (
@@ -293,13 +370,13 @@ const AdminSettings = () => {
                           onChange={() => handleToggleDisableSlot(slot)}
                           className="w-3.5 h-3.5 accent-[#D4AF37] rounded cursor-pointer"
                         />
-                        <span className={`font-mono ${isDisabled ? 'text-zinc-550 line-through' : 'text-white'}`}>{slot}</span>
+                        <span className={`font-mono ${isDisabled ? 'text-zinc-500 line-through' : 'text-white'}`}>{slot}</span>
                         {isDisabled && <span className="text-[9px] bg-red-950/20 text-red-400 border border-red-900/30 px-1 py-0.5 rounded">Disabled</span>}
                       </div>
                       <button
                         type="button"
                         onClick={() => handleRemoveSlot(slot)}
-                        className="text-zinc-500 hover:text-red-450 p-1 transition-colors"
+                        className="text-zinc-500 hover:text-red-400 p-1 transition-colors"
                         title="Remove Slot"
                       >
                         <FiTrash />
@@ -344,7 +421,7 @@ const AdminSettings = () => {
                       <button
                         type="button"
                         onClick={() => handleRemoveHoliday(date)}
-                        className="text-zinc-500 hover:text-red-450 p-1"
+                        className="text-zinc-500 hover:text-red-400 p-1"
                         title="Unblock Date"
                       >
                         <FiTrash />
@@ -368,7 +445,7 @@ const AdminSettings = () => {
           </div>
 
         </form>
-      </div>
+      </main>
     </div>
   );
 };

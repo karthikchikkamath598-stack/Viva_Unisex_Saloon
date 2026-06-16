@@ -115,6 +115,20 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('All');
   const isClosedToday = new Date().getDay() === 2; // 2 = Tuesday
 
+  const [particles, setParticles] = useState([]);
+  useEffect(() => {
+    const generated = Array.from({ length: 25 }).map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 15 + 10,
+      delay: Math.random() * -20
+    }));
+    setParticles(generated);
+  }, []);
+
+
   const handleBookRitual = () => {
     let services = [];
     try {
@@ -190,6 +204,35 @@ const Home = () => {
 
   return (
     <div className="bg-viva-black text-viva-white min-h-screen relative overflow-hidden">
+      
+      {/* Floating Particles Overlay */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {particles.map((p) => (
+          <motion.div
+            key={p.id}
+            className="absolute rounded-full bg-[#D4AF37]/40"
+            style={{
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: p.size,
+              height: p.size,
+              boxShadow: '0 0 6px #FFD700',
+            }}
+            animate={{
+              y: [0, -600],
+              x: [0, Math.random() * 40 - 20],
+              opacity: [0, 0.7, 0]
+            }}
+            transition={{
+              duration: p.duration,
+              repeat: Infinity,
+              delay: p.delay,
+              ease: 'linear'
+            }}
+          />
+        ))}
+      </div>
+
       
       {/* 1. ELEGANT HOME HERO SECTION */}
       <section className="relative min-h-screen flex flex-col justify-center pt-28 pb-16 px-6 md:px-12 lg:px-20 overflow-hidden">
@@ -301,6 +344,90 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      {/* LUXURY SIGNATURE STANDARDS SECTION */}
+      <motion.section 
+        {...sectionAnimation}
+        className="py-24 px-6 bg-viva-black relative border-b border-white/5"
+      >
+        <div className="absolute w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(212,175,55,0.02)_0%,transparent_70%)] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto text-center mb-16">
+          <span className="text-viva-gold text-xs font-bold uppercase tracking-[0.3em] mb-3 block">
+            THE ART OF GROOMING
+          </span>
+          <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-widest uppercase text-viva-white">
+            Our <span className="text-gold-gradient">Signature Standards</span>
+          </h2>
+          <div className="w-12 h-[1px] bg-viva-gold mx-auto mt-4" />
+        </div>
+
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Card 1: Luxury Grooming Experience */}
+          <TiltCard className="p-8 flex flex-col items-center text-center justify-between glassmorphic-card h-[320px]">
+            <div className="w-16 h-16 rounded-full bg-viva-gold/10 border border-viva-gold/30 flex items-center justify-center text-viva-gold text-2xl mb-6 shadow-gold-glow">
+              <FaCrown />
+            </div>
+            <div>
+              <h3 className="font-heading text-sm font-bold text-white uppercase tracking-wider mb-3 leading-snug">
+                <strong>Luxury Grooming Experience</strong>
+              </h3>
+              <p className="text-[11px] text-viva-gray leading-relaxed font-light">
+                Indulge in a bespoke grooming ritual tailored to your personal aesthetic. Every session is designed as a masterpiece of relaxation.
+              </p>
+            </div>
+            <div className="h-0.5 w-12 bg-gradient-to-r from-viva-gold-dark via-viva-gold to-viva-gold-light rounded-full mt-4" />
+          </TiltCard>
+
+          {/* Card 2: Premium Salon Services */}
+          <TiltCard className="p-8 flex flex-col items-center text-center justify-between glassmorphic-card h-[320px]">
+            <div className="w-16 h-16 rounded-full bg-viva-gold/10 border border-viva-gold/30 flex items-center justify-center text-viva-gold text-2xl mb-6 shadow-gold-glow">
+              <FiScissors />
+            </div>
+            <div>
+              <h3 className="font-heading text-sm font-bold text-white uppercase tracking-wider mb-3 leading-snug">
+                <strong>Premium Salon Services</strong>
+              </h3>
+              <p className="text-[11px] text-viva-gray leading-relaxed font-light">
+                From couture haircuts to organic clinical facials, our services utilize advanced treatments and ultra-premium formulations.
+              </p>
+            </div>
+            <div className="h-0.5 w-12 bg-gradient-to-r from-viva-gold-dark via-viva-gold to-viva-gold-light rounded-full mt-4" />
+          </TiltCard>
+
+          {/* Card 3: Expert Stylists */}
+          <TiltCard className="p-8 flex flex-col items-center text-center justify-between glassmorphic-card h-[320px]">
+            <div className="w-16 h-16 rounded-full bg-viva-gold/10 border border-viva-gold/30 flex items-center justify-center text-viva-gold text-2xl mb-6 shadow-gold-glow">
+              <FaUserTie />
+            </div>
+            <div>
+              <h3 className="font-heading text-sm font-bold text-white uppercase tracking-wider mb-3 leading-snug">
+                <strong>Expert Stylists</strong>
+              </h3>
+              <p className="text-[11px] text-viva-gray leading-relaxed font-light">
+                Meet our master hair artisans and skincare therapists. Guided by global styling trends and precision craftsmanship.
+              </p>
+            </div>
+            <div className="h-0.5 w-12 bg-gradient-to-r from-viva-gold-dark via-viva-gold to-viva-gold-light rounded-full mt-4" />
+          </TiltCard>
+
+          {/* Card 4: Book Your Appointment */}
+          <TiltCard className="p-8 flex flex-col items-center text-center justify-between glassmorphic-card h-[320px]">
+            <div className="w-16 h-16 rounded-full bg-viva-gold/10 border border-viva-gold/30 flex items-center justify-center text-viva-gold text-2xl mb-6 shadow-gold-glow">
+              <FiBookOpen />
+            </div>
+            <div>
+              <h3 className="font-heading text-sm font-bold text-white uppercase tracking-wider mb-3 leading-snug">
+                <strong>Book Your Appointment</strong>
+              </h3>
+              <p className="text-[11px] text-viva-gray leading-relaxed font-light">
+                Enjoy immediate, friction-free scheduling. Pick your service, staff, date and time, and confirm in less than 30 seconds.
+              </p>
+            </div>
+            <div className="h-0.5 w-12 bg-gradient-to-r from-viva-gold-dark via-viva-gold to-viva-gold-light rounded-full mt-4" />
+          </TiltCard>
+        </div>
+      </motion.section>
 
       {/* 2. ABOUT VIVA SECTION */}
       <motion.section 

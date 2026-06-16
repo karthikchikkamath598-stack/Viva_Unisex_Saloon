@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import AccessRestricted from './AccessRestricted';
+import AdminErrorBoundary from './AdminErrorBoundary';
 
 const ProtectedRoute = ({ children, adminOnly = false }) => {
   const { user, loading } = useContext(AuthContext);
@@ -15,12 +17,16 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     );
   }
 
-  if (!user) {
-    return <Navigate to={adminOnly ? "/admin/login" : "/login"} replace />;
-  }
-
-  if (adminOnly && user.role !== 'admin') {
-    return <Navigate to="/admin/login" replace />;
+  if (adminOnly) {
+    if (!user || !['admin', 'owner', 'software_manager', 'software_developer'].includes(user.role)) {
+      return <AccessRestricted message="Access Denied: Only administrators are permitted to access this portal." />;
+    }
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
+    if (isMobile) {
+      return <AccessRestricted message="Admin Dashboard is available only on Desktop Devices." preventRedirect={true} />;
+    }
+    
+    return <AdminErrorBoundary>{children}</AdminErrorBoundary>;
   }
 
   return children;

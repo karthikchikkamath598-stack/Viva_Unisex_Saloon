@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useBooking } from '../context/BookingContext';
 import { HiMenuAlt3, HiX } from 'react-icons/hi';
@@ -7,6 +7,7 @@ import { RiUserSharedLine } from 'react-icons/ri';
 import VivaLogo from './VivaLogo';
 
 const Navbar = () => {
+  const { pathname } = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
@@ -24,6 +25,8 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (pathname.startsWith('/admin')) return null;
 
   const handleLogout = () => {
     logout();
@@ -71,13 +74,16 @@ const Navbar = () => {
     }`}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Branding Logo */}
-        <Link to="/" className="flex items-center space-x-3 group">
-          <VivaLogo size={40} className="group-hover:scale-105 transition-transform duration-300" />
+        <Link to="/" className="flex items-center gap-3 group" aria-label="VIVA Unisex Salon – Home">
+          <VivaLogo
+            size={80}
+            className="group-hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_10px_rgba(212,164,55,0.3)] flex-shrink-0"
+          />
           <div className="flex flex-col leading-none">
-            <span className="font-heading text-xl font-bold tracking-[0.15em] text-gold-gradient">
+            <span className="font-heading text-xl font-bold tracking-[0.18em] text-viva-gold group-hover:text-white transition-colors duration-300">
               VIVA
             </span>
-            <span className="text-[8px] font-body tracking-[0.3em] text-viva-gray mt-0.5 group-hover:text-viva-gold transition-colors duration-300">
+            <span className="text-[12px] font-body tracking-[0.35em] text-viva-gray group-hover:text-viva-gold transition-colors duration-300 mt-0.5">
               UNISEX SALON
             </span>
           </div>
@@ -100,39 +106,23 @@ const Navbar = () => {
 
         {/* Action Button Controls */}
         <div className="hidden md:flex items-center space-x-6">
-          {user ? (
-            <div className="flex items-center space-x-4">
+          {user && ['admin', 'owner', 'software_manager', 'software_developer'].includes(user.role) && (
+            <div className="flex items-center space-x-4 animate-fade-in">
               <Link 
-                to={user.role === 'admin' ? '/admin' : '/dashboard'} 
-                className="flex items-center space-x-2 group animate-fade-in"
+                to="/admin" 
+                className="flex items-center space-x-2 group"
               >
                 {renderAvatar()}
                 <span className="font-body text-xs text-viva-white group-hover:text-viva-gold transition-colors duration-300 font-medium">
-                  {user.role === 'admin' ? 'Admin Portal' : 'My Account'}
+                  Admin Portal
                 </span>
               </Link>
               <button 
                 onClick={handleLogout}
-                className="text-xs text-viva-gray hover:text-viva-white border border-viva-gray/30 hover:border-viva-white/60 px-3 py-1.5 rounded transition-all duration-300 animate-fade-in"
+                className="text-xs text-viva-gray hover:text-viva-white border border-viva-gray/30 hover:border-viva-white/60 px-3 py-1.5 rounded transition-all duration-300"
               >
                 Logout
               </button>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-4 animate-fade-in">
-              <Link 
-                to="/login"
-                className="text-viva-white hover:text-viva-gold transition-colors duration-300 flex items-center space-x-1 py-1"
-              >
-                <RiUserSharedLine className="text-lg" />
-                <span className="text-xs font-body tracking-wider font-semibold">Login</span>
-              </Link>
-              <Link 
-                to="/signup"
-                className="text-xs text-viva-white border border-viva-white/30 hover:border-viva-gold hover:text-zinc-950 hover:bg-viva-gold px-3 py-1.5 rounded transition-all duration-300 font-semibold"
-              >
-                Sign Up
-              </Link>
             </div>
           )}
 
@@ -182,18 +172,18 @@ const Navbar = () => {
           
           <div className="w-full border-t border-viva-gold/10 my-4"></div>
 
-          {user ? (
+          {user && ['admin', 'owner', 'software_manager', 'software_developer'].includes(user.role) && (
             <div className="flex flex-col items-center space-y-4">
               <div className="flex items-center gap-3">
                 {renderAvatar()}
                 <span className="text-sm font-body text-viva-gray">Hello, {user.name}</span>
               </div>
               <Link
-                to={user.role === 'admin' ? '/admin' : '/dashboard'}
+                to="/admin"
                 onClick={() => setIsOpen(false)}
                 className="font-body text-base text-viva-gold font-bold tracking-wider"
               >
-                {user.role === 'admin' ? 'Admin Dashboard' : 'My Dashboard'}
+                Admin Dashboard
               </Link>
               <button
                 onClick={handleLogout}
@@ -201,23 +191,6 @@ const Navbar = () => {
               >
                 Logout
               </button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center space-y-4">
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="font-body text-lg text-viva-white hover:text-viva-gold transition-colors"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                onClick={() => setIsOpen(false)}
-                className="font-body text-lg text-viva-white hover:text-viva-gold transition-colors"
-              >
-                Sign Up
-              </Link>
             </div>
           )}
         </div>

@@ -1,0 +1,250 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  fullName     String
+  mobileNumber String   @unique
+  password     String
+  role         String   @default("admin") // 'owner', 'software_manager', 'software_developer', 'admin'
+  createdAt    DateTime @default(now())
+}
+
+model Customer {
+  id           String        @id @default(uuid())
+  fullName     String
+  mobileNumber String        @unique
+  email        String        @default("")
+  createdAt    DateTime      @default(now())
+  appointments Appointment[]
+  bills        Bill[]
+  memberships  Membership[]
+  reviews      Review[]
+  notifications Notification[]
+}
+
+model Stylist {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  specialty    String
+  rating       Float         @default(5.0)
+  imageUrl     String
+  skills       String[]
+  availableDays String[]
+  availableSlots String[]
+  status       String        @default("Active")
+  createdAt    DateTime      @default(now())
+  appointments Appointment[]
+  bills        Bill[]
+}
+
+model Service {
+  id                  String               @id @default(uuid())
+  name                String               @unique
+  category            String
+  subcategory         String
+  description         String
+  price               Float
+  duration            Int
+  imageUrl            String
+  rating              Float                @default(5.0)
+  reviewsCount        Int                  @default(0)
+  isPopular           Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  reviews             Review[]
+  appointmentServices AppointmentService[]
+  billServices        BillService[]
+}
+
+model Appointment {
+  id                   String               @id @default(uuid())
+  customerId           String
+  customer             Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerName         String
+  mobileNumber         String
+  service              String
+  staffMember          String
+  stylistId            String?
+  stylist              Stylist?             @relation(fields: [stylistId], references: [id], onDelete: SetNull)
+  appointmentDate      String
+  appointmentTime      String
+  notes                String               @default("")
+  bookingStatus        String               @default("Pending")
+  createdAt            DateTime             @default(now())
+
+  // Backwards compatibility mapped fields
+  phone                String?
+  preferredStaffMember String?
+  status               String               @default("Pending")
+  totalAmount          Float                @default(0)
+  totalDuration        Int                  @default(0)
+  reminderSent         Boolean              @default(false)
+
+  selectedServices     AppointmentService[]
+  revenues             Revenue[]
+
+  @@index([customerId])
+  @@index([stylistId])
+  @@index([appointmentDate])
+}
+
+model AppointmentService {
+  id            String      @id @default(uuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  serviceId     String
+  service       Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceName   String
+  price         Float
+  duration      Int
+}
+
+model Bill {
+  id             String        @id @default(uuid())
+  billId         String        @unique
+  customerId     String?
+  customer       Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerName   String        @default("")
+  mobileNumber   String        @default("")
+  staffMember    String
+  stylistId      String?
+  stylist        Stylist?      @relation(fields: [stylistId], references: [id], onDelete: SetNull)
+  membershipType String        @default("None")
+  subtotal       Float
+  discount       Float         @default(0)
+  gst            Float         @default(0)
+  grandTotal     Float
+  totalServices  Int
+  date           String
+  time           String
+  createdAt      DateTime      @default(now())
+
+  services       BillService[]
+  revenues       Revenue[]
+
+  @@index([customerId])
+  @@index([stylistId])
+  @@index([date])
+}
+
+model BillService {
+  id        String  @id @default(uuid())
+  billId    String
+  bill      Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  name      String
+  price     Float
+
+  @@index([billId])
+  @@index([serviceId])
+}
+
+model Membership {
+  id             String    @id @default(uuid())
+  customerId     String
+  customer       Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerName   String
+  email          String    @default("")
+  phone          String
+  membershipType String
+  price          Float
+  startDate      DateTime  @default(now())
+  expiryDate     DateTime?
+  discount       Float
+  studentIdImage String    @default("")
+  studentIdNumber String   @default("")
+  institutionName String   @default("")
+  status         String    @default("Active")
+  createdAt      DateTime  @default(now())
+
+  @@index([customerId])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  userName   String
+  userAvatar String   @default("https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100")
+  rating     Int
+  comment    String
+  serviceId  String
+  service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([customerId])
+  @@index([serviceId])
+}
+
+model Notification {
+  id         String    @id @default(uuid())
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  recipient  String
+  type       String
+  subject    String    @default("")
+  message    String
+  status     String    @default("Sent")
+  createdAt  DateTime  @default(now())
+
+  @@index([customerId])
+}
+
+model Revenue {
+  id            String       @id @default(uuid())
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  billId        String?
+  bill          Bill?        @relation(fields: [billId], references: [id], onDelete: SetNull)
+  amount        Float
+  category      String
+  date          String
+  createdAt     DateTime     @default(now())
+
+  @@index([appointmentId])
+  @@index([billId])
+  @@index([date])
+}
+
+model Gallery {
+  id             String   @id @default(uuid())
+  imageUrl       String
+  category       String
+  title          String
+  isBeforeAfter  Boolean  @default(false)
+  beforeImageUrl String?
+  afterImageUrl  String?
+  createdAt      DateTime @default(now())
+}
+
+model Offer {
+  id                 String   @id @default(uuid())
+  title              String
+  description        String
+  discountCode       String   @unique
+  discountPercentage Float
+  expiryDate         String
+  bannerImageUrl     String
+  createdAt          DateTime @default(now())
+}
+
+model Settings {
+  id                String   @id @default("viva-settings")
+  ownerName         String   @default("David Salon Owner")
+  salonPhone        String   @default("+919999999999")
+  ownerWhatsapp     String   @default("+919999999999")
+  ownerEmail        String   @default("owner@vivasalon.com")
+  workingHoursStart String   @default("10:00 AM")
+  workingHoursEnd   String   @default("08:00 PM")
+  slots             String[]
+  disabledSlots     String[]
+  blockedHolidays   String[]
+  memberships       Json
+}

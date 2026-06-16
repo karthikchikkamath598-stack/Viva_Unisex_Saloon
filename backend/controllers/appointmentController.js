@@ -1,46 +1,21 @@
-const Appointment = require('../models/Appointment');
-const Settings = require('../models/Settings');
-const Service = require('../models/Service');
-const User = require('../models/User');
-const mongoose = require('mongoose');
-const { getIsMock } = require('../config/db');
-const { readMockDB, writeMockDB } = require('../config/mockDb');
+const { prisma } = require('../config/db');
 const { sendBookingCreated, sendBookingConfirmed, sendBookingCancelled } = require('../services/notificationService');
 
-// Fetch default settings if no db record exists
-const getActiveSettings = async () => {
-  const defaultSettings = {
-    ownerName: 'David Salon Owner',
-    salonPhone: '+919999999999',
-    ownerWhatsapp: '+919999999999',
-    ownerEmail: 'owner@vivasalon.com',
-    workingHoursStart: '10:00 AM',
-    workingHoursEnd: '08:00 PM',
-    slots: [
-      "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM",
-      "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"
-    ],
-    disabledSlots: [],
-    blockedHolidays: []
-  };
+const { defaultSettings } = require('../utils/settingsDefaults');
 
-  if (getIsMock()) {
-    const db = readMockDB();
-    if (!db.settings) {
-      db.settings = { ...defaultSettings };
-      writeMockDB(db);
-    }
-    return db.settings;
-  } else {
-    let settings = await Settings.findOne();
-    if (!settings) {
-      settings = await Settings.create({});
-    }
-    return settings;
+const getActiveSettings = async () => {
+  let settings = await prisma.settings.findUnique({
+    where: { id: "viva-settings" }
+  });
+  if (!settings) {
+    settings = await prisma.settings.create({
+      data: defaultSettings
+    });
   }
+  return settings;
 };
 
-// Check available slots on a specific date (filtering Tuesday closures, blocked holidays, disabled slots, and already booked appointments)
+// Check available slots on a specific date
 exports.getAvailableSlots = async (req, res, next) => {
   const { date } = req.query; // YYYY-MM-DD
 
@@ -68,20 +43,14 @@ exports.getAvailableSlots = async (req, res, next) => {
       });
     }
 
-    let bookedSlots = [];
-
-    if (getIsMock()) {
-      const db = readMockDB();
-      bookedSlots = db.appointments
-        .filter(app => app.appointmentDate === date && app.status !== 'Cancelled')
-        .map(app => app.appointmentTime);
-    } else {
-      const activeAppointments = await Appointment.find({
+    const activeAppointments = await prisma.appointment.findMany({
+      where: {
         appointmentDate: date,
-        status: { $ne: 'Cancelled' }
-      });
-      bookedSlots = activeAppointments.map(app => app.appointmentTime);
-    }
+        NOT: { status: 'Cancelled' }
+      }
+    });
+
+    const bookedSlots = activeAppointments.map(app => app.appointmentTime);
 
     // Get slots list from settings
     const allSlots = settings.slots || [];
@@ -107,26 +76,16 @@ exports.getAvailableSlots = async (req, res, next) => {
   }
 };
 
-// Create Appointment Booking
-// Accepts two formats from frontend:
-//   1. serviceDetails[] - full objects { serviceId, serviceName, price, duration } (preferred - avoids ObjectId cast errors)
-//   2. services[]       - array of IDs (only used as fallback when IDs are valid MongoDB ObjectIds)
+// Create Appointment Booking (Public / Unauthenticated)
 exports.createAppointment = async (req, res, next) => {
-  const { services, serviceDetails, date, timeSlot, notes, customerName, email, phone } = req.body;
-  const userId = req.user._id;
+  const { customerName, mobileNumber, service, staffMember, appointmentDate, appointmentTime, notes } = req.body;
 
-  const hasServiceDetails = Array.isArray(serviceDetails) && serviceDetails.length > 0;
-  const hasServiceIds = Array.isArray(services) && services.length > 0;
-
-  if (!hasServiceDetails && !hasServiceIds) {
-    return res.status(400).json({ success: false, message: 'Please provide services to book' });
-  }
-  if (!date || !timeSlot) {
-    return res.status(400).json({ success: false, message: 'Please provide date and timeslot' });
+  if (!customerName || !mobileNumber || !service || !staffMember || !appointmentDate || !appointmentTime) {
+    return res.status(400).json({ success: false, message: 'Please provide all required fields' });
   }
 
   // Check Tuesday closure (2 = Tuesday in UTC)
-  const bookingDay = new Date(date).getUTCDay();
+  const bookingDay = new Date(appointmentDate).getUTCDay();
   if (bookingDay === 2) {
     return res.status(400).json({ success: false, message: 'The salon is closed on Tuesdays. Please choose another day.' });
   }
@@ -135,318 +94,315 @@ exports.createAppointment = async (req, res, next) => {
     const settings = await getActiveSettings();
 
     // Check blocked holidays
-    if (settings.blockedHolidays && settings.blockedHolidays.includes(date)) {
+    if (settings.blockedHolidays && settings.blockedHolidays.includes(appointmentDate)) {
       return res.status(400).json({ success: false, message: 'This date is a blocked holiday.' });
     }
 
     // Check if slot is disabled in settings
-    if (settings.disabledSlots && settings.disabledSlots.includes(timeSlot)) {
+    if (settings.disabledSlots && settings.disabledSlots.includes(appointmentTime)) {
       return res.status(400).json({ success: false, message: 'This timeslot has been disabled.' });
     }
 
-    let totalAmount = 0;
-    let totalDuration = 0;
-    const selectedServicesData = [];
-
-    if (getIsMock()) {
-      const db = readMockDB();
-
-      // Check double booking
-      const slotConflict = db.appointments.some(
-        app => app.appointmentDate === date && app.appointmentTime === timeSlot && app.status !== 'Cancelled'
-      );
-      if (slotConflict) {
-        return res.status(400).json({ success: false, message: 'This slot is unavailable. Please choose another time.' });
+    // Check double booking
+    const slotConflict = await prisma.appointment.findFirst({
+      where: {
+        appointmentDate,
+        appointmentTime,
+        NOT: { status: 'Cancelled' }
       }
+    });
 
-      if (hasServiceDetails) {
-        // Use full details sent from frontend (handles non-ObjectId fallback IDs like "service_43")
-        serviceDetails.forEach(srv => {
-          const price = Number(srv.price) || 0;
-          const duration = Number(srv.duration) || 0;
-          totalAmount += price;
-          totalDuration += duration;
-          selectedServicesData.push({
-            serviceId: String(srv.serviceId || srv._id || 'unknown'),
-            serviceName: srv.serviceName || srv.name || 'Service',
-            price,
-            duration
-          });
-        });
-      } else {
-        // Fallback: look up by ID in mock DB
-        services.forEach(srvId => {
-          const srv = db.services.find(s => s._id === srvId);
-          if (srv) {
-            totalAmount += srv.price;
-            totalDuration += srv.duration;
-            selectedServicesData.push({
-              serviceId: srv._id,
-              serviceName: srv.name,
-              price: srv.price,
-              duration: srv.duration
-            });
-          }
-        });
-      }
+    if (slotConflict) {
+      return res.status(400).json({ success: false, message: 'This slot is unavailable. Please choose another time.' });
+    }
 
-      // Reward membership points
-      const pointsEarned = Math.floor(totalAmount / 10);
-      const userIndex = db.users.findIndex(u => u._id === userId);
-      if (userIndex !== -1) {
-        db.users[userIndex].membershipPoints = (db.users[userIndex].membershipPoints || 0) + pointsEarned;
-        const points = db.users[userIndex].membershipPoints;
-        if (points >= 1000) db.users[userIndex].membershipType = 'VIP';
-        else if (points >= 500) db.users[userIndex].membershipType = 'Platinum';
-        else if (points >= 200) db.users[userIndex].membershipType = 'Gold';
-        else db.users[userIndex].membershipType = 'Regular';
-      }
+    // Resolve service cost
+    const dbService = await prisma.service.findUnique({
+      where: { name: service }
+    });
+    const price = dbService ? dbService.price : 150;
+    const duration = dbService ? dbService.duration : 30;
+    const serviceId = dbService ? dbService.id : 'unknown';
 
-      const newApp = {
-        _id: 'appointment_' + Date.now(),
-        customerId: userId,
-        customerName: customerName || req.user.name,
-        email: email || req.user.email,
-        phone: phone || req.user.phone,
-        selectedServices: selectedServicesData,
-        totalAmount,
-        totalDuration,
-        appointmentDate: date,
-        appointmentTime: timeSlot,
-        status: 'Pending',
-        notes: notes || '',
-        reminderSent: false,
-        createdAt: new Date().toISOString()
-      };
+    // Link or create Stylist
+    const dbStylist = await prisma.stylist.findUnique({
+      where: { name: staffMember }
+    });
 
-      db.appointments.push(newApp);
-      writeMockDB(db);
-
-      // Trigger asynchronous notifications
-      sendBookingCreated(newApp, settings).catch(console.error);
-
-      res.status(201).json({
-        success: true,
-        message: 'Appointment booked successfully',
-        appointment: newApp
-      });
-
-    } else {
-      // MongoDB path
-
-      // Check double booking
-      const slotConflict = await Appointment.findOne({
-        appointmentDate: date,
-        appointmentTime: timeSlot,
-        status: { $ne: 'Cancelled' }
-      });
-      if (slotConflict) {
-        return res.status(400).json({ success: false, message: 'This slot is unavailable. Please choose another time.' });
-      }
-
-      if (hasServiceDetails) {
-        // Use full details sent from frontend — avoids ObjectId cast error for IDs like "service_43"
-        serviceDetails.forEach(srv => {
-          const price = Number(srv.price) || 0;
-          const duration = Number(srv.duration) || 0;
-          totalAmount += price;
-          totalDuration += duration;
-          selectedServicesData.push({
-            serviceId: String(srv.serviceId || srv._id || 'unknown'),
-            serviceName: srv.serviceName || srv.name || 'Service',
-            price,
-            duration
-          });
-        });
-      } else {
-        // Only reach here when IDs are guaranteed valid MongoDB ObjectIds
-        const validIds = services.filter(id => mongoose.Types.ObjectId.isValid(id));
-        if (validIds.length === 0) {
-          return res.status(400).json({
-            success: false,
-            message: 'No valid service IDs provided. Please re-select services from the catalog.'
-          });
+    // Link or create Customer
+    let customer = await prisma.customer.findUnique({
+      where: { mobileNumber }
+    });
+    if (!customer) {
+      customer = await prisma.customer.create({
+        data: {
+          fullName: customerName,
+          mobileNumber
         }
-        const dbServices = await Service.find({ _id: { $in: validIds } });
-        dbServices.forEach(s => {
-          totalAmount += s.price;
-          totalDuration += s.duration;
-          selectedServicesData.push({
-            serviceId: s._id,
-            serviceName: s.name,
-            price: s.price,
-            duration: s.duration
-          });
-        });
-      }
-
-      if (selectedServicesData.length === 0) {
-        return res.status(400).json({
-          success: false,
-          message: 'Could not resolve any services. Please re-select services from the catalog.'
-        });
-      }
-
-      const appointment = await Appointment.create({
-        customerId: userId,
-        customerName: customerName || req.user.name,
-        email: email || req.user.email,
-        phone: phone || req.user.phone,
-        selectedServices: selectedServicesData,
-        totalAmount,
-        totalDuration,
-        appointmentDate: date,
-        appointmentTime: timeSlot,
-        status: 'Pending',
-        notes: notes || '',
-        reminderSent: false
-      });
-
-      // Update user membership points
-      const pointsEarned = Math.floor(totalAmount / 10);
-      const user = await User.findById(userId);
-      if (user) {
-        user.membershipPoints = (user.membershipPoints || 0) + pointsEarned;
-        if (user.membershipPoints >= 1000) user.membershipType = 'VIP';
-        else if (user.membershipPoints >= 500) user.membershipType = 'Platinum';
-        else if (user.membershipPoints >= 200) user.membershipType = 'Gold';
-        await user.save();
-      }
-
-      // Trigger notifications
-      sendBookingCreated(appointment, settings).catch(console.error);
-
-      res.status(201).json({
-        success: true,
-        message: 'Appointment booked successfully',
-        appointment
       });
     }
+
+    const appointment = await prisma.appointment.create({
+      data: {
+        customerId: customer.id,
+        customerName,
+        mobileNumber,
+        service,
+        staffMember,
+        stylistId: dbStylist ? dbStylist.id : null,
+        appointmentDate,
+        appointmentTime,
+        notes: notes || '',
+        bookingStatus: 'Pending',
+        phone: mobileNumber,
+        preferredStaffMember: staffMember,
+        status: 'Pending',
+        totalAmount: price,
+        totalDuration: duration,
+        reminderSent: false,
+        selectedServices: {
+          create: [{
+            serviceId,
+            serviceName: service,
+            price,
+            duration
+          }]
+        }
+      },
+      include: {
+        selectedServices: true
+      }
+    });
+
+    // Trigger notifications
+    sendBookingCreated({
+      ...appointment,
+      _id: appointment.id
+    }, settings).catch(console.error);
+
+    res.status(201).json({
+      success: true,
+      message: 'Appointment booked successfully',
+      appointment: {
+        ...appointment,
+        _id: appointment.id
+      }
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// Fetch Logged In User's Bookings
+// Fetch Logged In User's Bookings (stub)
 exports.getUserAppointments = async (req, res, next) => {
-  const userId = req.user._id;
-
-  try {
-    if (getIsMock()) {
-      const db = readMockDB();
-      const userApps = db.appointments.filter(app => app.customerId === userId || app.user === userId);
-      const populated = userApps.map(app => ({
-        ...app,
-        serviceDetails: app.selectedServices || []
-      })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      res.json({ success: true, count: populated.length, appointments: populated });
-    } else {
-      const appointments = await Appointment.find({ customerId: userId }).sort({ createdAt: -1 });
-      const populated = appointments.map(app => ({
-        ...app._doc,
-        serviceDetails: app.selectedServices || []
-      }));
-
-      res.json({ success: true, count: populated.length, appointments: populated });
-    }
-  } catch (error) {
-    next(error);
-  }
+  res.json({ success: true, count: 0, appointments: [] });
 };
 
 // Fetch All Bookings (Admin)
 exports.getAdminAppointments = async (req, res, next) => {
   try {
-    if (getIsMock()) {
-      const db = readMockDB();
-      const populated = db.appointments.map(app => ({
-        ...app,
-        userName: app.customerName,
-        userEmail: app.email,
-        userPhone: app.phone,
-        serviceDetails: app.selectedServices || []
-      })).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const appointments = await prisma.appointment.findMany({
+      include: {
+        selectedServices: true,
+        customer: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
 
-      res.json({ success: true, count: populated.length, appointments: populated });
-    } else {
-      const appointments = await Appointment.find().sort({ createdAt: -1 });
-      const populated = appointments.map(app => ({
-        ...app._doc,
-        userName: app.customerName,
-        userEmail: app.email,
-        userPhone: app.phone,
-        serviceDetails: app.selectedServices || []
-      }));
+    const populated = appointments.map(app => ({
+      ...app,
+      _id: app.id,
+      userName: app.customerName,
+      userEmail: app.customer ? app.customer.email : '',
+      userPhone: app.phone || app.mobileNumber,
+      serviceDetails: app.selectedServices.map(s => ({
+        ...s,
+        _id: s.id
+      }))
+    }));
 
-      res.json({ success: true, count: populated.length, appointments: populated });
-    }
+    res.json({ success: true, count: populated.length, appointments: populated });
   } catch (error) {
     next(error);
+  }
+};
+
+const logRevenueForAppointment = async (appointment) => {
+  try {
+    for (const srv of appointment.selectedServices) {
+      const dbSrv = await prisma.service.findUnique({
+        where: { name: srv.serviceName }
+      });
+      const category = dbSrv ? dbSrv.category : 'Grooming';
+
+      await prisma.revenue.create({
+        data: {
+          appointmentId: appointment.id,
+          amount: srv.price,
+          category,
+          date: appointment.appointmentDate
+        }
+      });
+    }
+  } catch (err) {
+    console.error('Failed to log completed appointment revenue:', err.message);
+  }
+};
+
+const createBillFromCompletedAppointment = async (appointment) => {
+  try {
+    const invoiceSuffix = appointment.id.slice(-6);
+    const billId = `VIVA-APP-${invoiceSuffix}`;
+    const phone = appointment.mobileNumber || appointment.phone;
+
+    // Check if bill exists
+    const billExists = await prisma.bill.findUnique({
+      where: { billId }
+    });
+    if (billExists) return;
+
+    const dateToday = new Date().toISOString().split('T')[0];
+    const timeNow = new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+
+    const activeMem = await prisma.membership.findFirst({
+      where: { phone, status: 'Active' }
+    });
+    const membershipType = activeMem ? activeMem.membershipType : 'None';
+    const discountPct = activeMem ? activeMem.discount : 0;
+
+    const subtotal = appointment.totalAmount || 0;
+    const discount = Math.round(subtotal * (discountPct / 100));
+    const grandTotal = subtotal - discount;
+
+    const customer = await prisma.customer.findUnique({
+      where: { mobileNumber: phone }
+    });
+
+    await prisma.bill.create({
+      data: {
+        billId,
+        customerId: customer ? customer.id : null,
+        customerName: appointment.customerName || '',
+        mobileNumber: phone || '',
+        staffMember: appointment.staffMember || appointment.preferredStaffMember || 'None',
+        stylistId: appointment.stylistId,
+        membershipType,
+        subtotal,
+        discount,
+        gst: 0,
+        grandTotal,
+        totalServices: appointment.selectedServices.length,
+        date: appointment.appointmentDate || dateToday,
+        time: appointment.appointmentTime || timeNow,
+        services: {
+          create: appointment.selectedServices.map(s => ({
+            name: s.serviceName,
+            price: s.price,
+            serviceId: s.serviceId !== 'unknown' ? s.serviceId : null
+          }))
+        }
+      }
+    });
+  } catch (err) {
+    console.error('Failed to create bill from completed appointment:', err.message);
   }
 };
 
 // Update Appointment Status (Pending, Confirmed, Completed, Cancelled)
 exports.updateAppointmentStatus = async (req, res, next) => {
   const { id } = req.params;
-  const { status } = req.body; // Pending, Confirmed, Completed, Cancelled
+  const { status } = req.body;
 
   if (!status) {
     return res.status(400).json({ success: false, message: 'Please provide status' });
   }
 
-  // Normalise case to match schema enum: "Pending", "Confirmed", "Completed", "Cancelled"
   const normalizedStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
 
   try {
     const settings = await getActiveSettings();
 
-    if (getIsMock()) {
-      const db = readMockDB();
-      const index = db.appointments.findIndex(app => app._id === id);
-      if (index === -1) {
-        return res.status(404).json({ success: false, message: 'Appointment not found' });
-      }
+    const appointment = await prisma.appointment.findUnique({
+      where: { id },
+      include: { selectedServices: true }
+    });
 
-      // Authorization check for cancel
-      if (normalizedStatus === 'Cancelled' && req.user.role !== 'admin' && db.appointments[index].customerId !== req.user._id) {
-        return res.status(403).json({ success: false, message: 'Not authorized to modify this booking' });
-      }
-
-      db.appointments[index].status = normalizedStatus;
-      writeMockDB(db);
-
-      // Trigger status notifications
-      const app = db.appointments[index];
-      if (normalizedStatus === 'Confirmed') {
-        sendBookingConfirmed(app, settings).catch(console.error);
-      } else if (normalizedStatus === 'Cancelled') {
-        sendBookingCancelled(app, settings).catch(console.error);
-      }
-
-      res.json({ success: true, message: `Appointment status updated to ${normalizedStatus}`, appointment: app });
-    } else {
-      const appointment = await Appointment.findById(id);
-      if (!appointment) {
-        return res.status(404).json({ success: false, message: 'Appointment not found' });
-      }
-
-      if (normalizedStatus === 'Cancelled' && req.user.role !== 'admin' && appointment.customerId.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ success: false, message: 'Not authorized to modify this booking' });
-      }
-
-      appointment.status = normalizedStatus;
-      await appointment.save();
-
-      // Trigger status notifications
-      if (normalizedStatus === 'Confirmed') {
-        sendBookingConfirmed(appointment, settings).catch(console.error);
-      } else if (normalizedStatus === 'Cancelled') {
-        sendBookingCancelled(appointment, settings).catch(console.error);
-      }
-
-      res.json({ success: true, message: `Appointment status updated to ${normalizedStatus}`, appointment });
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: 'Appointment not found' });
     }
+
+    const updated = await prisma.appointment.update({
+      where: { id },
+      data: {
+        status: normalizedStatus,
+        bookingStatus: normalizedStatus
+      },
+      include: { selectedServices: true }
+    });
+
+    const mappedApp = {
+      ...updated,
+      _id: updated.id
+    };
+
+    // Trigger status notifications
+    if (normalizedStatus === 'Confirmed') {
+      sendBookingConfirmed(mappedApp, settings).catch(console.error);
+    } else if (normalizedStatus === 'Cancelled') {
+      sendBookingCancelled(mappedApp, settings).catch(console.error);
+    } else if (normalizedStatus === 'Completed') {
+      await logRevenueForAppointment(updated);
+      await createBillFromCompletedAppointment(updated);
+    }
+
+    res.json({
+      success: true,
+      message: `Appointment status updated to ${normalizedStatus}`,
+      appointment: mappedApp
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Reschedule Appointment (Admin)
+exports.rescheduleAppointment = async (req, res, next) => {
+  const { id } = req.params;
+  const { date, timeSlot } = req.body;
+
+  if (!date || !timeSlot) {
+    return res.status(400).json({ success: false, message: 'Please provide date and timeslot' });
+  }
+
+  try {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id }
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: 'Appointment not found' });
+    }
+
+    const updated = await prisma.appointment.update({
+      where: { id },
+      data: {
+        appointmentDate: date,
+        appointmentTime: timeSlot
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Appointment rescheduled successfully',
+      appointment: {
+        ...updated,
+        _id: updated.id
+      }
+    });
   } catch (error) {
     next(error);
   }

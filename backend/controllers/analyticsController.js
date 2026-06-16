@@ -1,127 +1,223 @@
-const Appointment = require('../models/Appointment');
-const Service = require('../models/Service');
-const Stylist = require('../models/Stylist');
-const User = require('../models/User');
-const { getIsMock } = require('../config/db');
-const { readMockDB } = require('../config/mockDb');
+const { prisma } = require('../config/db');
 
 exports.getAdminAnalytics = async (req, res, next) => {
   try {
-    let totalBookings = 0;
-    let totalRevenue = 0;
-    let pendingBookings = 0;
-    let completedBookings = 0;
-    let activeUsers = 0;
-    let serviceStats = {};
-    let stylistStats = {};
-    let monthlyStats = {};
-
-    if (getIsMock()) {
-      const db = readMockDB();
-      totalBookings = db.appointments.length;
-      activeUsers = db.users.filter(u => u.role === 'customer').length;
-      
-      db.appointments.forEach(app => {
-        if (app.status !== 'cancelled') {
-          totalRevenue += app.totalAmount;
-        }
-        if (app.status === 'pending') {
-          pendingBookings++;
-        }
-        if (app.status === 'completed') {
-          completedBookings++;
-        }
-
-        // Service aggregation
-        app.services.forEach(srvId => {
-          const service = db.services.find(s => s._id === srvId);
-          const name = service ? service.name : 'Deleted Service';
-          serviceStats[name] = (serviceStats[name] || 0) + 1;
-        });
-
-        // Stylist aggregation
-        const stylist = db.stylists.find(s => s._id === app.stylist);
-        const sName = stylist ? stylist.name : 'Unknown Stylist';
-        stylistStats[sName] = (stylistStats[sName] || 0) + 1;
-
-        // Monthly stats (based on date YYYY-MM-DD)
-        if (app.date) {
-          const month = app.date.substring(0, 7); // YYYY-MM
-          monthlyStats[month] = (monthlyStats[month] || 0) + app.totalAmount;
-        }
-      });
-    } else {
-      totalBookings = await Appointment.countDocuments();
-      activeUsers = await User.countDocuments({ role: 'customer' });
-      pendingBookings = await Appointment.countDocuments({ status: 'pending' });
-      completedBookings = await Appointment.countDocuments({ status: 'completed' });
-      
-      const revResult = await Appointment.aggregate([
-        { $match: { status: { $ne: 'cancelled' } } },
-        { $group: { _id: null, total: { $sum: '$totalAmount' } } }
-      ]);
-      totalRevenue = revResult.length > 0 ? revResult[0].total : 0;
-
-      // Group appointments by date monthly
-      const monthResult = await Appointment.aggregate([
-        { $match: { status: { $ne: 'cancelled' } } },
-        {
-          $group: {
-            _id: { $substr: ['$date', 0, 7] }, // YYYY-MM
-            total: { $sum: '$totalAmount' }
-          }
-        }
-      ]);
-      monthResult.forEach(item => {
-        monthlyStats[item._id] = item.total;
-      });
-
-      // Populate service statistics
-      const allAppointments = await Appointment.find({ status: { $ne: 'cancelled' } });
-      const allServices = await Service.find();
-      const allStylists = await Stylist.find();
-
-      const serviceMap = new Map(allServices.map(s => [s._id.toString(), s.name]));
-      const stylistMap = new Map(allStylists.map(st => [st._id.toString(), st.name]));
-
-      allAppointments.forEach(app => {
-        app.services.forEach(sId => {
-          const sName = serviceMap.get(sId.toString()) || 'Deleted Service';
-          serviceStats[sName] = (serviceStats[sName] || 0) + 1;
-        });
-
-        const stName = stylistMap.get(app.stylist.toString()) || 'Unknown Stylist';
-        stylistStats[stName] = (stylistStats[stName] || 0) + 1;
-      });
+    const now = new Date();
+    const currentYear = now.getUTCFullYear();
+    const currentMonth = now.getUTCMonth(); // 0-indexed
+    
+    let lastMonthYear = currentYear;
+    let lastMonthVal = currentMonth - 1;
+    if (lastMonthVal < 0) {
+      lastMonthVal = 11;
+      lastMonthYear -= 1;
     }
+    
+    const todayStr = now.toISOString().split('T')[0];
+    const thisMonthStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}`;
+    const lastMonthStr = `${lastMonthYear}-${(lastMonthVal + 1).toString().padStart(2, '0')}`;
 
-    // Format charts datasets
-    const servicesChart = Object.keys(serviceStats).map(name => ({
+    // Fetch data via Prisma
+    const appointments = await prisma.appointment.findMany({
+      include: { selectedServices: true }
+    });
+    const customersCount = await prisma.customer.count();
+    const activeStaffCount = await prisma.stylist.count({
+      where: { NOT: { status: 'Inactive' } }
+    });
+    const services = await prisma.service.findMany();
+    const activeMembershipsCount = await prisma.membership.count({
+      where: { status: 'Active' }
+    });
+
+    // Map service name/ID to category for fast lookup
+    const serviceCategoryMap = {};
+    services.forEach(s => {
+      serviceCategoryMap[s.name] = s.category;
+      serviceCategoryMap[s.id] = s.category;
+    });
+
+    // 2. Calculations
+    const totalAppointments = appointments.length;
+    const todayAppointments = appointments.filter(app => app.appointmentDate === todayStr).length;
+    const pendingAppointments = appointments.filter(app => app.status === 'Pending').length;
+    const completedAppointments = appointments.filter(app => app.status === 'Completed').length;
+    
+    const upcomingAppointments = appointments.filter(
+      app => app.appointmentDate >= todayStr && ['Pending', 'Confirmed'].includes(app.status)
+    ).length;
+    
+    // Revenue numbers
+    const completedApps = appointments.filter(app => app.status === 'Completed');
+    const totalRevenue = completedApps.reduce((sum, app) => sum + (app.totalAmount || 0), 0);
+    const todayRevenue = completedApps
+      .filter(app => app.appointmentDate === todayStr)
+      .reduce((sum, app) => sum + (app.totalAmount || 0), 0);
+    const thisMonthRevenue = completedApps
+      .filter(app => app.appointmentDate && app.appointmentDate.startsWith(thisMonthStr))
+      .reduce((sum, app) => sum + (app.totalAmount || 0), 0);
+    const lastMonthRevenue = completedApps
+      .filter(app => app.appointmentDate && app.appointmentDate.startsWith(lastMonthStr))
+      .reduce((sum, app) => sum + (app.totalAmount || 0), 0);
+
+    const thisYearStr = new Date().getFullYear().toString();
+    const yearlyRevenue = completedApps
+      .filter(app => app.appointmentDate && app.appointmentDate.startsWith(thisYearStr))
+      .reduce((sum, app) => sum + (app.totalAmount || 0), 0);
+
+    // This Month vs Last Month growth comparisons
+    const thisMonthAppsCount = appointments.filter(app => app.appointmentDate && app.appointmentDate.startsWith(thisMonthStr)).length;
+    const lastMonthAppsCount = appointments.filter(app => app.appointmentDate && app.appointmentDate.startsWith(lastMonthStr)).length;
+
+    // Helper to calculate growth percentage
+    const calculateGrowth = (current, previous) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return Number((((current - previous) / previous) * 100).toFixed(1));
+    };
+
+    const appointmentsGrowth = calculateGrowth(thisMonthAppsCount, lastMonthAppsCount);
+    const revenueGrowth = calculateGrowth(thisMonthRevenue, lastMonthRevenue);
+
+    // Customer comparison (New vs Returning) based on appointment history
+    const customerBookings = {};
+    appointments.forEach(app => {
+      const cId = app.phone || app.mobileNumber;
+      if (!cId) return;
+      if (!customerBookings[cId]) {
+        customerBookings[cId] = [];
+      }
+      customerBookings[cId].push(app.appointmentDate);
+    });
+
+    let newCustomers = 0;
+    let returningCustomers = 0;
+
+    Object.keys(customerBookings).forEach(cId => {
+      const dates = customerBookings[cId].sort();
+      const firstBooking = dates[0];
+      const hasBookingThisMonth = dates.some(d => d.startsWith(thisMonthStr));
+
+      if (hasBookingThisMonth) {
+        if (firstBooking.startsWith(thisMonthStr)) {
+          newCustomers++;
+        } else {
+          returningCustomers++;
+        }
+      }
+    });
+
+    // OTP Analytics (Zeroed out)
+    const otpSentToday = 0;
+    const otpVerifiedToday = 0;
+    const failedOtpAttempts = 0;
+    const verificationSuccessRate = 100;
+
+    // Chart A: Monthly Revenue Chart
+    const monthlyStats = {};
+    completedApps.forEach(app => {
+      if (app.appointmentDate) {
+        const month = app.appointmentDate.substring(0, 7);
+        monthlyStats[month] = (monthlyStats[month] || 0) + (app.totalAmount || 0);
+      }
+    });
+    const monthlyRevenueChart = Object.keys(monthlyStats).map(month => ({
+      month,
+      revenue: monthlyStats[month]
+    })).sort((a, b) => a.month.localeCompare(b.month));
+
+    // Chart B: Daily Revenue Trend (Last 30 Days)
+    const trendMap = {};
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dStr = d.toISOString().split('T')[0];
+      trendMap[dStr] = 0;
+    }
+    completedApps.forEach(app => {
+      if (app.appointmentDate && trendMap[app.appointmentDate] !== undefined) {
+        trendMap[app.appointmentDate] += (app.totalAmount || 0);
+      }
+    });
+    const revenueTrendGraph = Object.keys(trendMap).map(date => ({
+      date,
+      revenue: trendMap[date]
+    })).sort((a, b) => a.date.localeCompare(b.date));
+
+    // Chart C: Revenue by Service Category
+    const categoryStats = {};
+    completedApps.forEach(app => {
+      if (Array.isArray(app.selectedServices)) {
+        app.selectedServices.forEach(srv => {
+          const cat = serviceCategoryMap[srv.serviceName] || serviceCategoryMap[srv.serviceId] || 'Grooming';
+          categoryStats[cat] = (categoryStats[cat] || 0) + (srv.price || 0);
+        });
+      }
+    });
+    const revenueByCategory = Object.keys(categoryStats).map(name => ({
       name,
-      value: serviceStats[name]
-    })).sort((a, b) => b.value - a.value).slice(0, 5); // top 5
+      value: categoryStats[name]
+    })).sort((a, b) => b.value - a.value);
 
+    // Chart D: Stylist workload sharing
+    const stylistStats = {};
+    appointments.forEach(app => {
+      if (app.status !== 'Cancelled') {
+        const staffName = app.preferredStaffMember || app.staffMember || 'Unassigned';
+        stylistStats[staffName] = (stylistStats[staffName] || 0) + 1;
+      }
+    });
     const stylistsChart = Object.keys(stylistStats).map(name => ({
       name,
       value: stylistStats[name]
     })).sort((a, b) => b.value - a.value);
 
-    const revenueChart = Object.keys(monthlyStats).map(month => ({
-      month,
-      revenue: monthlyStats[month]
-    })).sort((a, b) => a.month.localeCompare(b.month));
-
     res.json({
       success: true,
       stats: {
-        totalBookings,
+        totalCustomers: customersCount,
+        totalAppointments,
+        todayAppointments,
+        upcomingAppointments,
+        pendingAppointments,
+        completedAppointments,
+        activeMemberships: activeMembershipsCount,
+        monthlyRevenue: thisMonthRevenue,
+        activeStaff: activeStaffCount,
+
         totalRevenue,
-        pendingBookings,
-        completedBookings,
-        activeUsers,
-        servicesChart,
-        stylistsChart,
-        revenueChart
+        todayRevenue,
+        thisMonthRevenue,
+        lastMonthRevenue,
+        yearlyRevenue,
+
+        otpSentToday,
+        otpVerifiedToday,
+        failedOtpAttempts,
+        verificationSuccessRate,
+
+        comparison: {
+          appointments: {
+            thisMonth: thisMonthAppsCount,
+            lastMonth: lastMonthAppsCount,
+            percentChange: appointmentsGrowth,
+            growth: appointmentsGrowth >= 0
+          },
+          revenue: {
+            thisMonth: thisMonthRevenue,
+            lastMonth: lastMonthRevenue,
+            percentChange: revenueGrowth,
+            growth: revenueGrowth >= 0
+          },
+          customers: {
+            newCustomers,
+            returningCustomers
+          }
+        },
+
+        monthlyRevenueChart,
+        revenueTrendGraph,
+        revenueByCategory,
+        stylistsChart
       }
     });
   } catch (error) {

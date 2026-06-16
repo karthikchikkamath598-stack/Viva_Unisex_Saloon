@@ -1,11 +1,28 @@
+const logger = require('../utils/logger');
+
 const errorHandler = (err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  console.error(`[Error] ${err.message}`, err.stack);
+  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let message = err.message || 'Internal Server Error';
+
+  // Handle Prisma client errors
+  if (err.code) {
+    if (err.code === 'P2002') {
+      statusCode = 400;
+      message = 'A record with this unique field already exists.';
+    } else if (err.code === 'P2025') {
+      statusCode = 404;
+      message = 'The requested record was not found.';
+    }
+  }
+
+  logger.error(`[Error] ${message}`, { stack: err.stack, code: err.code });
+
   res.status(statusCode).json({
     success: false,
-    message: err.message,
+    message,
     stack: process.env.NODE_ENV === 'production' ? null : err.stack
   });
 };
 
 module.exports = errorHandler;
+

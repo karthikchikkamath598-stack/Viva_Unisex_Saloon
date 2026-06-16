@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FiInstagram, FiFacebook, FiYoutube } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import VivaLogo from './VivaLogo';
 
 const Footer = () => {
+  const { pathname } = useLocation();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+
+  if (pathname.startsWith('/admin')) return null;
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -25,16 +28,11 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
         {/* Column 1: Brand details */}
         <div>
-          <Link to="/" className="flex items-center space-x-3 mb-6">
-            <VivaLogo size={50} />
-            <div className="flex flex-col leading-none">
-              <span className="font-heading text-2xl font-bold tracking-[0.15em] text-gold-gradient">
-                VIVA
-              </span>
-              <span className="text-[9px] font-body tracking-[0.3em] text-viva-gray mt-0.5">
-                UNISEX SALON
-              </span>
-            </div>
+          <Link to="/" className="flex items-center mb-6" aria-label="VIVA Unisex Salon – Home">
+            <VivaLogo
+              size={70}
+              className="drop-shadow-[0_0_10px_rgba(212,164,55,0.2)] hover:scale-105 transition-transform duration-300"
+            />
           </Link>
           <p className="text-sm text-viva-gray mb-6 leading-relaxed">
             Viva Unisex Salon is your go-to place for complete grooming and makeover. We bring out the best version of you.
@@ -49,7 +47,7 @@ const Footer = () => {
             <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-viva-gold/20 flex items-center justify-center text-viva-gray hover:text-viva-gold hover:border-viva-gold transition-colors duration-300">
               <FiYoutube className="text-base" />
             </a>
-            <a href="https://wa.me/919347581733" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-viva-gold/20 flex items-center justify-center text-viva-gray hover:text-viva-gold hover:border-viva-gold transition-colors duration-300">
+            <a href="https://wa.me/917799399955" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full border border-viva-gold/20 flex items-center justify-center text-viva-gray hover:text-viva-gold hover:border-viva-gold transition-colors duration-300">
               <FaWhatsapp className="text-base" />
             </a>
           </div>
@@ -88,7 +86,7 @@ const Footer = () => {
             </li>
             <li>
               <span className="block text-xs uppercase tracking-wider text-viva-white/40 mb-1">Bookings & Info</span>
-              <a href="tel:+919347581733" className="text-viva-gold hover:underline font-medium">+91 93475 81733</a>
+              <a href="tel:+917799399955" className="text-viva-gold hover:underline font-medium">+91 77993 99955</a>
             </li>
             <li>
               <span className="block text-xs uppercase tracking-wider text-viva-white/40 mb-1">General Inquiries</span>
@@ -144,10 +142,11 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-viva-gray">
         <p>&copy; {new Date().getFullYear()} VIVA Unisex Salon. All Rights Reserved.</p>
-        <div className="flex space-x-6 mt-4 sm:mt-0">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 sm:mt-0 items-center justify-center sm:justify-end">
           <Link to="/about" className="hover:text-viva-gold transition-colors">Privacy Policy</Link>
           <Link to="/contact" className="hover:text-viva-gold transition-colors">Terms & Conditions</Link>
           <Link to="/catalog" className="hover:text-viva-gold transition-colors">Pricing Catalog</Link>
+          <Link to="/login" className="hover:text-viva-gold font-bold transition-colors border-l border-white/10 pl-6">Admin Portal</Link>
         </div>
       </div>
     </footer>

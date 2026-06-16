@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { getIsMock } = require('../config/db');
-const { readMockDB } = require('../config/mockDb');
+const { prisma } = require('../config/db');
 
 const protect = async (req, res, next) => {
   let token;
@@ -9,23 +7,30 @@ const protect = async (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_viva_gold_key_2026');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      if (getIsMock()) {
-        const db = readMockDB();
-        const user = db.users.find(u => u._id === decoded.id);
-        if (!user) {
-          return res.status(401).json({ success: false, message: 'Not authorized, user not found' });
+      let user = await prisma.admin.findUnique({
+        where: { id: decoded.id },
+        select: {
+          id: true,
+          fullName: true,
+          mobileNumber: true,
+          role: true,
+          createdAt: true
         }
-        const { password, ...userWithoutPassword } = user;
-        req.user = userWithoutPassword;
-      } else {
-        const user = await User.findById(decoded.id).select('-password');
-        if (!user) {
-          return res.status(401).json({ success: false, message: 'Not authorized, user not found' });
-        }
-        req.user = user;
+      });
+
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Not authorized, admin not found' });
       }
+
+      req.user = {
+        ...user,
+        _id: user.id,
+        name: user.fullName,
+        phone: user.mobileNumber
+      };
+      
       return next();
     } catch (error) {
       return res.status(401).json({ success: false, message: 'Not authorized, token validation failed' });
@@ -38,7 +43,13 @@ const protect = async (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && ['admin', 'owner', 'software_manager', 'software_developer'].includes(req.user.role)) {
+    const userAgent = req.headers['user-agent'] || '';
+    const isMobileUa = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const isMobileSec = req.headers['sec-ch-ua-mobile'] === '?1';
+    if (isMobileUa || isMobileSec) {
+      return res.status(403).json({ success: false, message: 'Admin portal access is strictly restricted to desktop and laptop devices only.' });
+    }
     next();
   } else {
     res.status(403).json({ success: false, message: 'Not authorized as admin' });
