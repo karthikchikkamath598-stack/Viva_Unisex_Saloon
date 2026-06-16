@@ -13,8 +13,7 @@ if (!process.env.JWT_SECRET) {
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
-const { connectDB } = require('./config/db');
+const { connectDB, prisma } = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
 // Route imports
@@ -33,9 +32,6 @@ const billingRoutes = require('./routes/billingRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Path to the built frontend
-const FRONTEND_DIST = path.join(__dirname, '../frontend/dist');
 
 // Connect to Database
 connectDB();
@@ -76,11 +72,6 @@ const loginLimiter = rateLimit({
 });
 app.use('/api/auth/admin-login', loginLimiter);
 
-// Serve frontend static assets (CSS, JS, images) if build folder exists
-if (fs.existsSync(FRONTEND_DIST)) {
-  app.use(express.static(FRONTEND_DIST));
-}
-
 // API Routes Mapping (must come before the catch-all)
 app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
@@ -95,27 +86,42 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/billing', billingRoutes);
 
-// Catch-all: serve React index.html if dist folder exists, otherwise return API welcome/404
-if (fs.existsSync(FRONTEND_DIST)) {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
+// Root route (API status check)
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: "VIVA Unisex Salon API is running",
+    status: "healthy"
   });
-} else {
-  app.get('/', (req, res) => {
+});
+
+// Database connectivity health check route
+app.get('/health', async (req, res) => {
+  try {
+    // Run SELECT 1 query to confirm database connection
+    await prisma.$queryRaw`SELECT 1`;
     res.json({
       success: true,
-      message: 'VIVA Unisex Salon API Service is running.',
-      environment: process.env.NODE_ENV
+      status: "healthy",
+      database: "connected"
     });
-  });
-
-  app.get('*', (req, res) => {
-    res.status(404).json({
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: 'API Endpoint Not Found'
+      status: "unhealthy",
+      database: "disconnected",
+      error: error.message
     });
+  }
+});
+
+// Catch-all middleware for unknown routes (returns 404 API Endpoint Not Found)
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API Endpoint Not Found"
   });
-}
+});
 
 // Global Error Handler
 app.use(errorHandler);
