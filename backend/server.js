@@ -13,6 +13,7 @@ if (!process.env.JWT_SECRET) {
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const { connectDB, prisma } = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -64,6 +65,11 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const FRONTEND_DIST = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(FRONTEND_DIST)) {
+  app.use(express.static(FRONTEND_DIST));
+}
+
 // Rate limiter for admin login to prevent brute force
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -86,42 +92,72 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/billing', billingRoutes);
 
-// Root route (API status check)
-app.get('/', (req, res) => {
-  res.json({
-    success: true,
-    message: "VIVA Unisex Salon API is running",
-    status: "healthy"
+// Catch-all: serve React index.html if dist folder exists, otherwise return API status/404
+if (fs.existsSync(FRONTEND_DIST)) {
+  app.get('/health', async (req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({
+        success: true,
+        status: "healthy",
+        database: "connected"
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        status: "unhealthy",
+        database: "disconnected",
+        error: error.message
+      });
+    }
   });
-});
 
-// Database connectivity health check route
-app.get('/health', async (req, res) => {
-  try {
-    // Run SELECT 1 query to confirm database connection
-    await prisma.$queryRaw`SELECT 1`;
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({
+        success: false,
+        message: 'API Endpoint Not Found'
+      });
+    }
+    res.sendFile(path.join(FRONTEND_DIST, 'index.html'));
+  });
+} else {
+  // Root route (API status check)
+  app.get('/', (req, res) => {
     res.json({
       success: true,
-      status: "healthy",
-      database: "connected"
+      message: "VIVA Unisex Salon API is running",
+      status: "healthy"
     });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      status: "unhealthy",
-      database: "disconnected",
-      error: error.message
-    });
-  }
-});
-
-// Catch-all middleware for unknown routes (returns 404 API Endpoint Not Found)
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API Endpoint Not Found"
   });
-});
+
+  // Database connectivity health check route
+  app.get('/health', async (req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({
+        success: true,
+        status: "healthy",
+        database: "connected"
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        status: "unhealthy",
+        database: "disconnected",
+        error: error.message
+      });
+    }
+  });
+
+  // Catch-all middleware for unknown routes (returns 404 API Endpoint Not Found)
+  app.use((req, res) => {
+    res.status(404).json({
+      success: false,
+      message: "API Endpoint Not Found"
+    });
+  });
+}
 
 // Global Error Handler
 app.use(errorHandler);
