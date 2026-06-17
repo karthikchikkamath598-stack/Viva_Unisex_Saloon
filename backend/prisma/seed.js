@@ -120,30 +120,30 @@ async function main() {
   }
 
   // 4. Seed Services
-  const serviceCount = await prisma.service.count();
-  if (serviceCount === 0) {
-    console.log(`Seeding ${defaultServices.length} services...`);
-    // Seed in chunks to avoid single large query failures
-    const chunkSize = 50;
-    for (let i = 0; i < defaultServices.length; i += chunkSize) {
-      const chunk = defaultServices.slice(i, i + chunkSize);
-      await prisma.service.createMany({
-        data: chunk.map(s => ({
-          id: s._id,
-          name: s.name,
-          category: s.category,
-          subcategory: s.subcategory,
-          description: s.description,
-          price: Number(s.price),
-          duration: Number(s.duration),
-          imageUrl: s.imageUrl,
-          rating: Number(s.rating),
-          reviewsCount: Number(s.reviewsCount),
-          isPopular: !!s.isPopular
-        })),
-        skipDuplicates: true
-      });
-    }
+  console.log('Clearing existing services from database...');
+  await prisma.service.deleteMany({});
+
+  console.log(`Seeding ${defaultServices.length} services...`);
+  // Seed in chunks to avoid single large query failures
+  const chunkSize = 50;
+  for (let i = 0; i < defaultServices.length; i += chunkSize) {
+    const chunk = defaultServices.slice(i, i + chunkSize);
+    await prisma.service.createMany({
+      data: chunk.map(s => ({
+        id: s._id,
+        name: s.name,
+        category: s.category,
+        subcategory: s.subcategory,
+        description: s.description,
+        price: Number(s.price),
+        duration: Number(s.duration),
+        imageUrl: s.imageUrl,
+        rating: Number(s.rating),
+        reviewsCount: Number(s.reviewsCount),
+        isPopular: !!s.isPopular
+      })),
+      skipDuplicates: true
+    });
   }
 
   // 5. Seed Gallery
