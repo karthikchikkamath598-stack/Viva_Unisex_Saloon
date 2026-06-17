@@ -1,0 +1,24 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: viva-salon-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  # Frontend Static Site
+  - type: web
+    name: viva-salon-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    routes:
+      # Rewrite all non-file requests to index.html for React Router SPA routing
+      - type: rewrite
+        path: /*
+        destination: /index.html
