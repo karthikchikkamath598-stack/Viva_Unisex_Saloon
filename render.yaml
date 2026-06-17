@@ -11,14 +11,14 @@ services:
         value: production
 
   # Frontend Static Site
-  - type: web
+  - type: static
     name: viva-salon-frontend
-    env: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    publishPath: dist
+    staticPublishPath: dist
     routes:
       # Rewrite all non-file requests to index.html for React Router SPA routing
       - type: rewrite
-        path: /*
+        source: /*
         destination: /index.html
+
